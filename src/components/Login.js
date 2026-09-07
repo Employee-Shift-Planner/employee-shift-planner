@@ -63,7 +63,8 @@ function Login() {
       try {
         const response = await loginUser(formData.email, formData.password);
         if (response.token) {
-          navigate('/shiftplanner'); // Redirect to shift planner after successful login
+          const isAdmin = response.user?.role?.toLowerCase() === 'admin';
+          navigate(isAdmin ? '/admin' : '/shiftplanner');
         }
       } catch (error) {
         setLoginError('Invalid email or password');

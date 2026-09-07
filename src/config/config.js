@@ -6,10 +6,13 @@ const config = {
       employees: '/Employee',
       positions: '/position',
       schedule: "/Schedule",
-      register: '/auth/register'
+      register: '/auth/register',
+      availability: '/Availability',
+      reports: '/Reports/weekly',
+      notificationPreferences: '/NotificationPreferences'
       // Add more endpoints as needed
     }
   }
 };
 
-export default config; 
+export default config;

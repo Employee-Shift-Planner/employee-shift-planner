@@ -3,7 +3,7 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 import NavigationBar from './components/navigation/NavigationBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import ShiftPlanner from './components/shift-planner/ShiftPlanner';
 import Employee from './components/employee/Employee'
 import HomePage from './components/HomePage';
@@ -11,8 +11,10 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import Profile from './components/Profile';
 import { Spinner } from 'react-bootstrap';
+import AdminPortal from './components/admin/AdminPortal';
 
 function App() {
+    const location = useLocation();
     const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
@@ -42,7 +44,7 @@ function App() {
 
     return (
         <>
-            <NavigationBar/>
+            {!location.pathname.startsWith('/admin') && <NavigationBar/>}
             <Routes>
                 <Route exact path="/" element={<HomePage/>}/>
                 <Route exact path="/employee-shift-planner" element={<HomePage/>}/>
@@ -51,6 +53,7 @@ function App() {
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/signup' element={<Signup/>}/>
                 <Route path='/profile' element={<Profile/>}/>
+                <Route path='/admin' element={<AdminPortal/>}/>
             </Routes>
         </>
     )

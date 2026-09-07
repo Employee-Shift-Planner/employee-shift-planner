@@ -15,10 +15,11 @@ export const loginUser = async (email, password) => {
         }
 
         const data = await response.json();
-        // Store the token in localStorage
+        // Keep the signed-in identity available for role-aware routing and UI.
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         return data;
     } catch (error) {
         throw error;
     }
-}; 
+};
