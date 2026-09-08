@@ -1,0 +1,19 @@
+.btn {
+  height: 44px;
+  min-width: 140px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--blue);
+  color: #fff;
+  font: 600 14px inherit;
+  cursor: pointer;
+}
+
+.btn.success {
+  background: var(--green);
+}
+
+.btn.gray {
+  background: var(--muted);
+}

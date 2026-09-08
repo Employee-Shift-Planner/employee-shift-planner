@@ -1,84 +1,40 @@
-// import logo from './logo.svg';
-import './App.css';
-import React, { useState, useEffect } from 'react';
-import NavigationBar from './components/navigation/NavigationBar';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import ShiftPlanner from './components/shift-planner/ShiftPlanner';
-import Employee from './components/employee/Employee'
-import HomePage from './components/HomePage';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Profile from './components/Profile';
-import { Spinner } from 'react-bootstrap';
-import AdminPortal from './components/admin/AdminPortal';
+import "./App.css";
+import { Navigate, Route, Routes } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import SchedulePage from "./pages/SchedulePage";
+import CreateShiftPage from "./pages/CreateShiftPage";
+import EmployeesPage from "./pages/EmployeesPage";
+import EmployeeDetailPage from "./pages/EmployeeDetailPage";
+import AvailabilityPage from "./pages/AvailabilityPage";
+import ReportsPage from "./pages/ReportsPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import MobilePage from "./pages/MobilePage";
 
-function App() {
-    const location = useLocation();
-    const [initializing, setInitializing] = useState(true);
+/**
+ * Route table only — every screen lives in src/pages and is composed from the
+ * shared components in src/components.
+ */
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/login" element={<Navigate replace to="/" />} />
 
-    useEffect(() => {
-        // Simulate app initialization (e.g., fetching config, auth, etc.)
-        const timer = setTimeout(() => setInitializing(false), 1000);
-        return () => clearTimeout(timer);
-    }, []);
+      <Route path="/schedule" element={<SchedulePage />} />
+      <Route path="/shiftplanner" element={<Navigate replace to="/schedule" />} />
+      <Route path="/create-shift" element={<CreateShiftPage />} />
 
-    if (initializing) {
-        return (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(255,255,255,0.8)',
-                zIndex: 9999
-            }}>
-                <Spinner animation="border" variant="primary" style={{ width: 80, height: 80 }} />
-            </div>
-        );
-    }
+      <Route path="/employees" element={<EmployeesPage />} />
+      <Route path="/employee" element={<Navigate replace to="/employees" />} />
+      <Route path="/employees/:employeeId" element={<EmployeeDetailPage />} />
 
-    return (
-        <>
-            {!location.pathname.startsWith('/admin') && <NavigationBar/>}
-            <Routes>
-                <Route exact path="/" element={<HomePage/>}/>
-                <Route exact path="/employee-shift-planner" element={<HomePage/>}/>
-                <Route path='/shiftplanner' element={<ShiftPlanner/>}/>
-                <Route path='/employee' element={<Employee/>}/>
-                <Route path='/login' element={<Login/>}/>
-                <Route path='/signup' element={<Signup/>}/>
-                <Route path='/profile' element={<Profile/>}/>
-                <Route path='/admin' element={<AdminPortal/>}/>
-            </Routes>
-        </>
-    )
+      <Route path="/availability" element={<AvailabilityPage />} />
+      <Route path="/reports" element={<ReportsPage />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/settings" element={<NotificationsPage variant="settings" />} />
+      <Route path="/mobile" element={<MobilePage />} />
+
+      <Route path="*" element={<Navigate replace to="/" />} />
+    </Routes>
+  );
 }
-
-export default App;
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;

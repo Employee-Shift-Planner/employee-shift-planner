@@ -1,0 +1,15 @@
+.mshift {
+  height: 64px;
+  background: var(--bg);
+  border-radius: 12px;
+  margin-bottom: 18px;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  font-size: 13px;
+}
+
+.mshift b {
+  color: var(--blue);
+}

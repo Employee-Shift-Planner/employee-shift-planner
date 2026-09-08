@@ -1,0 +1,16 @@
+.reports {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 24px;
+}
+
+.reports > div {
+  display: grid;
+  gap: 24px;
+}
+
+@media (max-width: 1000px) {
+  .reports {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,11 @@
+.notices {
+  display: grid;
+  grid-template-columns: 1.9fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1000px) {
+  .notices {
+    grid-template-columns: 1fr;
+  }
+}

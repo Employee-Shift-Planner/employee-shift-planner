@@ -1,0 +1,28 @@
+.create {
+  display: grid;
+  grid-template-columns: minmax(480px, 700px) minmax(310px, 384px);
+  gap: 36px;
+}
+
+.end {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 62px;
+}
+
+@media (max-width: 1000px) {
+  .create {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .create {
+    grid-template-columns: 1fr;
+  }
+
+  .end {
+    margin-top: 12px;
+  }
+}

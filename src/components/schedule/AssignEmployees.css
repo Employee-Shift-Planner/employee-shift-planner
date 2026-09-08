@@ -1,0 +1,10 @@
+.assign {
+  height: 410px;
+  padding: 18px 22px;
+}
+
+.assign p {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 18px 0;
+}

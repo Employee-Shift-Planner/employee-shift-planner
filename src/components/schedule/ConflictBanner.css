@@ -1,0 +1,17 @@
+.conflict {
+  height: 104px;
+  background: #fff0e5;
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-top: 24px;
+}
+
+.conflict b {
+  color: var(--red);
+  font-size: 14px;
+}
+
+.conflict p {
+  font-size: 12px;
+  color: var(--muted);
+}

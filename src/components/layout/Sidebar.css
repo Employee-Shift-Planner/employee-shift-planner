@@ -1,0 +1,82 @@
+.sidebar {
+  position: fixed;
+  width: 236px;
+  height: 100vh;
+  background: var(--navy);
+  padding: 28px 16px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar > div > b {
+  font-size: 22px;
+  margin-left: 12px;
+}
+
+.sidebar small {
+  display: block;
+  color: #8ca1bf;
+  font-size: 9px;
+  margin: 2px 0 29px 12px;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 10px;
+}
+
+.sidebar a {
+  height: 42px;
+  padding: 12px 30px;
+  border-radius: 9px;
+  color: #b8c4db;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+.sidebar > strong {
+  margin: auto 12px 4px;
+  font-size: 14px;
+}
+
+/* Collapses into a horizontal, scrollable strip on small screens. */
+@media (max-width: 700px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    overflow: auto;
+    padding: 14px;
+  }
+
+  .sidebar small,
+  .sidebar > strong {
+    display: none;
+  }
+
+  .sidebar nav {
+    display: flex;
+  }
+
+  .sidebar > div > b {
+    font-size: 18px;
+    margin: 0 15px 0 0;
+  }
+
+  .sidebar a {
+    height: 36px;
+    padding: 9px 13px;
+    white-space: nowrap;
+  }
+}

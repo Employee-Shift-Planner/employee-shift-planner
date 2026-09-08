@@ -1,0 +1,80 @@
+.login {
+  height: 100vh;
+  min-height: 700px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.login > section {
+  background: var(--navy);
+  color: #fff;
+  padding: 49px 46px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login section > div {
+  margin: auto 0;
+}
+
+.login section h1 {
+  font-size: 36px;
+  line-height: 1.15;
+}
+
+.login section p {
+  color: #bdcce5;
+  max-width: 520px;
+}
+
+.login form {
+  width: min(420px, calc(100% - 48px));
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.login form h2 {
+  font-size: 34px;
+  margin: 0;
+}
+
+.login form > p {
+  color: var(--muted);
+  margin: 6px 0 34px;
+}
+
+.login label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.login input {
+  display: block;
+  width: 100%;
+  height: 48px;
+  border: 1px solid #dee3ed;
+  border-radius: 10px;
+  margin-top: 8px;
+  padding: 0 14px;
+}
+
+.login form .btn {
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+
+  .login > section {
+    min-height: 300px;
+  }
+
+  .login form {
+    min-height: 500px;
+    justify-content: center;
+  }
+}

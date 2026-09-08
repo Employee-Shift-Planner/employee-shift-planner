@@ -1,38 +1,67 @@
-.App {
-  text-align: center;
+/* -----------------------------------------------------------------------------
+   Global design tokens, reset and shared primitives.
+
+   Everything that belongs to a single screen or component now lives in a CSS
+   file next to that component. Only rules that are genuinely shared across the
+   whole app stay here, and this file is imported first (from App.js) so the
+   cascade order stays predictable.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --ink: #141c2e;
+  --muted: #616e85;
+  --navy: #0e131f;
+  --blue: #2e66f2;
+  --green: #1ca66e;
+  --red: #e8404a;
+  --orange: #f5a31f;
+  --purple: #7d52f2;
+  --bg: #f6f8fc;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+body {
+  margin: 0;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Surface primitive shared by every panel in the app. */
+.card {
+  background: #fff;
+  border-radius: 14px;
 }
 
-.App-link {
-  color: #61dafb;
+.card h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.card p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Tone utilities — the accent palette applied to text. */
+.blue {
+  color: var(--blue);
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}
+
+.orange {
+  color: var(--orange);
+}
+
+.purple {
+  color: var(--purple);
 }

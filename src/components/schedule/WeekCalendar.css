@@ -1,0 +1,26 @@
+.calendar {
+  background: #fff;
+  border-radius: 14px;
+  height: 536px;
+  padding: 24px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 11px;
+}
+
+.shiftgrid {
+  display: grid;
+  grid-template: repeat(4, 62px) / repeat(7, 1fr);
+  gap: 16px 14px;
+  padding: 38px 14px;
+}
+
+@media (max-width: 1000px) {
+  .calendar {
+    overflow: auto;
+  }
+}

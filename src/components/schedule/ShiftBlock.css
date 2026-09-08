@@ -1,0 +1,33 @@
+.shift {
+  border-radius: 9px;
+  padding: 10px 9px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 11px;
+}
+
+.shift span {
+  font-size: 10px;
+}
+
+.shift.blue {
+  background: var(--blue);
+}
+
+.shift.green {
+  background: var(--green);
+}
+
+.shift.red {
+  background: var(--red);
+}
+
+.shift.orange {
+  background: var(--orange);
+}
+
+.shift.purple {
+  background: var(--purple);
+}

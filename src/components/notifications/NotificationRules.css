@@ -1,0 +1,13 @@
+.rules {
+  height: 590px;
+  padding: 18px 22px;
+}
+
+.rules label {
+  display: flex;
+  justify-content: space-between;
+  max-width: 410px;
+  padding: 16px 0;
+  color: var(--muted);
+  font-size: 13px;
+}

@@ -1,0 +1,62 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.shell > main {
+  margin-left: 236px;
+  width: calc(100% - 236px);
+  padding: 34px 44px 50px 40px;
+}
+
+.shell main > header {
+  height: 126px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.shell header h1 {
+  font-size: 30px;
+  line-height: 1;
+  margin: 0 0 12px;
+}
+
+.shell header p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 700px) {
+  .shell {
+    display: block;
+  }
+
+  .shell > main {
+    margin: 0;
+    width: 100%;
+    padding: 24px 20px;
+  }
+
+  .shell main > header {
+    height: auto;
+    min-height: 126px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 430px) {
+  .shell main > header {
+    display: block;
+  }
+
+  .actions {
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+}

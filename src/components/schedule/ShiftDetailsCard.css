@@ -1,0 +1,15 @@
+.details {
+  height: 650px;
+  padding: 18px 22px;
+}
+
+.details p {
+  margin-bottom: 18px;
+}
+
+@media (max-width: 700px) {
+  .details {
+    height: auto;
+    min-height: 460px;
+  }
+}
