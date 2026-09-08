@@ -4,34 +4,14 @@
   "homepage": "https://salmon-glacier-00cf39b10.6.azurestaticapps.net",
   "private": true,
   "dependencies": {
-    "@azure/msal-browser": "3.7.1",
-    "@azure/msal-react": "2.0.10",
-    "@emotion/react": "11.11.3",
-    "@emotion/styled": "11.11.0",
-    "@mui/icons-material": "5.15.6",
-    "@mui/material": "5.15.6",
     "@tanstack/react-query": "5.17.19",
     "@testing-library/jest-dom": "5.17.0",
     "@testing-library/react": "13.4.0",
-    "@testing-library/user-event": "13.5.0",
-    "axios": "1.6.7",
-    "bootstrap": "5.3.2",
-    "date-fns": "2.30.0",
-    "jspdf": "2.5.1",
-    "jspdf-autotable": "3.8.1",
     "react": "18.2.0",
-    "react-big-calendar": "1.8.5",
-    "react-bootstrap": "2.9.2",
-    "react-bootstrap-icons": "1.11.3",
-    "react-color": "2.19.3",
-    "react-datepicker": "4.25.0",
     "react-dom": "18.2.0",
-    "react-modal": "3.16.1",
     "react-router-dom": "6.21.3",
     "react-scripts": "5.0.1",
-    "react-table": "7.8.0",
-    "web-vitals": "2.1.4",
-    "exceljs": "4.4.0"
+    "web-vitals": "2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -95,7 +75,6 @@
     ]
   },
   "devDependencies": {
-    "@wixc3/react-board": "2.3.0",
     "gh-pages": "6.1.1"
   }
 }
