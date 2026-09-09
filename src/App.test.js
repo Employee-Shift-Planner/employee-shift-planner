@@ -1,54 +1,33 @@
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
 
-const renderAt = (path) =>
-  render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>
+const renderAt = (path) => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[path]}>
+        <App />
+      </MemoryRouter>
+    </QueryClientProvider>
   );
+};
 
-// Every route renders its screen without throwing, and lands on the right title.
-test.each([
-  ["/", "Welcome back"],
-  ["/login", "Welcome back"],
-  ["/schedule", "Weekly Schedule"],
-  ["/shiftplanner", "Weekly Schedule"],
-  ["/create-shift", "Create shift"],
-  ["/employees", "Employees"],
-  ["/employee", "Employees"],
-  ["/employees/alicia-brown", "Alicia Brown"],
-  ["/availability", "Team Availability"],
-  ["/reports", "Reports & exports"],
-  ["/notifications", "Notifications"],
-  ["/settings", "Settings"],
-  ["/mobile", "Hi, Alicia"],
-  ["/does-not-exist", "Welcome back"],
-])("%s renders the %s screen", (path, heading) => {
-  renderAt(path);
-  expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
+beforeEach(() => window.localStorage.clear());
+
+test("the root renders the API-backed sign-in screen", () => {
+  renderAt("/");
+  expect(screen.getByRole("heading", { name: "Welcome back" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
 });
 
-test("the shell exposes the sidebar as real router links", () => {
+test("planner routes require an authenticated API session", () => {
   renderAt("/schedule");
-  expect(screen.getByRole("link", { name: "Employees" })).toHaveAttribute(
-    "href",
-    "/employees"
-  );
-  expect(screen.getByRole("link", { name: "Schedule" })).toHaveAttribute(
-    "aria-current",
-    "page"
-  );
+  expect(screen.getByRole("heading", { name: "Welcome back" })).toBeInTheDocument();
 });
 
-test("an unknown employee id redirects back to the roster", () => {
-  renderAt("/employees/does-not-exist");
-  expect(screen.getByRole("heading", { name: "Employees" })).toBeInTheDocument();
-});
-
-test("every employee row links to its own detail screen", () => {
-  renderAt("/employees");
-  expect(screen.getByText("Omar Lewis")).toBeInTheDocument();
-  expect(screen.getByText("Overtime risk")).toHaveClass("red");
+test("unknown routes return to sign in", () => {
+  renderAt("/does-not-exist");
+  expect(screen.getByRole("heading", { name: "Welcome back" })).toBeInTheDocument();
 });

@@ -7,6 +7,9 @@
   margin-bottom: 18px;
 }
 
+.details label { display: grid; gap: 5px; margin: 10px 0; font-weight: 600; }
+.details input, .details textarea { padding: 9px; border: 1px solid #ccd4df; border-radius: 6px; font: inherit; }
+
 @media (max-width: 700px) {
   .details {
     height: auto;

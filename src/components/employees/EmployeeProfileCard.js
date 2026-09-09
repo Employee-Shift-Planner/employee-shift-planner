@@ -7,9 +7,9 @@ export default function EmployeeProfileCard({ employee }) {
     <section className="card profile">
       <h2>Employee profile</h2>
       <p>
-        {employee.email}
+        {employee.email || "No email recorded"}
         <br />
-        {employee.phone}
+        {employee.phone || "No phone recorded"}
       </p>
       <p>
         {employee.qualifications.map((qualification, index) => (

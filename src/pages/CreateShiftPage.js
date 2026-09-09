@@ -1,19 +1,31 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import ShiftDetailsCard from "../components/schedule/ShiftDetailsCard";
 import AssignEmployees from "../components/schedule/AssignEmployees";
 import ConflictBanner from "../components/schedule/ConflictBanner";
-import {
-  ASSIGNMENT_CANDIDATES,
-  ASSIGNMENT_CONFLICT,
-  SHIFT_DRAFT,
-} from "../data/shifts";
+import { useCreateShift, useShiftCandidates } from "../api/schedule";
+import StateMessage from "../components/ui/StateMessage";
+import { startOfWeek } from "../lib/format";
 import "./CreateShiftPage.css";
 
 export default function CreateShiftPage() {
   const navigate = useNavigate();
   const backToSchedule = () => navigate("/schedule");
+  const initial = useMemo(() => {
+    const start = startOfWeek(); start.setHours(8, 0, 0, 0);
+    const end = new Date(start); end.setHours(12);
+    const local = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    return { role: "Customer Support", startTime: local(start), endTime: local(end), requiredSkill: "", notes: "", breakMinutes: 0 };
+  }, []);
+  const [draft, setDraft] = useState(initial);
+  const [employeeId, setEmployeeId] = useState("");
+  const candidates = useShiftCandidates({ start: draft.startTime, end: draft.endTime, role: draft.role });
+  const create = useCreateShift();
+  const update = (field, value) => { setDraft((current) => ({ ...current, [field]: value })); if (["role", "startTime", "endTime"].includes(field)) setEmployeeId(""); };
+  const submit = () => create.mutate({ ...draft, employeeId, breakMinutes: Number(draft.breakMinutes), status: true, assignedColor: null }, { onSuccess: backToSchedule });
+  const conflict = candidates.data?.find((candidate) => candidate.status !== "Available");
 
   return (
     <Shell
@@ -22,15 +34,16 @@ export default function CreateShiftPage() {
       copy="Assign qualified employees and resolve conflicts before publishing."
     >
       <div className="create">
-        <ShiftDetailsCard shift={SHIFT_DRAFT} />
+        <ShiftDetailsCard shift={draft} onChange={update} />
         <div>
-          <AssignEmployees candidates={ASSIGNMENT_CANDIDATES} />
-          <ConflictBanner {...ASSIGNMENT_CONFLICT} />
+          {candidates.isPending ? <StateMessage title="Checking availability…" /> : candidates.isError ? <StateMessage tone="error" title="Could not check candidates" detail={candidates.error?.message} /> : <AssignEmployees candidates={candidates.data ?? []} selectedId={employeeId} onSelect={setEmployeeId} />}
+          {conflict ? <ConflictBanner title="Some employees cannot take this shift" detail={conflict.detail ?? conflict.status} /> : null}
+          {create.isError ? <StateMessage tone="error" title="Could not create shift" detail={create.error?.message} /> : null}
           <div className="end">
             <Button tone="gray" onClick={backToSchedule}>
               Cancel
             </Button>
-            <Button onClick={backToSchedule}>Create shift</Button>
+            <Button disabled={!employeeId || create.isPending} onClick={submit}>{create.isPending ? "Creating…" : "Create shift"}</Button>
           </div>
         </div>
       </div>

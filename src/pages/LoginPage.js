@@ -1,14 +1,29 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
-import { DEMO_CREDENTIALS } from "../data/session";
+import StateMessage from "../components/ui/StateMessage";
+import { isSignedIn, useLogin } from "../api/auth";
 import "./LoginPage.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const login = useLogin();
+  const [form, setForm] = useState({ email: "", password: "" });
+
+  // Already signed in? Go straight to wherever the guard bounced us from.
+  if (isSignedIn()) {
+    return <Navigate replace to={location.state?.from ?? "/schedule"} />;
+  }
+
+  const update = (field) => (event) =>
+    setForm((current) => ({ ...current, [field]: event.target.value }));
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    navigate("/schedule");
+    login.mutate(form, {
+      onSuccess: () => navigate(location.state?.from ?? "/schedule", { replace: true }),
+    });
   };
 
   return (
@@ -37,8 +52,10 @@ export default function LoginPage() {
             name="email"
             type="email"
             autoComplete="email"
+            placeholder="you@company.com"
             required
-            defaultValue={DEMO_CREDENTIALS.email}
+            value={form.email}
+            onChange={update("email")}
           />
         </label>
         <label htmlFor="password">
@@ -49,10 +66,20 @@ export default function LoginPage() {
             type="password"
             autoComplete="current-password"
             required
-            defaultValue={DEMO_CREDENTIALS.password}
+            value={form.password}
+            onChange={update("password")}
           />
         </label>
-        <Button type="submit">Sign in</Button>
+        {login.isError ? (
+          <StateMessage
+            tone="error"
+            title="Sign in failed"
+            detail={login.error?.message}
+          />
+        ) : null}
+        <Button type="submit" disabled={login.isPending}>
+          {login.isPending ? "Signing in…" : "Sign in"}
+        </Button>
       </form>
     </div>
   );

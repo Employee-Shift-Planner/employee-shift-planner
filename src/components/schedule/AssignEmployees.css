@@ -3,7 +3,8 @@
   padding: 18px 22px;
 }
 
-.assign p {
+.assign p,
+.assign label {
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin: 18px 0;

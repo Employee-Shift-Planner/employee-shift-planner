@@ -1,0 +1,32 @@
+.state {
+  min-height: 188px;
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.state b {
+  font-size: 16px;
+}
+
+.state p {
+  margin: 0;
+  max-width: 60ch;
+}
+
+.state.error {
+  background: #fff0e5;
+}
+
+.state.error b {
+  color: var(--red);
+}
+
+/* Inline variant used beside a form's actions. */
+.state.inline {
+  min-height: 0;
+  padding: 14px 18px;
+  margin-top: 18px;
+}

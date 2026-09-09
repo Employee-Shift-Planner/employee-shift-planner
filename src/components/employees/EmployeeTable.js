@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { formatHours, toneFor } from "../../lib/format";
 import "./EmployeeTable.css";
 
 /** Roster table. Each row opens that employee's detail screen. */
@@ -18,17 +19,19 @@ export default function EmployeeTable({ employees }) {
         <button
           type="button"
           className="row"
-          key={employee.id}
-          onClick={() => navigate(`/employees/${employee.id}`)}
+          key={employee.employeeId}
+          onClick={() => navigate(`/employees/${encodeURIComponent(employee.employeeId)}`)}
         >
           <span className="person">
-            <i className={employee.tone}>{employee.name.charAt(0)}</i>
-            <b>{employee.name}</b>
+            <i className={toneFor(employee.employeeId)}>{employee.initial}</i>
+            <b>{employee.fullName}</b>
           </span>
-          <span>{employee.role}</span>
-          <span>{employee.availability}</span>
-          <b>{employee.hours}</b>
-          <span className={employee.statusTone}>{employee.status}</span>
+          <span>{employee.positionTitle ?? "Unassigned"}</span>
+          <span>{employee.availabilitySummary}</span>
+          <b>{formatHours(employee.scheduledHours)}</b>
+          <span className={employee.status === "Overtime risk" ? "red" : "green"}>
+            {employee.status}
+          </span>
         </button>
       ))}
     </section>

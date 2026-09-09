@@ -5,8 +5,8 @@ export default function UpcomingShifts({ shifts }) {
   return (
     <section className="card upcoming">
       <h2>Upcoming shifts</h2>
-      {shifts.map((shift) => (
-        <p key={`${shift.day}-${shift.time}`}>
+      {shifts.length === 0 ? <p>No upcoming shifts.</p> : shifts.map((shift) => (
+        <p key={shift.id ?? `${shift.day}-${shift.time}`}>
           {`${shift.day}　 ${shift.role}　 ${shift.time}`}
         </p>
       ))}

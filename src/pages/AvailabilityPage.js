@@ -2,25 +2,19 @@ import { useState } from "react";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import AvailabilityMatrix from "../components/availability/AvailabilityMatrix";
-import { TEAM_AVAILABILITY } from "../data/availability";
+import { useAvailabilityMatrix, useSetAvailability } from "../api/availability";
+import { QueryState } from "../components/ui/StateMessage";
 
 export default function AvailabilityPage() {
   const [isEditing, setIsEditing] = useState(false);
-  const [rows, setRows] = useState(TEAM_AVAILABILITY);
+  const matrix = useAvailabilityMatrix();
+  const saveDay = useSetAvailability();
 
   const toggleDay = (employeeId, dayIndex) => {
-    setRows((current) =>
-      current.map((row) =>
-        row.employeeId === employeeId
-          ? {
-              ...row,
-              days: row.days.map((day, index) =>
-                index === dayIndex ? !day : day
-              ),
-            }
-          : row
-      )
-    );
+    const day = matrix.data?.find((row) => row.employeeId === employeeId)?.days[dayIndex];
+    if (!day) return;
+    saveDay.mutate({ employeeId, dayOfWeek: day.dayOfWeek, isAvailable: !day.isAvailable,
+      startTime: day.startTime, endTime: day.endTime });
   };
 
   return (
@@ -34,11 +28,9 @@ export default function AvailabilityPage() {
         </Button>
       }
     >
-      <AvailabilityMatrix
-        rows={rows}
-        editable={isEditing}
-        onToggle={toggleDay}
-      />
+      <QueryState query={matrix} empty={{ title: "No employees yet", detail: "Add employees before setting availability." }}>
+        {(rows) => <AvailabilityMatrix rows={rows} editable={isEditing && !saveDay.isPending} onToggle={toggleDay} />}
+      </QueryState>
     </Shell>
   );
 }

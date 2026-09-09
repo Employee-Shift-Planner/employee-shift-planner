@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { NAV_ITEMS } from "../../data/navigation";
-import { CURRENT_USER } from "../../data/session";
+import { currentUserLabel } from "../../api/auth";
 import "./Sidebar.css";
 
 /**
@@ -32,7 +32,7 @@ export default function Sidebar({ active }) {
           );
         })}
       </nav>
-      <strong>{CURRENT_USER.name}</strong>
+      <strong>{currentUserLabel()}</strong>
     </aside>
   );
 }

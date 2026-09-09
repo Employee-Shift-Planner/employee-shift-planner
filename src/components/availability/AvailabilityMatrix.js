@@ -1,5 +1,7 @@
-import { DAY_LABELS, availabilityLabel } from "../../data/availability";
+import { formatAvailabilityCell } from "../../lib/format";
 import "./AvailabilityMatrix.css";
+
+const DAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 /**
  * Employee × day availability grid.
@@ -18,18 +20,18 @@ export default function AvailabilityMatrix({ rows, editable = false, onToggle })
       </div>
       {rows.map((row) => (
         <div className="mrow" key={row.employeeId}>
-          <b>{row.name}</b>
-          {row.days.map((isAvailable, dayIndex) => (
+          <b>{row.fullName}</b>
+          {row.days.map((day, dayIndex) => (
             <button
               type="button"
               key={DAY_LABELS[dayIndex]}
-              className={isAvailable ? "yes" : "no"}
-              aria-pressed={editable ? isAvailable : undefined}
+              className={day.isAvailable ? "yes" : "no"}
+              aria-pressed={editable ? day.isAvailable : undefined}
               onClick={
                 editable ? () => onToggle(row.employeeId, dayIndex) : undefined
               }
             >
-              {availabilityLabel(isAvailable, dayIndex)}
+              {formatAvailabilityCell(day)}
             </button>
           ))}
         </div>
