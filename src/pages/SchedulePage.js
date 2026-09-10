@@ -8,6 +8,7 @@ import WeekCalendar from "../components/schedule/WeekCalendar";
 import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
 import { useCopyWeek, usePublishWeek, useWeekShifts } from "../api/schedule";
 import { useWeeklyReport } from "../api/reports";
+import { useCoverageWarnings } from "../api/staffing";
 import {
   formatDayHeading,
   formatHours,
@@ -56,6 +57,7 @@ export default function SchedulePage() {
   }, [currentWeek, searchParams]);
   const shifts = useWeekShifts(weekStart);
   const report = useWeeklyReport(weekStart);
+  const coverage = useCoverageWarnings(weekStart);
   const publishWeek = usePublishWeek(weekStart);
   const copyWeek = useCopyWeek(weekStart);
   const isCurrentWeek = toDateParam(weekStart) === toDateParam(currentWeek);
@@ -85,7 +87,7 @@ export default function SchedulePage() {
       label: "Total hours",
       tone: "green",
     },
-    { value: report.data?.coverageGaps ?? "—", label: "Coverage gaps", tone: "red" },
+    { value: coverage.data?.length ?? "—", label: "Coverage gaps", tone: "red" },
     {
       value: report.data ? formatPercent(report.data.availabilityFitPercent) : "—",
       label: "Availability fit",
@@ -131,6 +133,16 @@ export default function SchedulePage() {
         </Button>
       </nav>
       <Metrics items={metrics} />
+      {coverage.isError ? <StateMessage tone="error" title="Could not check staffing coverage" detail={coverage.error?.message} /> : null}
+      {coverage.isSuccess && coverage.data.length > 0 ? (
+        <section className="coverage-warnings" aria-labelledby="coverage-warning-heading">
+          <h2 id="coverage-warning-heading">Staffing coverage needed</h2>
+          <div>{coverage.data.map((warning) => <article key={`${warning.requirementId}-${warning.date}`}>
+            <b>{warning.dayOfWeek} · {String(warning.startTime).slice(0, 5)}–{String(warning.endTime).slice(0, 5)}</b>
+            <span>{warning.positionTitle}: {warning.scheduledEmployees}/{warning.requiredEmployees} scheduled · {warning.missingEmployees} needed</span>
+          </article>)}</div>
+        </section>
+      ) : null}
       {publishWeek.isError ? (
         <StateMessage tone="error" title="Could not publish this week" detail={publishWeek.error?.message} />
       ) : null}
