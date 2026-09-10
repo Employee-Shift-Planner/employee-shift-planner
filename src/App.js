@@ -7,6 +7,7 @@ import EmployeesPage from "./pages/EmployeesPage";
 import EmployeeDetailPage from "./pages/EmployeeDetailPage";
 import EmployeeFormPage from "./pages/EmployeeFormPage";
 import AvailabilityPage from "./pages/AvailabilityPage";
+import TimeOffPage from "./pages/TimeOffPage";
 import ReportsPage from "./pages/ReportsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import MobilePage from "./pages/MobilePage";
@@ -35,6 +36,7 @@ export default function App() {
       <Route path="/employees/:employeeId/edit" element={protectedPage(<EmployeeFormPage />)} />
 
       <Route path="/availability" element={protectedPage(<AvailabilityPage />)} />
+      <Route path="/time-off" element={protectedPage(<TimeOffPage />)} />
       <Route path="/reports" element={protectedPage(<ReportsPage />)} />
       <Route path="/notifications" element={protectedPage(<NotificationsPage />)} />
       <Route path="/settings" element={protectedPage(<NotificationsPage variant="settings" />)} />

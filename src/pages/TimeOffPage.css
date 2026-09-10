@@ -1,0 +1,145 @@
+.time-off-message {
+  margin-bottom: 18px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #13734f;
+  background: #e7f7f0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.time-off-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.8fr) minmax(420px, 1.2fr);
+  gap: 24px;
+}
+
+.time-off-form,
+.time-off-queue,
+.time-off-history {
+  padding: 22px;
+}
+
+.time-off-form {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.time-off-form h2,
+.time-off-queue h2,
+.time-off-history h2 {
+  margin: 0;
+}
+
+.time-off-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.time-off-form input,
+.time-off-form select,
+.time-off-form textarea,
+.time-off-request textarea {
+  width: 100%;
+  border: 1px solid #dbe1eb;
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+
+.time-off-date-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.time-off-form .btn {
+  justify-self: start;
+}
+
+.time-off-section-heading,
+.time-off-request > div:first-child,
+.time-off-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.time-off-section-heading > span {
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: #8a5a00;
+  background: #fff4d6;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.time-off-request {
+  padding: 18px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.time-off-request:last-child {
+  border-bottom: 0;
+}
+
+.time-off-request span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.time-off-actions {
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.time-off-actions .btn {
+  min-width: 100px;
+}
+
+.time-off-history {
+  margin-top: 24px;
+}
+
+.time-off-table-wrap {
+  overflow-x: auto;
+}
+
+.time-off-history table {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.time-off-history th,
+.time-off-history td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.time-off-status {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.time-off-status.approved { color: #13734f; background: #e7f7f0; }
+.time-off-status.rejected { color: #a1262e; background: #fdebed; }
+
+@media (max-width: 900px) {
+  .time-off-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .time-off-date-grid { grid-template-columns: 1fr; }
+}
