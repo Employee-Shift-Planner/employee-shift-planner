@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import Metrics from "../components/ui/Metrics";
 import StateMessage from "../components/ui/StateMessage";
 import WeekCalendar from "../components/schedule/WeekCalendar";
+import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
 import { useWeekShifts } from "../api/schedule";
 import { useWeeklyReport } from "../api/reports";
 import {
@@ -38,6 +39,7 @@ const toCalendarBlocks = (shifts, weekStart) => {
       label: shift.role || shift.employeeName,
       time: formatShiftRange(shift.startTime, shift.endTime),
       tone: toneFor(shift.employeeId, shift.assignedColor),
+      source: shift,
     };
   });
 };
@@ -45,6 +47,7 @@ const toCalendarBlocks = (shifts, weekStart) => {
 export default function SchedulePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedShift, setSelectedShift] = useState(null);
   const currentWeek = useMemo(() => startOfWeek(), []);
   const weekStart = useMemo(() => {
     const requested = fromDateParam(searchParams.get("week"));
@@ -117,8 +120,11 @@ export default function SchedulePage() {
           detail={shifts.error?.message}
         />
       ) : (
-        <WeekCalendar days={days} shifts={toCalendarBlocks(shifts.data, weekStart)} />
+        <WeekCalendar days={days} shifts={toCalendarBlocks(shifts.data, weekStart)} onShiftSelect={setSelectedShift} />
       )}
+      {selectedShift ? (
+        <ShiftManagerDialog shift={selectedShift} onClose={() => setSelectedShift(null)} />
+      ) : null}
     </Shell>
   );
 }

@@ -1,4 +1,6 @@
 .shift {
+  width: 100%;
+  border: 0;
   border-radius: 9px;
   padding: 10px 9px;
   color: #fff;
@@ -6,6 +8,16 @@
   flex-direction: column;
   gap: 7px;
   font-size: 11px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shift:hover,
+.shift:focus-visible {
+  filter: brightness(0.92);
+  outline: 3px solid rgba(46, 102, 242, 0.25);
+  outline-offset: 2px;
 }
 
 .shift span {

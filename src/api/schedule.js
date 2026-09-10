@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { get, post, query } from "./client";
+import { del, get, post, put, query } from "./client";
 import { startOfWeek, toDateParam } from "../lib/format";
 
 /** Shifts inside one Monday-first week, for the calendar. */
@@ -24,12 +24,12 @@ export function useEmployeeShifts(employeeId, from) {
  * Who can take a proposed shift. Only runs once a valid window is set, since
  * the API rejects an end that is not after the start.
  */
-export function useShiftCandidates({ start, end, role }) {
+export function useShiftCandidates({ start, end, role, excludeShiftId }) {
   const valid = Boolean(start && end && new Date(end) > new Date(start));
 
   return useQuery({
-    queryKey: ["schedule", "candidates", start, end, role],
-    queryFn: () => get(`/Schedule/candidates${query({ start, end, role })}`),
+    queryKey: ["schedule", "candidates", start, end, role, excludeShiftId],
+    queryFn: () => get(`/Schedule/candidates${query({ start, end, role, excludeShiftId })}`),
     enabled: valid,
   });
 }
@@ -45,5 +45,29 @@ export function useCreateShift() {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
+  });
+}
+
+const invalidateScheduleData = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: ["schedule"] });
+  queryClient.invalidateQueries({ queryKey: ["employees"] });
+  queryClient.invalidateQueries({ queryKey: ["reports"] });
+};
+
+export function useUpdateShift() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (shift) => put(`/Schedule/${encodeURIComponent(shift.id)}`, shift),
+    onSuccess: () => invalidateScheduleData(queryClient),
+  });
+}
+
+export function useCancelShift() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (shiftId) => del(`/Schedule/${encodeURIComponent(shiftId)}`),
+    onSuccess: () => invalidateScheduleData(queryClient),
   });
 }
