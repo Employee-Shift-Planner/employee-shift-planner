@@ -3,6 +3,7 @@ import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import NotificationRules from "../components/notifications/NotificationRules";
 import EmailPreview from "../components/notifications/EmailPreview";
+import PositionsSettings from "../components/settings/PositionsSettings";
 import { useCurrentEmployee } from "../api/employees";
 import { useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
 import { QueryState } from "../components/ui/StateMessage";
@@ -48,6 +49,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
       copy={copy}
       actions={<Button disabled={!draft || save.isPending} onClick={() => save.mutate(draft, { onSuccess: () => setDraft(null) })}>{save.isPending ? "Saving…" : "Save changes"}</Button>}
     >
+      {variant === "settings" ? <PositionsSettings /> : null}
       <QueryState query={employee} empty={{ title: "No employee profile", detail: "Your user account is not linked to an employee." }}>
         {() => <QueryState query={preferences}>
           {() => <div className="notices">

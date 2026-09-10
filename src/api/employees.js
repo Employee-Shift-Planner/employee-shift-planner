@@ -29,6 +29,21 @@ export function usePositions() {
   });
 }
 
+export function useCreatePosition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ title, description }) => post("/Position", {
+      title: title.trim(),
+      description: description.trim() || null,
+      isActive: true,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions"] });
+    },
+  });
+}
+
 const employeePayload = (employee) => ({
   employeeID: employee.employeeId.trim(),
   firstName: employee.firstName.trim(),
