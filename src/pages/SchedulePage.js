@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import Metrics from "../components/ui/Metrics";
@@ -14,8 +14,11 @@ import {
   formatShiftRange,
   formatWeekRange,
   startOfWeek,
+  toDateParam,
   toneFor,
 } from "../lib/format";
+import { addWeeks, fromDateParam } from "../utils/week";
+import "./SchedulePage.css";
 
 /** Place each shift in its day column, stacking same-day shifts down the rows. */
 const toCalendarBlocks = (shifts, weekStart) => {
@@ -41,9 +44,22 @@ const toCalendarBlocks = (shifts, weekStart) => {
 
 export default function SchedulePage() {
   const navigate = useNavigate();
-  const weekStart = useMemo(() => startOfWeek(), []);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentWeek = useMemo(() => startOfWeek(), []);
+  const weekStart = useMemo(() => {
+    const requested = fromDateParam(searchParams.get("week"));
+    return requested ? startOfWeek(requested) : currentWeek;
+  }, [currentWeek, searchParams]);
   const shifts = useWeekShifts(weekStart);
   const report = useWeeklyReport(weekStart);
+  const isCurrentWeek = toDateParam(weekStart) === toDateParam(currentWeek);
+
+  const selectWeek = (date) => {
+    const normalized = startOfWeek(date);
+    setSearchParams(toDateParam(normalized) === toDateParam(currentWeek)
+      ? {}
+      : { week: toDateParam(normalized) });
+  };
 
   const days = useMemo(
     () =>
@@ -76,9 +92,21 @@ export default function SchedulePage() {
       title="Weekly Schedule"
       copy={formatWeekRange(weekStart)}
       actions={
-        <Button onClick={() => navigate("/create-shift")}>+ Create shift</Button>
+        <Button onClick={() => navigate(`/create-shift?week=${toDateParam(weekStart)}`)}>+ Create shift</Button>
       }
     >
+      <nav className="week-navigation" aria-label="Schedule week navigation">
+        <Button tone="gray" onClick={() => selectWeek(addWeeks(weekStart, -1))} aria-label="View previous week">
+          ← Previous
+        </Button>
+        <div className="week-navigation-current" aria-live="polite">
+          <b>{isCurrentWeek ? "This week" : formatWeekRange(weekStart)}</b>
+          {!isCurrentWeek ? <Button tone="gray" onClick={() => selectWeek(currentWeek)}>Today</Button> : null}
+        </div>
+        <Button tone="gray" onClick={() => selectWeek(addWeeks(weekStart, 1))} aria-label="View next week">
+          Next →
+        </Button>
+      </nav>
       <Metrics items={metrics} />
       {shifts.isPending ? (
         <StateMessage title="Loading the week…" detail="Fetching shifts from the scheduler." />

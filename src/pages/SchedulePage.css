@@ -1,0 +1,32 @@
+.week-navigation {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.week-navigation-current {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  text-align: center;
+}
+
+.week-navigation-current .btn {
+  padding: 7px 12px;
+}
+
+@media (max-width: 600px) {
+  .week-navigation {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .week-navigation-current {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    flex-wrap: wrap;
+  }
+}

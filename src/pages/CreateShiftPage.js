@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import ShiftDetailsCard from "../components/schedule/ShiftDetailsCard";
@@ -7,18 +7,25 @@ import AssignEmployees from "../components/schedule/AssignEmployees";
 import ConflictBanner from "../components/schedule/ConflictBanner";
 import { useCreateShift, useShiftCandidates } from "../api/schedule";
 import StateMessage from "../components/ui/StateMessage";
-import { startOfWeek } from "../lib/format";
+import { startOfWeek, toDateParam } from "../lib/format";
+import { fromDateParam } from "../utils/week";
 import "./CreateShiftPage.css";
 
 export default function CreateShiftPage() {
   const navigate = useNavigate();
-  const backToSchedule = () => navigate("/schedule");
+  const [searchParams] = useSearchParams();
+  const selectedWeek = useMemo(() => {
+    const requested = fromDateParam(searchParams.get("week"));
+    return startOfWeek(requested ?? new Date());
+  }, [searchParams]);
+  const schedulePath = `/schedule?week=${toDateParam(selectedWeek)}`;
+  const backToSchedule = () => navigate(schedulePath);
   const initial = useMemo(() => {
-    const start = startOfWeek(); start.setHours(8, 0, 0, 0);
+    const start = new Date(selectedWeek); start.setHours(8, 0, 0, 0);
     const end = new Date(start); end.setHours(12);
     const local = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
     return { role: "Customer Support", startTime: local(start), endTime: local(end), requiredSkill: "", notes: "", breakMinutes: 0 };
-  }, []);
+  }, [selectedWeek]);
   const [draft, setDraft] = useState(initial);
   const [employeeId, setEmployeeId] = useState("");
   const candidates = useShiftCandidates({ start: draft.startTime, end: draft.endTime, role: draft.role });
@@ -34,7 +41,7 @@ export default function CreateShiftPage() {
     <Shell
       active="Schedule"
       title="Create shift"
-      copy="Assign qualified employees and resolve conflicts before publishing."
+      copy={`Planning for the week of ${toDateParam(selectedWeek)}. Assign qualified employees and resolve conflicts before publishing.`}
     >
       <div className="create">
         <ShiftDetailsCard shift={draft} onChange={update} />
