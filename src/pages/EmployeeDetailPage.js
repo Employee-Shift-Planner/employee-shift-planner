@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import Metrics from "../components/ui/Metrics";
@@ -11,6 +11,7 @@ import "./EmployeeDetailPage.css";
 
 export default function EmployeeDetailPage() {
   const { employeeId } = useParams();
+  const navigate = useNavigate();
   const summary = useEmployeeSummary(employeeId);
   const employee = summary.data?.employee;
 
@@ -19,7 +20,7 @@ export default function EmployeeDetailPage() {
       active="Employees"
       title={employee?.fullName ?? "Employee"}
       copy={employee ? `${employee.positionTitle ?? "Unassigned"} · ${employee.active ? "Active" : "Inactive"} employee` : "Loading employee details…"}
-      actions={<Button>Edit profile</Button>}
+      actions={<Button onClick={() => navigate(`/employees/${encodeURIComponent(employeeId)}/edit`)}>Edit profile</Button>}
     >
       <QueryState query={summary} empty={{ title: "Employee not found", detail: "This employee record no longer exists." }}>
         {(data) => <div className="detail">

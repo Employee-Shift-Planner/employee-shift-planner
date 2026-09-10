@@ -14,7 +14,7 @@ export function useSetAvailability() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ employeeId, dayOfWeek, isAvailable, startTime, endTime, notes }) =>
+    mutationFn: (changes) => Promise.all(changes.map(({ employeeId, dayOfWeek, isAvailable, startTime, endTime, notes }) =>
       put(
         `/Availability/employee/${encodeURIComponent(employeeId)}/day/${encodeURIComponent(dayOfWeek)}`,
         {
@@ -23,7 +23,7 @@ export function useSetAvailability() {
           endTime: endTime ?? null,
           notes: notes ?? null,
         }
-      ),
+      ))),
     onSuccess: () => {
       // Availability feeds the roster summary and the coverage report too.
       queryClient.invalidateQueries({ queryKey: ["availability"] });

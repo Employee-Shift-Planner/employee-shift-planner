@@ -10,6 +10,21 @@ import "./ReportsPage.css";
 
 export default function ReportsPage() {
   const report = useWeeklyReport();
+  const exportExcel = () => {
+    if (!report.data) return;
+    const rows = [
+      ["Employee", "Employee ID", "Scheduled hours"],
+      ...report.data.hoursByEmployee.map((row) => [row.fullName, row.employeeId, row.hours]),
+      [],
+      ["Day", "Date", "Scheduled employees", "Available employees", "Hours", "Coverage %", "Coverage gap"],
+      ...report.data.coverageByDay.map((day) => [day.day, day.date, day.scheduledEmployees, day.availableEmployees, day.hours, day.coveragePercent, day.isGap ? "Yes" : "No"]),
+    ];
+    const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url; link.download = `shift-report-${String(report.data.weekStart).slice(0, 10)}.csv`; link.click();
+    URL.revokeObjectURL(url);
+  };
   return (
     <Shell
       active="Reports"
@@ -17,8 +32,8 @@ export default function ReportsPage() {
       copy="Track coverage, hours and labour-cost risk."
       actions={
         <>
-          <Button>Export PDF</Button>
-          <Button tone="success">Export Excel</Button>
+          <Button disabled={!report.data} onClick={() => window.print()}>Export PDF</Button>
+          <Button disabled={!report.data} tone="success" onClick={exportExcel}>Export Excel</Button>
         </>
       }
     >

@@ -5,6 +5,7 @@ import SchedulePage from "./pages/SchedulePage";
 import CreateShiftPage from "./pages/CreateShiftPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import EmployeeDetailPage from "./pages/EmployeeDetailPage";
+import EmployeeFormPage from "./pages/EmployeeFormPage";
 import AvailabilityPage from "./pages/AvailabilityPage";
 import ReportsPage from "./pages/ReportsPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -28,8 +29,10 @@ export default function App() {
       <Route path="/create-shift" element={protectedPage(<CreateShiftPage />)} />
 
       <Route path="/employees" element={protectedPage(<EmployeesPage />)} />
+      <Route path="/employees/new" element={protectedPage(<EmployeeFormPage />)} />
       <Route path="/employee" element={<Navigate replace to="/employees" />} />
       <Route path="/employees/:employeeId" element={protectedPage(<EmployeeDetailPage />)} />
+      <Route path="/employees/:employeeId/edit" element={protectedPage(<EmployeeFormPage />)} />
 
       <Route path="/availability" element={protectedPage(<AvailabilityPage />)} />
       <Route path="/reports" element={protectedPage(<ReportsPage />)} />

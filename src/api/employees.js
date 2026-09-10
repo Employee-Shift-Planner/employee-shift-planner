@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { get, query } from "./client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { get, post, put, query } from "./client";
 import { currentUser } from "./auth";
 import { startOfWeek, toDateParam } from "../lib/format";
 
@@ -10,6 +10,49 @@ export function useEmployees() {
   return useQuery({
     queryKey: ["employees"],
     queryFn: () => get("/Employee"),
+  });
+}
+
+export function useEmployee(employeeId) {
+  return useQuery({
+    queryKey: ["employees", employeeId],
+    queryFn: () => get(`/Employee/${encodeURIComponent(employeeId)}`),
+    enabled: Boolean(employeeId),
+    retry: false,
+  });
+}
+
+export function usePositions() {
+  return useQuery({
+    queryKey: ["positions"],
+    queryFn: () => get("/Position"),
+  });
+}
+
+const employeePayload = (employee) => ({
+  employeeID: employee.employeeId.trim(),
+  firstName: employee.firstName.trim(),
+  middleName: employee.middleName.trim() || null,
+  lastName: employee.lastName.trim(),
+  email: employee.email.trim() || null,
+  phone: employee.phone.trim() || null,
+  positionId: employee.positionId ? Number(employee.positionId) : null,
+  active: employee.active,
+  preferredShift: employee.preferredShift || null,
+  maxWeeklyHours: Number(employee.maxWeeklyHours),
+});
+
+export function useSaveEmployee(employeeId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (employee) => employeeId
+      ? put(`/Employee/${encodeURIComponent(employeeId)}`, employeePayload(employee))
+      : post("/Employee", employeePayload(employee)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["availability"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
   });
 }
 

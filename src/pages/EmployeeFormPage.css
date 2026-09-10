@@ -1,0 +1,8 @@
+.employee-form { padding: 28px; max-width: 900px; }
+.employee-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.employee-form label { display: grid; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.employee-form input, .employee-form select { width: 100%; border: 1px solid #dbe1eb; border-radius: 8px; padding: 11px 12px; color: var(--ink); background: #fff; font: inherit; }
+.employee-form .employee-active { display: flex; align-items: center; align-self: end; height: 42px; }
+.employee-form .employee-active input { width: auto; }
+.employee-form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+@media (max-width: 700px) { .employee-form-grid { grid-template-columns: 1fr; } }
