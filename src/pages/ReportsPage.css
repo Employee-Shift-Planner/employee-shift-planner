@@ -9,6 +9,18 @@
   gap: 24px;
 }
 
+.labour-forecast { margin-top: 24px; padding: 22px; }
+.labour-forecast-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.labour-forecast-heading h2, .labour-forecast-heading p { margin: 0; }
+.labour-forecast-heading p { margin-top: 6px; }
+.labour-forecast-heading > b { border-radius: 999px; padding: 5px 9px; color: var(--purple); background: #f0ebff; font-size: 11px; }
+.labour-forecast-table { overflow-x: auto; }
+.labour-forecast table { width: 100%; margin-top: 16px; border-collapse: collapse; text-align: right; font-size: 12px; }
+.labour-forecast th, .labour-forecast td { padding: 12px 10px; border-bottom: 1px solid #edf0f5; white-space: nowrap; }
+.labour-forecast th:first-child, .labour-forecast td:first-child { text-align: left; }
+.labour-forecast tfoot { background: #f8f9fc; }
+.labour-forecast .cost-warning { color: var(--red); font-weight: 800; }
+
 @media (max-width: 1000px) {
   .reports {
     grid-template-columns: 1fr;

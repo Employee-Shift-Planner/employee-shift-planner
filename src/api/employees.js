@@ -56,6 +56,8 @@ const employeePayload = (employee) => ({
   active: employee.active,
   preferredShift: employee.preferredShift || null,
   maxWeeklyHours: Number(employee.maxWeeklyHours),
+  hourlyRate: Number(employee.hourlyRate),
+  overtimeThresholdHours: Number(employee.overtimeThresholdHours),
 });
 
 export function useSaveEmployee(employeeId) {

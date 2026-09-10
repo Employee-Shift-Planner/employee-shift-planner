@@ -12,6 +12,7 @@ import { useCoverageWarnings } from "../api/staffing";
 import {
   formatDayHeading,
   formatHours,
+  formatCurrencyCompact,
   formatPercent,
   formatShiftRange,
   formatWeekRange,
@@ -93,6 +94,8 @@ export default function SchedulePage() {
       label: "Availability fit",
       tone: "orange",
     },
+    { value: report.data ? formatCurrencyCompact(report.data.labourCost, report.data.currency) : "—", label: "Forecast labour cost", tone: "purple" },
+    { value: report.data ? formatHours(report.data.overtimeHours) : "—", label: "Overtime", tone: "red" },
   ];
 
   return (
