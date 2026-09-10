@@ -6,159 +6,109 @@ The Employee Shift Planner is a modern web application designed to help managers
 
 ## Features
 
-- **Interactive Calendar Interface**: 
-  - Drag-and-drop shift scheduling
-  - Week, month, and day views
-  - Color-coded employee assignments
-  - Real-time updates
+- Weekly schedule with past and upcoming week navigation
+- Create, edit, reassign, copy, cancel, draft, and publish shifts
+- Whole-week copying and reusable shift templates
+- Employee profiles, positions, availability, and conflict checks
+- Time-off requests and supervisor approval
+- Staffing requirements and live coverage warnings
+- Hourly rates, overtime thresholds, and labour-cost forecasting
+- Shift swaps, attendance recording, and audit history
+- Administrator, Supervisor, and Employee access levels
+- Employee mobile schedule and notification preferences
+- Weekly CSV and print/PDF reports
 
-- **Employee Management**:
-  - Add and manage employee profiles
-  - Track employee availability
-  - Set employee preferences
-  - View employee schedules
+## Technology
 
-- **Shift Management**:
-  - Create, edit, and delete shifts
-  - Assign employees to shifts
-  - Set shift duration and breaks
-  - Add shift notes and requirements
+- React 18, React Router 6, and TanStack React Query 5
+- Create React App / `react-scripts`
+- Plain CSS components
+- JWT bearer authentication supplied by the Scheduler API
 
-- **Export & Reporting**:
-  - Export schedules to PDF and Excel
-  - Print schedules
-  - Generate employee hours reports
-  - Track shift coverage
+## Requirements and setup
 
-- **Notifications**:
-  - Email notifications for shift assignments
-  - SMS notifications (optional)
-  - Shift change alerts
-  - Reminders for upcoming shifts
+Use Node.js 18 or later, npm, and a running Scheduler API with migrations applied.
 
-## Tech Stack
-
-- **Frontend**:
-  - React.js
-  - React Query for data fetching
-  - React Big Calendar for scheduling
-  - React Bootstrap for UI components
-  - React Color for color picking
-  - jsPDF and xlsx for exports
-
-- **Backend**:
-  - RESTful API
-  - Node.js/Express
-  - MongoDB/PostgreSQL
-  - JWT Authentication
-
-## Installation
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/yourusername/employee-shift-planner.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd employee-shift-planner
-    ```
-3. Install dependencies:
-    ```bash
-    npm install
-    ```
-4. Set up environment variables:
-    ```bash
-    cp .env.example .env
-    ```
-    Edit the `.env` file with your configuration.
-
-## Development
-
-1. Start the development server:
-    ```bash
-    npm start
-    ```
-2. Open your browser and navigate to `http://localhost:3000`.
-
-## Building for Production
-
-1. Build the application:
-    ```bash
-    npm run build
-    ```
-2. The built files will be in the `build` directory.
-
-## API Documentation
-
-The API documentation is available at `/api-docs` when running the development server. It includes:
-- Authentication endpoints
-- Employee management endpoints
-- Shift management endpoints
-- Reporting endpoints
-
-## Environment Variables
-
-- `REACT_APP_API_URL`: Backend API URL
-- `REACT_APP_AUTH_TOKEN`: Authentication token
-- `REACT_APP_EMAIL_SERVICE`: Email service configuration
-- `REACT_APP_SMS_SERVICE`: SMS service configuration
-
-## Contributing
-
-We welcome contributions! Please read our [Contributing Guidelines](CONTRIBUTING.md) for more information.
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
-
-### Code Style
-
-- Follow ESLint configuration
-- Use Prettier for code formatting
-- Write meaningful commit messages
-- Include tests for new features
-
-## Testing
-
-Run the test suite:
 ```bash
-npm test
+npm install
+npm start
 ```
 
-Run tests with coverage:
+The app opens at `http://localhost:3000` and defaults to `http://localhost:5113/api`. Override the API origin with:
+
 ```bash
-npm run test:coverage
+REACT_APP_API_BASE_URL=https://localhost:7213/api npm start
 ```
 
-## Deployment
+Or create an ignored `.env.local` file:
 
-The application can be deployed to various platforms:
-- Vercel
-- Netlify
-- AWS Amplify
-- Heroku
+```dotenv
+REACT_APP_API_BASE_URL=https://localhost:7213/api
+```
 
-See the [Deployment Guide](DEPLOYMENT.md) for detailed instructions.
+The value must include `/api`. Never put secrets in `REACT_APP_*` variables because they are embedded in the browser bundle.
 
-## License
+## Roles
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+| Role | Access |
+| --- | --- |
+| Administrator | Full supervisor access plus account creation, roles, and activation |
+| Supervisor | Scheduling, employees, availability, approvals, reporting, settings, attendance, swaps, and audit history |
+| Employee | Personal published schedule, notifications, time-off, and swap requests |
 
-## Support
+Frontend guards match the API policies, but API authorization is the security boundary. Employee accounts are linked to employee profiles by matching email addresses.
 
-For any questions or suggestions, please:
-- Open an issue on GitHub
-- Contact us at [support@shiftplanner.com](mailto:support@shiftplanner.com)
-- Join our [Discord community](https://discord.gg/shiftplanner)
+## Main routes
 
-## Roadmap
+| Route | Purpose |
+| --- | --- |
+| `/` | Login |
+| `/schedule` | Supervisor weekly planner; accepts `?week=YYYY-MM-DD` |
+| `/create-shift` | Create a draft shift |
+| `/employees` | Employee directory and profiles |
+| `/availability` | Recurring availability matrix |
+| `/time-off` | Submit and review leave requests |
+| `/operations` | Swaps, attendance, and audit history |
+| `/reports` | Coverage, hours, and cost reports |
+| `/notifications` | Notification preferences |
+| `/settings` | Positions, staffing requirements, and user access |
+| `/mobile` | Employee-facing published schedule |
 
-- [ ] Mobile app development
-- [ ] Advanced analytics dashboard
-- [ ] Integration with payroll systems
-- [ ] AI-powered shift optimization
-- [ ] Multi-language support
+## Source organization
+
+```text
+src/api/          API hooks, authenticated fetch wrapper, and session helpers
+src/components/   Layout, UI primitives, and feature components
+src/pages/        Route-level screens
+src/lib/          Shared date and display formatting
+src/utils/        Week-selection helpers
+src/data/         Static navigation and fallback display data
+```
+
+## Commands
+
+```bash
+npm start
+npm test -- --watchAll=false
+npm run build
+npm run deploy
+```
+
+The optimized bundle is written to `build/`. Tests currently cover routing and authentication guards; future workflows should add focused component and API-hook coverage.
+
+## Deployment checklist
+
+1. Apply pending Scheduler API migrations.
+2. Confirm an Administrator account exists.
+3. Match account emails to employee profile emails.
+4. Configure the API CORS allowlist with the frontend's exact origin.
+5. Build with the production `REACT_APP_API_BASE_URL`.
+6. Run tests and deploy the generated bundle.
+
+`staticwebapp.config.json` supplies static-host routing behavior.
+
+## Repository hygiene
+
+The `.gitignore` excludes dependencies, generated builds, coverage, environment files, editor state, and OS/iCloud metadata. Source directories—including `src/lib/`—must remain tracked.
+
+No license file is currently included. Confirm licensing before redistribution.

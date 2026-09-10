@@ -1,14 +1,42 @@
-node_modules
+# Dependencies
+/node_modules/
 
-# binaries
-bin/
-dist/
-lib/
-build/
+# Generated builds and reports
+/build/
+/dist/
+/lib/
+/coverage/
+/.nyc_output/
 
-# editors
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors and local tools
+/.idea/
+/.vs/
+/.vscode/
+/.claude/settings.local.json
 *.swp
-.idea/
-.vs/
-.vscode/
+*.swo
+*~
+
+# OS and iCloud metadata
 .DS_Store
+._*
+*.icloud
+.TemporaryItems/
+.Spotlight-V100/
+.Trashes/
+
+# Test and development artifacts
+*.log
+*.pid
+*.seed
+/.cache/
+/.eslintcache
