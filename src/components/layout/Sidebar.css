@@ -47,6 +47,12 @@
   font-size: 14px;
 }
 
+.sidebar > strong small {
+  margin: 4px 0 0;
+  font-size: 10px;
+  font-weight: 500;
+}
+
 /* Collapses into a horizontal, scrollable strip on small screens. */
 @media (max-width: 700px) {
   .sidebar {

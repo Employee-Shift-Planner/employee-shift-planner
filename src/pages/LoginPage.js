@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import StateMessage from "../components/ui/StateMessage";
-import { isSignedIn, useLogin } from "../api/auth";
+import { homeForCurrentRole, isSignedIn, useLogin } from "../api/auth";
 import "./LoginPage.css";
 
 export default function LoginPage() {
@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   // Already signed in? Go straight to wherever the guard bounced us from.
   if (isSignedIn()) {
-    return <Navigate replace to={location.state?.from ?? "/schedule"} />;
+    return <Navigate replace to={location.state?.from ?? homeForCurrentRole()} />;
   }
 
   const update = (field) => (event) =>
@@ -22,7 +22,7 @@ export default function LoginPage() {
   const handleSubmit = (event) => {
     event.preventDefault();
     login.mutate(form, {
-      onSuccess: () => navigate(location.state?.from ?? "/schedule", { replace: true }),
+      onSuccess: () => navigate(location.state?.from ?? homeForCurrentRole(), { replace: true }),
     });
   };
 

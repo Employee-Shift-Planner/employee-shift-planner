@@ -13,7 +13,9 @@ import NotificationsPage from "./pages/NotificationsPage";
 import MobilePage from "./pages/MobilePage";
 import RequireAuth from "./components/auth/RequireAuth";
 
-const protectedPage = (page) => <RequireAuth>{page}</RequireAuth>;
+const MANAGERS = ["Administrator", "Supervisor"];
+const ALL_ROLES = [...MANAGERS, "Employee"];
+const protectedPage = (page, roles = ALL_ROLES) => <RequireAuth roles={roles}>{page}</RequireAuth>;
 
 /**
  * Route table only — every screen lives in src/pages and is composed from the
@@ -25,21 +27,21 @@ export default function App() {
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<Navigate replace to="/" />} />
 
-      <Route path="/schedule" element={protectedPage(<SchedulePage />)} />
+      <Route path="/schedule" element={protectedPage(<SchedulePage />, MANAGERS)} />
       <Route path="/shiftplanner" element={<Navigate replace to="/schedule" />} />
-      <Route path="/create-shift" element={protectedPage(<CreateShiftPage />)} />
+      <Route path="/create-shift" element={protectedPage(<CreateShiftPage />, MANAGERS)} />
 
-      <Route path="/employees" element={protectedPage(<EmployeesPage />)} />
-      <Route path="/employees/new" element={protectedPage(<EmployeeFormPage />)} />
+      <Route path="/employees" element={protectedPage(<EmployeesPage />, MANAGERS)} />
+      <Route path="/employees/new" element={protectedPage(<EmployeeFormPage />, MANAGERS)} />
       <Route path="/employee" element={<Navigate replace to="/employees" />} />
-      <Route path="/employees/:employeeId" element={protectedPage(<EmployeeDetailPage />)} />
-      <Route path="/employees/:employeeId/edit" element={protectedPage(<EmployeeFormPage />)} />
+      <Route path="/employees/:employeeId" element={protectedPage(<EmployeeDetailPage />, MANAGERS)} />
+      <Route path="/employees/:employeeId/edit" element={protectedPage(<EmployeeFormPage />, MANAGERS)} />
 
-      <Route path="/availability" element={protectedPage(<AvailabilityPage />)} />
+      <Route path="/availability" element={protectedPage(<AvailabilityPage />, MANAGERS)} />
       <Route path="/time-off" element={protectedPage(<TimeOffPage />)} />
-      <Route path="/reports" element={protectedPage(<ReportsPage />)} />
+      <Route path="/reports" element={protectedPage(<ReportsPage />, MANAGERS)} />
       <Route path="/notifications" element={protectedPage(<NotificationsPage />)} />
-      <Route path="/settings" element={protectedPage(<NotificationsPage variant="settings" />)} />
+      <Route path="/settings" element={protectedPage(<NotificationsPage variant="settings" />, MANAGERS)} />
       <Route path="/mobile" element={protectedPage(<MobilePage />)} />
 
       <Route path="*" element={<Navigate replace to="/" />} />

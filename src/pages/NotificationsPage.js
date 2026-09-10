@@ -5,10 +5,12 @@ import NotificationRules from "../components/notifications/NotificationRules";
 import EmailPreview from "../components/notifications/EmailPreview";
 import PositionsSettings from "../components/settings/PositionsSettings";
 import StaffingRequirementsSettings from "../components/settings/StaffingRequirementsSettings";
+import UserAccessSettings from "../components/settings/UserAccessSettings";
 import { useCurrentEmployee } from "../api/employees";
 import { useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
 import { QueryState } from "../components/ui/StateMessage";
 import "./NotificationsPage.css";
+import { isAdministrator } from "../api/auth";
 
 // Notifications and Settings share this screen; only the heading copy differs.
 const COPY = {
@@ -52,6 +54,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
     >
       {variant === "settings" ? <PositionsSettings /> : null}
       {variant === "settings" ? <StaffingRequirementsSettings /> : null}
+      {variant === "settings" && isAdministrator() ? <UserAccessSettings /> : null}
       <QueryState query={employee} empty={{ title: "No employee profile", detail: "Your user account is not linked to an employee." }}>
         {() => <QueryState query={preferences}>
           {() => <div className="notices">

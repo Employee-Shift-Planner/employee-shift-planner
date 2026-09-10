@@ -1,15 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { get, post, put, query } from "./client";
-import { currentUser } from "./auth";
+import { currentUser, isManager } from "./auth";
 import { startOfWeek, toDateParam } from "../lib/format";
 
 const weekParam = (weekStart) => toDateParam(weekStart ?? startOfWeek());
 
 /** Every active employee — used wherever a name or role is needed. */
-export function useEmployees() {
+export function useEmployees(options = {}) {
   return useQuery({
     queryKey: ["employees"],
     queryFn: () => get("/Employee"),
+    ...options,
   });
 }
 
@@ -98,14 +99,16 @@ export function useEmployeeSummary(employeeId, weekStart) {
  * address and falls back to the first employee. See the notes in README —
  * a User.EmployeeId column would make this exact.
  */
-export function useCurrentEmployee() {
-  const employees = useEmployees();
-  const email = currentUser()?.email?.toLowerCase();
-
-  const match =
-    employees.data?.find((e) => e.email?.toLowerCase() === email) ??
-    employees.data?.[0] ??
-    null;
-
-  return { ...employees, data: match };
+export function useCurrentEmployee(options = {}) {
+  return useQuery({
+    queryKey: ["employees", "me", currentUser()?.id, isManager()],
+    queryFn: async () => {
+      if (!isManager()) return get("/Employee/me");
+      const employees = await get("/Employee");
+      const email = currentUser()?.email?.toLowerCase();
+      return employees.find((employee) => employee.email?.toLowerCase() === email) ?? employees[0] ?? null;
+    },
+    retry: false,
+    ...options,
+  });
 }

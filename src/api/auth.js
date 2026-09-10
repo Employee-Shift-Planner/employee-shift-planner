@@ -5,6 +5,17 @@ export const isSignedIn = () => Boolean(getToken());
 
 export const currentUser = () => getStoredUser();
 
+export const currentRole = () => {
+  const role = String(getStoredUser()?.role ?? "Employee").toLowerCase();
+  if (role === "administrator" || role === "admin") return "Administrator";
+  if (role === "supervisor" || role === "manager") return "Supervisor";
+  return "Employee";
+};
+
+export const isManager = () => ["Administrator", "Supervisor"].includes(currentRole());
+export const isAdministrator = () => currentRole() === "Administrator";
+export const homeForCurrentRole = () => isManager() ? "/schedule" : "/mobile";
+
 /**
  * The label shown at the foot of the sidebar. The API's user record carries an
  * email and role but no display name, so the email's local part stands in.

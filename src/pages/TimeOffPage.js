@@ -2,13 +2,14 @@ import { useState } from "react";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import StateMessage from "../components/ui/StateMessage";
-import { useEmployees } from "../api/employees";
+import { useCurrentEmployee, useEmployees } from "../api/employees";
 import {
   useCreateTimeOffRequest,
   useReviewTimeOffRequest,
   useTimeOffRequests,
 } from "../api/timeOff";
 import { toDateParam } from "../lib/format";
+import { isManager } from "../api/auth";
 import "./TimeOffPage.css";
 
 const today = () => toDateParam(new Date());
@@ -19,7 +20,9 @@ const formatDates = (request) => request.startDate === request.endDate
   : `${request.startDate} – ${request.endDate}`;
 
 export default function TimeOffPage() {
-  const employees = useEmployees();
+  const manager = isManager();
+  const employees = useEmployees({ enabled: manager });
+  const currentEmployee = useCurrentEmployee({ enabled: !manager });
   const requests = useTimeOffRequests();
   const createRequest = useCreateTimeOffRequest();
   const reviewRequest = useReviewTimeOffRequest();
@@ -30,10 +33,11 @@ export default function TimeOffPage() {
   const pending = requests.data?.filter((request) => request.status === "Pending") ?? [];
   const reviewed = requests.data?.filter((request) => request.status !== "Pending") ?? [];
   const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
+  const employeeId = manager ? form.employeeId : currentEmployee.data?.employeeId;
 
   const submit = (event) => {
     event.preventDefault();
-    createRequest.mutate(form, {
+    createRequest.mutate({ ...form, employeeId }, {
       onSuccess: () => {
         setForm({ ...EMPTY, startDate: today(), endDate: today() });
         setMessage("Time-off request submitted for review.");
@@ -60,13 +64,7 @@ export default function TimeOffPage() {
       <div className="time-off-layout">
         <form className="card time-off-form" onSubmit={submit}>
           <h2>New request</h2>
-          <label>
-            Employee
-            <select required value={form.employeeId} onChange={update("employeeId")}>
-              <option value="">Select employee</option>
-              {(employees.data ?? []).map((employee) => <option key={employee.employeeId} value={employee.employeeId}>{employee.fullName}</option>)}
-            </select>
-          </label>
+          {manager ? <label>Employee<select required value={form.employeeId} onChange={update("employeeId")}><option value="">Select employee</option>{(employees.data ?? []).map((employee) => <option key={employee.employeeId} value={employee.employeeId}>{employee.fullName}</option>)}</select></label> : <label>Employee<input readOnly value={currentEmployee.data?.fullName ?? "Loading your profile…"} /></label>}
           <div className="time-off-date-grid">
             <label>From<input required type="date" value={form.startDate} onChange={update("startDate")} /></label>
             <label>Through<input required type="date" min={form.startDate} value={form.endDate} onChange={update("endDate")} /></label>
@@ -75,13 +73,13 @@ export default function TimeOffPage() {
             Reason
             <textarea required maxLength="500" rows="4" value={form.reason} onChange={update("reason")} placeholder="Vacation, appointment, personal leave…" />
           </label>
-          {employees.isError ? <StateMessage tone="error" title="Could not load employees" detail={employees.error?.message} /> : null}
-          <Button type="submit" disabled={createRequest.isPending || !form.employeeId || form.endDate < form.startDate}>
+          {(manager ? employees : currentEmployee).isError ? <StateMessage tone="error" title="Could not load employee profile" detail={(manager ? employees : currentEmployee).error?.message} /> : null}
+          <Button type="submit" disabled={createRequest.isPending || !employeeId || form.endDate < form.startDate}>
             {createRequest.isPending ? "Submitting…" : "Submit request"}
           </Button>
         </form>
 
-        <section className="card time-off-queue">
+        {manager ? <section className="card time-off-queue">
           <div className="time-off-section-heading">
             <h2>Pending approval</h2>
             <span>{pending.length}</span>
@@ -107,11 +105,11 @@ export default function TimeOffPage() {
               </div>
             </article>
           ))}
-        </section>
+        </section> : <section className="card time-off-queue"><div className="time-off-section-heading"><h2>Your pending requests</h2><span>{pending.length}</span></div>{pending.length === 0 ? <p>You have no requests waiting for review.</p> : pending.map((request) => <article className="time-off-request" key={request.id}><div><b>{formatDates(request)}</b><span>Pending</span></div><p>{request.reason}</p></article>)}</section>}
       </div>
 
       <section className="card time-off-history">
-        <h2>Request history</h2>
+        <h2>{manager ? "Request history" : "Your request history"}</h2>
         {reviewed.length === 0 ? <p>No requests have been reviewed yet.</p> : (
           <div className="time-off-table-wrap"><table><thead><tr><th>Employee</th><th>Dates</th><th>Reason</th><th>Status</th><th>Review note</th></tr></thead><tbody>
             {reviewed.map((request) => <tr key={request.id}><td>{request.employeeName}</td><td>{formatDates(request)}</td><td>{request.reason}</td><td><span className={`time-off-status ${request.status.toLowerCase()}`}>{request.status}</span></td><td>{request.reviewNotes || "—"}</td></tr>)}

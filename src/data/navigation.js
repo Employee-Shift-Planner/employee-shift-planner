@@ -1,10 +1,11 @@
 // Sidebar destinations, in the order the design lists them.
 export const NAV_ITEMS = [
-  { label: "Schedule", path: "/schedule" },
-  { label: "Employees", path: "/employees" },
-  { label: "Availability", path: "/availability" },
-  { label: "Time off", path: "/time-off" },
-  { label: "Reports", path: "/reports" },
-  { label: "Notifications", path: "/notifications" },
-  { label: "Settings", path: "/settings" },
+  { label: "Schedule", path: "/schedule", roles: ["Administrator", "Supervisor"] },
+  { label: "My schedule", path: "/mobile", roles: ["Employee"] },
+  { label: "Employees", path: "/employees", roles: ["Administrator", "Supervisor"] },
+  { label: "Availability", path: "/availability", roles: ["Administrator", "Supervisor"] },
+  { label: "Time off", path: "/time-off", roles: ["Administrator", "Supervisor", "Employee"] },
+  { label: "Reports", path: "/reports", roles: ["Administrator", "Supervisor"] },
+  { label: "Notifications", path: "/notifications", roles: ["Administrator", "Supervisor", "Employee"] },
+  { label: "Settings", path: "/settings", roles: ["Administrator", "Supervisor"] },
 ];

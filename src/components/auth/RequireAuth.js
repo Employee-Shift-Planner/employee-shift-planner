@@ -1,15 +1,19 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { isSignedIn } from "../../api/auth";
+import { currentRole, homeForCurrentRole, isSignedIn } from "../../api/auth";
 
 /**
- * Gate for the planner screens. This is a UX guard, not a security boundary —
- * the API is what must enforce access (see the [Authorize] note in the README).
+ * Authentication and role-aware UX gate for planner screens. The API mirrors
+ * these rules as the actual security boundary.
  */
-export default function RequireAuth({ children }) {
+export default function RequireAuth({ children, roles }) {
   const location = useLocation();
 
   if (!isSignedIn()) {
     return <Navigate replace to="/" state={{ from: location.pathname }} />;
+  }
+
+  if (roles && !roles.includes(currentRole())) {
+    return <Navigate replace to={homeForCurrentRole()} />;
   }
 
   return children;

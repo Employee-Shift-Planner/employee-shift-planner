@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { NAV_ITEMS } from "../../data/navigation";
-import { currentUserLabel } from "../../api/auth";
+import { currentRole, currentUserLabel } from "../../api/auth";
 import "./Sidebar.css";
 
 /**
@@ -18,7 +18,7 @@ export default function Sidebar({ active }) {
         <small>WORKFORCE PLANNER</small>
       </div>
       <nav>
-        {NAV_ITEMS.map(({ label, path }) => {
+        {NAV_ITEMS.filter((item) => item.roles.includes(currentRole())).map(({ label, path }) => {
           const isActive = active === label;
           return (
             <Link
@@ -32,7 +32,7 @@ export default function Sidebar({ active }) {
           );
         })}
       </nav>
-      <strong>{currentUserLabel()}</strong>
+      <strong>{currentUserLabel()}<small>{currentRole()}</small></strong>
     </aside>
   );
 }
