@@ -81,3 +81,41 @@ export function usePublishWeek(weekStart) {
     onSuccess: () => invalidateScheduleData(queryClient),
   });
 }
+
+export function useCopyWeek(targetWeekStart) {
+  const queryClient = useQueryClient();
+  const target = targetWeekStart ?? startOfWeek();
+  const source = new Date(target);
+  source.setDate(source.getDate() - 7);
+
+  return useMutation({
+    mutationFn: () => post("/Schedule/week/copy", {
+      sourceWeekStart: toDateParam(source),
+      targetWeekStart: toDateParam(target),
+    }),
+    onSuccess: () => invalidateScheduleData(queryClient),
+  });
+}
+
+export function useShiftTemplates() {
+  return useQuery({
+    queryKey: ["shift-templates"],
+    queryFn: () => get("/ShiftTemplates"),
+  });
+}
+
+export function useCreateShiftTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (template) => post("/ShiftTemplates", template),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-templates"] }),
+  });
+}
+
+export function useDeleteShiftTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (templateId) => del(`/ShiftTemplates/${encodeURIComponent(templateId)}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-templates"] }),
+  });
+}

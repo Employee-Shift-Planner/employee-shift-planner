@@ -5,6 +5,7 @@ import Button from "../components/ui/Button";
 import ShiftDetailsCard from "../components/schedule/ShiftDetailsCard";
 import AssignEmployees from "../components/schedule/AssignEmployees";
 import ConflictBanner from "../components/schedule/ConflictBanner";
+import ShiftTemplateTools from "../components/schedule/ShiftTemplateTools";
 import { useCreateShift, useShiftCandidates } from "../api/schedule";
 import StateMessage from "../components/ui/StateMessage";
 import { startOfWeek, toDateParam } from "../lib/format";
@@ -34,6 +35,7 @@ export default function CreateShiftPage() {
   const validBreak = Number(draft.breakMinutes) >= 0 && Number(draft.breakMinutes) <= 240;
   const canSubmit = Boolean(draft.role.trim() && employeeId && validWindow && validBreak && !create.isPending);
   const update = (field, value) => { setDraft((current) => ({ ...current, [field]: value })); if (["role", "startTime", "endTime"].includes(field)) setEmployeeId(""); };
+  const applyTemplate = (template) => { setDraft((current) => ({ ...current, ...template })); setEmployeeId(""); };
   const submit = () => create.mutate({ ...draft, employeeId, breakMinutes: Number(draft.breakMinutes), status: true, assignedColor: null }, { onSuccess: backToSchedule });
   const conflict = candidates.data?.find((candidate) => candidate.status !== "Available");
 
@@ -43,6 +45,7 @@ export default function CreateShiftPage() {
       title="Create shift"
       copy={`Planning for the week of ${toDateParam(selectedWeek)}. Assign qualified employees and resolve conflicts before publishing.`}
     >
+      <ShiftTemplateTools shift={draft} weekStart={selectedWeek} onApply={applyTemplate} />
       <div className="create">
         <ShiftDetailsCard shift={draft} onChange={update} />
         <div>

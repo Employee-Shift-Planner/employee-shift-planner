@@ -6,7 +6,7 @@ import Metrics from "../components/ui/Metrics";
 import StateMessage from "../components/ui/StateMessage";
 import WeekCalendar from "../components/schedule/WeekCalendar";
 import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
-import { usePublishWeek, useWeekShifts } from "../api/schedule";
+import { useCopyWeek, usePublishWeek, useWeekShifts } from "../api/schedule";
 import { useWeeklyReport } from "../api/reports";
 import {
   formatDayHeading,
@@ -57,6 +57,7 @@ export default function SchedulePage() {
   const shifts = useWeekShifts(weekStart);
   const report = useWeeklyReport(weekStart);
   const publishWeek = usePublishWeek(weekStart);
+  const copyWeek = useCopyWeek(weekStart);
   const isCurrentWeek = toDateParam(weekStart) === toDateParam(currentWeek);
   const draftCount = shifts.data?.filter((shift) => !shift.isPublished).length ?? 0;
 
@@ -106,6 +107,13 @@ export default function SchedulePage() {
           >
             {publishWeek.isPending ? "Publishing…" : `Publish week${draftCount ? ` (${draftCount})` : ""}`}
           </Button>
+          <Button
+            tone="gray"
+            disabled={copyWeek.isPending}
+            onClick={() => window.confirm(`Copy shifts from ${formatWeekRange(addWeeks(weekStart, -1))} into this week as drafts?`) && copyWeek.mutate()}
+          >
+            {copyWeek.isPending ? "Copying…" : "Copy previous week"}
+          </Button>
           <Button onClick={() => navigate(`/create-shift?week=${toDateParam(weekStart)}`)}>+ Create shift</Button>
         </>
       }
@@ -125,6 +133,15 @@ export default function SchedulePage() {
       <Metrics items={metrics} />
       {publishWeek.isError ? (
         <StateMessage tone="error" title="Could not publish this week" detail={publishWeek.error?.message} />
+      ) : null}
+      {copyWeek.isError ? (
+        <StateMessage tone="error" title="Could not copy the previous week" detail={copyWeek.error?.message} />
+      ) : null}
+      {copyWeek.isSuccess ? (
+        <div className="copy-week-result" role="status">
+          Copied {copyWeek.data.copiedShifts} {copyWeek.data.copiedShifts === 1 ? "shift" : "shifts"} as drafts.
+          {copyWeek.data.skippedShifts ? ` Skipped ${copyWeek.data.skippedShifts} conflicting ${copyWeek.data.skippedShifts === 1 ? "shift" : "shifts"}.` : ""}
+        </div>
       ) : null}
       {shifts.isSuccess ? (
         <div className={`publication-status ${draftCount ? "draft" : "published"}`} role="status">
