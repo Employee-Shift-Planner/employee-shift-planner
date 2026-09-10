@@ -11,6 +11,7 @@ import TimeOffPage from "./pages/TimeOffPage";
 import ReportsPage from "./pages/ReportsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import MobilePage from "./pages/MobilePage";
+import OperationsPage from "./pages/OperationsPage";
 import RequireAuth from "./components/auth/RequireAuth";
 
 const MANAGERS = ["Administrator", "Supervisor"];
@@ -43,6 +44,7 @@ export default function App() {
       <Route path="/notifications" element={protectedPage(<NotificationsPage />)} />
       <Route path="/settings" element={protectedPage(<NotificationsPage variant="settings" />, MANAGERS)} />
       <Route path="/mobile" element={protectedPage(<MobilePage />)} />
+      <Route path="/operations" element={protectedPage(<OperationsPage />)} />
 
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>

@@ -1,0 +1,13 @@
+.operations-panel { margin-bottom: 24px; padding: 22px; }
+.operations-panel h2 { margin: 0 0 14px; }
+.operations-panel article { padding: 15px 0; border-bottom: 1px solid #edf0f5; }
+.operations-panel article > div:first-child { display: flex; justify-content: space-between; gap: 12px; }
+.operations-panel article select { min-width: 240px; padding: 9px; border: 1px solid #dbe1eb; border-radius: 8px; }
+.operation-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.operation-status { float: right; border-radius: 999px; padding: 4px 8px; background: #fff4d6; font-size: 11px; }
+.operation-status.approved { background:#e7f7f0; color:#13734f; } .operation-status.rejected { background:#fdebed; color:#a1262e; }
+.operations-table { overflow-x: auto; }
+.operations-table table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+.operations-table th, .operations-table td { padding: 11px 9px; border-bottom: 1px solid #edf0f5; }
+.operations-table select { padding: 7px; border: 1px solid #dbe1eb; border-radius: 7px; }
+.operations-table button { border: 0; color: var(--blue); background: transparent; font-weight: 700; cursor: pointer; }

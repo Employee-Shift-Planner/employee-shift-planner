@@ -5,10 +5,11 @@
   margin-bottom: 18px;
   padding: 0 16px;
   display: grid;
-  grid-template-columns: 90px 1fr;
+  grid-template-columns: 90px 1fr auto;
   align-items: center;
   font-size: 13px;
 }
+.mshift button { border: 0; color: var(--blue); background: transparent; font-weight: 700; cursor: pointer; }
 
 .mshift b {
   color: var(--blue);
