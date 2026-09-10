@@ -71,3 +71,13 @@ export function useCancelShift() {
     onSuccess: () => invalidateScheduleData(queryClient),
   });
 }
+
+export function usePublishWeek(weekStart) {
+  const queryClient = useQueryClient();
+  const week = toDateParam(weekStart ?? startOfWeek());
+
+  return useMutation({
+    mutationFn: () => post(`/Schedule/week/publish${query({ weekStart: week })}`),
+    onSuccess: () => invalidateScheduleData(queryClient),
+  });
+}

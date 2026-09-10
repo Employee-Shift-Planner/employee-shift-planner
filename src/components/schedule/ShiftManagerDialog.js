@@ -101,6 +101,9 @@ export default function ShiftManagerDialog({ shift, onClose }) {
           <div>
             <h2 id="shift-dialog-title">Manage shift</h2>
             <p>Edit the details, change the assigned employee, or manage this shift.</p>
+            <span className={`shift-publication-badge ${shift.isPublished ? "published" : "draft"}`}>
+              {shift.isPublished ? "Published" : "Draft"}
+            </span>
           </div>
           <button className="shift-dialog-close" type="button" onClick={onClose} disabled={busy} aria-label="Close shift details">×</button>
         </div>

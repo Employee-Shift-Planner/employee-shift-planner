@@ -6,7 +6,7 @@ import Metrics from "../components/ui/Metrics";
 import StateMessage from "../components/ui/StateMessage";
 import WeekCalendar from "../components/schedule/WeekCalendar";
 import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
-import { useWeekShifts } from "../api/schedule";
+import { usePublishWeek, useWeekShifts } from "../api/schedule";
 import { useWeeklyReport } from "../api/reports";
 import {
   formatDayHeading,
@@ -40,6 +40,7 @@ const toCalendarBlocks = (shifts, weekStart) => {
       time: formatShiftRange(shift.startTime, shift.endTime),
       tone: toneFor(shift.employeeId, shift.assignedColor),
       source: shift,
+      isDraft: !shift.isPublished,
     };
   });
 };
@@ -55,7 +56,9 @@ export default function SchedulePage() {
   }, [currentWeek, searchParams]);
   const shifts = useWeekShifts(weekStart);
   const report = useWeeklyReport(weekStart);
+  const publishWeek = usePublishWeek(weekStart);
   const isCurrentWeek = toDateParam(weekStart) === toDateParam(currentWeek);
+  const draftCount = shifts.data?.filter((shift) => !shift.isPublished).length ?? 0;
 
   const selectWeek = (date) => {
     const normalized = startOfWeek(date);
@@ -95,7 +98,16 @@ export default function SchedulePage() {
       title="Weekly Schedule"
       copy={formatWeekRange(weekStart)}
       actions={
-        <Button onClick={() => navigate(`/create-shift?week=${toDateParam(weekStart)}`)}>+ Create shift</Button>
+        <>
+          <Button
+            tone="success"
+            disabled={!draftCount || publishWeek.isPending}
+            onClick={() => publishWeek.mutate()}
+          >
+            {publishWeek.isPending ? "Publishing…" : `Publish week${draftCount ? ` (${draftCount})` : ""}`}
+          </Button>
+          <Button onClick={() => navigate(`/create-shift?week=${toDateParam(weekStart)}`)}>+ Create shift</Button>
+        </>
       }
     >
       <nav className="week-navigation" aria-label="Schedule week navigation">
@@ -111,6 +123,15 @@ export default function SchedulePage() {
         </Button>
       </nav>
       <Metrics items={metrics} />
+      {publishWeek.isError ? (
+        <StateMessage tone="error" title="Could not publish this week" detail={publishWeek.error?.message} />
+      ) : null}
+      {shifts.isSuccess ? (
+        <div className={`publication-status ${draftCount ? "draft" : "published"}`} role="status">
+          <b>{draftCount ? `${draftCount} unpublished ${draftCount === 1 ? "change" : "changes"}` : "Week published"}</b>
+          <span>{draftCount ? "Employees cannot see draft shifts until you publish the week." : "Employees can see all shifts currently in this week."}</span>
+        </div>
+      ) : null}
       {shifts.isPending ? (
         <StateMessage title="Loading the week…" detail="Fetching shifts from the scheduler." />
       ) : shifts.isError ? (

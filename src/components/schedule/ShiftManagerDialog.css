@@ -33,6 +33,26 @@
   margin-top: 6px;
 }
 
+.shift-publication-badge {
+  display: inline-block;
+  margin-top: 9px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.shift-publication-badge.draft {
+  color: #8a5a00;
+  background: #fff4d6;
+}
+
+.shift-publication-badge.published {
+  color: #13734f;
+  background: #e7f7f0;
+}
+
 .shift-dialog-close {
   border: 0;
   background: transparent;
