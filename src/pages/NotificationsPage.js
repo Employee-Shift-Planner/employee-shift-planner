@@ -6,6 +6,7 @@ import EmailPreview from "../components/notifications/EmailPreview";
 import PositionsSettings from "../components/settings/PositionsSettings";
 import StaffingRequirementsSettings from "../components/settings/StaffingRequirementsSettings";
 import UserAccessSettings from "../components/settings/UserAccessSettings";
+import HolidaySettings from "../components/settings/HolidaySettings";
 import { useCurrentEmployee } from "../api/employees";
 import { useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
 import { QueryState } from "../components/ui/StateMessage";
@@ -54,6 +55,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
     >
       {variant === "settings" ? <PositionsSettings /> : null}
       {variant === "settings" ? <StaffingRequirementsSettings /> : null}
+      {variant === "settings" ? <HolidaySettings /> : null}
       {variant === "settings" && isAdministrator() ? <UserAccessSettings /> : null}
       <QueryState query={employee} empty={{ title: "No employee profile", detail: "Your user account is not linked to an employee." }}>
         {() => <QueryState query={preferences}>

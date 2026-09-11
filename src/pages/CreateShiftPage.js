@@ -7,6 +7,7 @@ import AssignEmployees from "../components/schedule/AssignEmployees";
 import ConflictBanner from "../components/schedule/ConflictBanner";
 import ShiftTemplateTools from "../components/schedule/ShiftTemplateTools";
 import { useCreateShift, useShiftCandidates } from "../api/schedule";
+import { useHolidays } from "../api/holidays";
 import StateMessage from "../components/ui/StateMessage";
 import { startOfWeek, toDateParam } from "../lib/format";
 import { fromDateParam } from "../utils/week";
@@ -31,12 +32,18 @@ export default function CreateShiftPage() {
   const [employeeId, setEmployeeId] = useState("");
   const candidates = useShiftCandidates({ start: draft.startTime, end: draft.endTime, role: draft.role });
   const create = useCreateShift();
+  const shiftDate = draft.startTime?.slice(0, 10);
+  const holidays = useHolidays(shiftDate, shiftDate);
+  const dayHoliday = holidays.data?.[0];
   const validWindow = Boolean(draft.startTime && draft.endTime && new Date(draft.endTime) > new Date(draft.startTime));
   const validBreak = Number(draft.breakMinutes) >= 0 && Number(draft.breakMinutes) <= 240;
   const canSubmit = Boolean(draft.role.trim() && employeeId && validWindow && validBreak && !create.isPending);
   const update = (field, value) => { setDraft((current) => ({ ...current, [field]: value })); if (["role", "startTime", "endTime"].includes(field)) setEmployeeId(""); };
   const applyTemplate = (template) => { setDraft((current) => ({ ...current, ...template })); setEmployeeId(""); };
-  const submit = () => create.mutate({ ...draft, employeeId, breakMinutes: Number(draft.breakMinutes), status: true, assignedColor: null }, { onSuccess: backToSchedule });
+  const submit = () => {
+    if (dayHoliday?.schedulingPolicy === "Closed" && !window.confirm(`${dayHoliday.name} is marked closed. Create this shift anyway?`)) return;
+    create.mutate({ ...draft, employeeId, breakMinutes: Number(draft.breakMinutes), status: true, assignedColor: null }, { onSuccess: backToSchedule });
+  };
   const conflict = candidates.data?.find((candidate) => candidate.status !== "Available");
 
   return (
@@ -51,6 +58,7 @@ export default function CreateShiftPage() {
         <div>
           {candidates.isPending ? <StateMessage title="Checking availability…" /> : candidates.isError ? <StateMessage tone="error" title="Could not check candidates" detail={candidates.error?.message} /> : <AssignEmployees candidates={candidates.data ?? []} selectedId={employeeId} onSelect={setEmployeeId} />}
           {conflict ? <ConflictBanner title="Some employees cannot take this shift" detail={conflict.detail ?? conflict.status} /> : null}
+          {dayHoliday ? <StateMessage title={`${dayHoliday.name} · ${dayHoliday.schedulingPolicy}`} detail={dayHoliday.schedulingPolicy === "Closed" ? "This date is marked closed. You can continue only after confirming the override." : "This shift falls on a configured holiday; review staffing and pay rules before assigning it."} /> : null}
           {!validWindow ? <StateMessage tone="error" title="Check the shift times" detail="The end time must be after the start time." /> : null}
           {create.isError ? <StateMessage tone="error" title="Could not create shift" detail={create.error?.message} /> : null}
           <div className="end">

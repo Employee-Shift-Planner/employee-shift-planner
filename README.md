@@ -12,6 +12,7 @@ The Employee Shift Planner is a modern web application designed to help managers
 - Employee profiles, positions, availability, and conflict checks
 - Time-off requests and supervisor approval
 - Staffing requirements and live coverage warnings
+- Country/region public-holiday imports, manual closures, and schedule warnings
 - Hourly rates, overtime thresholds, and labour-cost forecasting
 - Shift swaps, attendance recording, and audit history
 - Administrator, Supervisor, and Employee access levels
@@ -71,7 +72,7 @@ Frontend guards match the API policies, but API authorization is the security bo
 | `/operations` | Swaps, attendance, and audit history |
 | `/reports` | Coverage, hours, and cost reports |
 | `/notifications` | Notification preferences |
-| `/settings` | Positions, staffing requirements, and user access |
+| `/settings` | Positions, staffing requirements, holidays, and user access |
 | `/mobile` | Employee-facing published schedule |
 
 ## Source organization
