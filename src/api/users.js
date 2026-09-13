@@ -16,7 +16,7 @@ export function useCreateUser() {
 export function useUpdateUserAccess() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, role, isActive }) => put(`/User/${encodeURIComponent(id)}/access`, { role, isActive }),
+    mutationFn: ({ id, role, isActive, employeeId }) => put(`/User/${encodeURIComponent(id)}/access`, { role, isActive, employeeId }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
   });
 }
