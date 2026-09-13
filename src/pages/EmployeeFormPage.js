@@ -8,7 +8,7 @@ import "./EmployeeFormPage.css";
 
 const EMPTY = {
   employeeId: "", firstName: "", middleName: "", lastName: "", email: "",
-  phone: "", positionId: "", active: true, preferredShift: "", maxWeeklyHours: 40,
+  phone: "", pushToken: "", positionId: "", active: true, preferredShift: "", maxWeeklyHours: 40,
   skills: "", certifications: "", hourlyRate: 0, overtimeThresholdHours: 40,
 };
 
@@ -24,7 +24,7 @@ export default function EmployeeFormPage() {
   useEffect(() => {
     if (employee.data) {
       setForm({ ...EMPTY, ...employee.data, middleName: employee.data.middleName ?? "",
-        email: employee.data.email ?? "", phone: employee.data.phone ?? "",
+        email: employee.data.email ?? "", phone: employee.data.phone ?? "", pushToken: employee.data.pushToken ?? "",
         positionId: employee.data.positionId ?? "", preferredShift: employee.data.preferredShift ?? "",
         skills: employee.data.skills ?? "", certifications: employee.data.certifications ?? "" });
     }
@@ -52,6 +52,7 @@ export default function EmployeeFormPage() {
           <label>Last name<input required maxLength="50" value={form.lastName} onChange={update("lastName")} /></label>
           <label>Email<input type="email" maxLength="100" value={form.email} onChange={update("email")} /></label>
           <label>Phone<input type="tel" maxLength="30" value={form.phone} onChange={update("phone")} /></label>
+          <label>Push token<input maxLength="500" value={form.pushToken} onChange={update("pushToken")} /></label>
           <label>Position<select value={form.positionId} onChange={update("positionId")}><option value="">Unassigned</option>{(positions.data ?? []).filter((p) => p.isActive).map((p) => <option key={p.positionId} value={p.positionId}>{p.title}</option>)}</select></label>
           <label>Preferred shift<select value={form.preferredShift} onChange={update("preferredShift")}><option value="">Flexible</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option></select></label>
           <label>Skills<input maxLength="500" placeholder="First aid, Forklift" value={form.skills} onChange={update("skills")} /><small>Separate multiple skills with commas.</small></label>

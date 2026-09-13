@@ -52,6 +52,7 @@ const employeePayload = (employee) => ({
   lastName: employee.lastName.trim(),
   email: employee.email.trim() || null,
   phone: employee.phone.trim() || null,
+  pushToken: employee.pushToken.trim() || null,
   positionId: employee.positionId ? Number(employee.positionId) : null,
   active: employee.active,
   preferredShift: employee.preferredShift || null,

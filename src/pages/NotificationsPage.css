@@ -9,3 +9,34 @@
     grid-template-columns: 1fr;
   }
 }
+.notification-history {
+  grid-column: 1 / -1;
+}
+
+.notification-history-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.notification-history-list article {
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  padding-top: 0.75rem;
+}
+
+.notification-history-list article div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.notification-history-list span,
+.notification-history-list time,
+.notification-history-list small {
+  color: var(--muted-color, #64748b);
+  display: block;
+  font-size: 0.8rem;
+}
+
+.notification-history-list p {
+  margin: 0.35rem 0;
+}

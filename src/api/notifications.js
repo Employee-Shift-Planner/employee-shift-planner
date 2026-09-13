@@ -8,6 +8,7 @@ export const DEFAULT_PREFERENCES = {
   upcomingReminder: true,
   schedulePublished: true,
   smsEnabled: false,
+  pushEnabled: false,
   reminderHoursBefore: 12,
 };
 
@@ -45,5 +46,13 @@ export function useSaveNotificationPreferences(employeeId) {
     onSuccess: (saved) => {
       queryClient.setQueryData(["notifications", employeeId], saved);
     },
+  });
+}
+
+export function useNotificationHistory(employeeId) {
+  return useQuery({
+    queryKey: ["notification-history", employeeId],
+    enabled: Boolean(employeeId),
+    queryFn: () => get(`/NotificationPreferences/${encodeURIComponent(employeeId)}/history`),
   });
 }

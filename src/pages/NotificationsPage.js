@@ -8,7 +8,7 @@ import StaffingRequirementsSettings from "../components/settings/StaffingRequire
 import UserAccessSettings from "../components/settings/UserAccessSettings";
 import HolidaySettings from "../components/settings/HolidaySettings";
 import { useCurrentEmployee } from "../api/employees";
-import { useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
+import { useNotificationHistory, useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
 import { QueryState } from "../components/ui/StateMessage";
 import "./NotificationsPage.css";
 import { isAdministrator } from "../api/auth";
@@ -31,6 +31,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
   const { active, title, copy } = COPY[variant];
   const employee = useCurrentEmployee();
   const preferences = useNotificationPreferences(employee.data?.employeeId);
+  const history = useNotificationHistory(employee.data?.employeeId);
   const save = useSaveNotificationPreferences(employee.data?.employeeId);
   const [draft, setDraft] = useState(null);
   const value = draft ?? preferences.data;
@@ -40,6 +41,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
     { id: "upcomingReminder", label: "Upcoming shift reminder", enabled: value.upcomingReminder },
     { id: "schedulePublished", label: "Weekly schedule published", enabled: value.schedulePublished },
     { id: "smsEnabled", label: "SMS alerts", enabled: value.smsEnabled },
+    { id: "pushEnabled", label: "Push alerts", enabled: value.pushEnabled },
   ] : [];
 
   const toggleRule = (ruleId) => {
@@ -62,6 +64,18 @@ export default function NotificationsPage({ variant = "notifications" }) {
           {() => <div className="notices">
             <NotificationRules rules={rules} onToggle={toggleRule} />
             <EmailPreview preview={{ subject: "Your shift was updated", body: `Hi ${employee.data.firstName}, a change was made to your schedule.`, action: "View schedule" }} />
+            <section className="card notification-history">
+              <h2>Delivery history</h2>
+              <QueryState query={history} empty={{ title: "No notifications yet", detail: "Sent and queued messages will appear here." }}>
+                {(items) => <div className="notification-history-list">{items.map((item) =>
+                  <article key={item.id}>
+                    <div><strong>{item.subject || item.eventType}</strong><span>{item.channel} · {item.status}</span></div>
+                    <p>{item.body}</p>
+                    <time>{new Date(item.createdAt).toLocaleString()}</time>
+                    {item.lastError ? <small>{item.lastError}</small> : null}
+                  </article>)}</div>}
+              </QueryState>
+            </section>
           </div>}
         </QueryState>}
       </QueryState>
