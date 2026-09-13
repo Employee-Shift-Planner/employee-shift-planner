@@ -140,7 +140,7 @@ export default function SchedulePage() {
       </nav>
       <Metrics items={metrics} />
       {holidays.isError ? <StateMessage tone="error" title="Could not load holidays" detail={holidays.error?.message} /> : null}
-      {holidays.isSuccess && holidays.data.length ? <section className="holiday-week" aria-label="Holidays this week">{holidays.data.map((holiday) => <article key={holiday.id}><b>{holiday.date} · {holiday.name}</b><span>{holiday.schedulingPolicy === "Closed" ? "Closed — shifts require an override" : holiday.schedulingPolicy === "Warning" ? "Review holiday staffing" : "Holiday"}</span></article>)}</section> : null}
+      {holidays.isSuccess && holidays.data.length ? <section className="holiday-week" aria-label="Holidays this week">{holidays.data.map((holiday) => <article key={holiday.id}><b>{holiday.date} · {holiday.name}</b><span>{holiday.schedulingPolicy === "Closed" ? "Closed — shifts cannot be assigned" : holiday.schedulingPolicy === "Warning" ? "Review holiday staffing" : "Holiday"}</span></article>)}</section> : null}
       {coverage.isError ? <StateMessage tone="error" title="Could not check staffing coverage" detail={coverage.error?.message} /> : null}
       {coverage.isSuccess && coverage.data.length > 0 ? (
         <section className="coverage-warnings" aria-labelledby="coverage-warning-heading">
