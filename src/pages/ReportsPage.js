@@ -20,8 +20,8 @@ export default function ReportsPage() {
       ["Employee cost forecast", "Employee ID", "Regular hours", "Overtime hours", "Hourly rate", "Regular cost", "Overtime cost", "Total cost"],
       ...report.data.labourCostByEmployee.map((row) => [row.fullName, row.employeeId, row.regularHours, row.overtimeHours, row.hourlyRate, row.regularCost, row.overtimeCost, row.totalCost]),
       [],
-      ["Day", "Date", "Scheduled employees", "Available employees", "Hours", "Coverage %", "Coverage gap"],
-      ...report.data.coverageByDay.map((day) => [day.day, day.date, day.scheduledEmployees, day.availableEmployees, day.hours, day.coveragePercent, day.isGap ? "Yes" : "No"]),
+      ["Day", "Date", "Scheduled employees", "Required employees", "Hours", "Coverage %", "Coverage gap"],
+      ...report.data.coverageByDay.map((day) => [day.day, day.date, day.scheduledEmployees, day.requiredEmployees, day.hours, day.coveragePercent, day.isGap ? "Yes" : "No"]),
     ];
     const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
     const url = URL.createObjectURL(new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" }));
