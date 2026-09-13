@@ -24,12 +24,12 @@ export function useEmployeeShifts(employeeId, from) {
  * Who can take a proposed shift. Only runs once a valid window is set, since
  * the API rejects an end that is not after the start.
  */
-export function useShiftCandidates({ start, end, role, excludeShiftId }) {
+export function useShiftCandidates({ start, end, role, requiredSkill, breakMinutes, excludeShiftId }) {
   const valid = Boolean(start && end && new Date(end) > new Date(start));
 
   return useQuery({
-    queryKey: ["schedule", "candidates", start, end, role, excludeShiftId],
-    queryFn: () => get(`/Schedule/candidates${query({ start, end, role, excludeShiftId })}`),
+    queryKey: ["schedule", "candidates", start, end, role, requiredSkill, breakMinutes, excludeShiftId],
+    queryFn: () => get(`/Schedule/candidates${query({ start, end, role, requiredSkill, breakMinutes, excludeShiftId })}`),
     enabled: valid,
   });
 }

@@ -56,6 +56,7 @@ const employeePayload = (employee) => ({
   active: employee.active,
   preferredShift: employee.preferredShift || null,
   skills: employee.skills.trim() || null,
+  certifications: employee.certifications.trim() || null,
   maxWeeklyHours: Number(employee.maxWeeklyHours),
   hourlyRate: Number(employee.hourlyRate),
   overtimeThresholdHours: Number(employee.overtimeThresholdHours),

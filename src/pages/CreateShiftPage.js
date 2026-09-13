@@ -30,7 +30,7 @@ export default function CreateShiftPage() {
   }, [selectedWeek]);
   const [draft, setDraft] = useState(initial);
   const [employeeId, setEmployeeId] = useState("");
-  const candidates = useShiftCandidates({ start: draft.startTime, end: draft.endTime, role: draft.role });
+  const candidates = useShiftCandidates({ start: draft.startTime, end: draft.endTime, role: draft.role, requiredSkill: draft.requiredSkill, breakMinutes: draft.breakMinutes });
   const create = useCreateShift();
   const shiftDate = draft.startTime?.slice(0, 10);
   const holidays = useHolidays(shiftDate, shiftDate);
@@ -38,7 +38,7 @@ export default function CreateShiftPage() {
   const validWindow = Boolean(draft.startTime && draft.endTime && new Date(draft.endTime) > new Date(draft.startTime));
   const validBreak = Number(draft.breakMinutes) >= 0 && Number(draft.breakMinutes) <= 240;
   const canSubmit = Boolean(draft.role.trim() && employeeId && validWindow && validBreak && !create.isPending);
-  const update = (field, value) => { setDraft((current) => ({ ...current, [field]: value })); if (["role", "startTime", "endTime"].includes(field)) setEmployeeId(""); };
+  const update = (field, value) => { setDraft((current) => ({ ...current, [field]: value })); if (["role", "requiredSkill", "breakMinutes", "startTime", "endTime"].includes(field)) setEmployeeId(""); };
   const applyTemplate = (template) => { setDraft((current) => ({ ...current, ...template })); setEmployeeId(""); };
   const submit = () => {
     if (dayHoliday?.schedulingPolicy === "Closed" && !window.confirm(`${dayHoliday.name} is marked closed. Create this shift anyway?`)) return;

@@ -9,7 +9,7 @@ import "./EmployeeFormPage.css";
 const EMPTY = {
   employeeId: "", firstName: "", middleName: "", lastName: "", email: "",
   phone: "", positionId: "", active: true, preferredShift: "", maxWeeklyHours: 40,
-  skills: "", hourlyRate: 0, overtimeThresholdHours: 40,
+  skills: "", certifications: "", hourlyRate: 0, overtimeThresholdHours: 40,
 };
 
 export default function EmployeeFormPage() {
@@ -26,7 +26,7 @@ export default function EmployeeFormPage() {
       setForm({ ...EMPTY, ...employee.data, middleName: employee.data.middleName ?? "",
         email: employee.data.email ?? "", phone: employee.data.phone ?? "",
         positionId: employee.data.positionId ?? "", preferredShift: employee.data.preferredShift ?? "",
-        skills: employee.data.skills ?? "" });
+        skills: employee.data.skills ?? "", certifications: employee.data.certifications ?? "" });
     }
   }, [employee.data]);
 
@@ -55,6 +55,7 @@ export default function EmployeeFormPage() {
           <label>Position<select value={form.positionId} onChange={update("positionId")}><option value="">Unassigned</option>{(positions.data ?? []).filter((p) => p.isActive).map((p) => <option key={p.positionId} value={p.positionId}>{p.title}</option>)}</select></label>
           <label>Preferred shift<select value={form.preferredShift} onChange={update("preferredShift")}><option value="">Flexible</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option></select></label>
           <label>Skills<input maxLength="500" placeholder="First aid, Forklift" value={form.skills} onChange={update("skills")} /><small>Separate multiple skills with commas.</small></label>
+          <label>Certifications<input maxLength="500" placeholder="Food handler, CPR" value={form.certifications} onChange={update("certifications")} /><small>Separate multiple certifications with commas.</small></label>
           <label>Maximum weekly hours<input required type="number" min="1" max="168" value={form.maxWeeklyHours} onChange={update("maxWeeklyHours")} /></label>
           <label>Hourly rate (JMD)<input required type="number" min="0" max="1000000" step="0.01" value={form.hourlyRate} onChange={update("hourlyRate")} /><small>Use 0 to apply the company default rate.</small></label>
           <label>Overtime starts after<input required type="number" min="1" max="168" value={form.overtimeThresholdHours} onChange={update("overtimeThresholdHours")} /></label>
