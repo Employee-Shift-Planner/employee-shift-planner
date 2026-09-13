@@ -6,7 +6,7 @@ import Metrics from "../components/ui/Metrics";
 import StateMessage from "../components/ui/StateMessage";
 import WeekCalendar from "../components/schedule/WeekCalendar";
 import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
-import { useCopyWeek, usePublishWeek, useWeekShifts } from "../api/schedule";
+import { useCopyWeek, usePublishWeek, useScheduleReadiness, useWeekShifts } from "../api/schedule";
 import { useWeeklyReport } from "../api/reports";
 import { useCoverageWarnings } from "../api/staffing";
 import { useHolidays } from "../api/holidays";
@@ -58,6 +58,7 @@ export default function SchedulePage() {
     return requested ? startOfWeek(requested) : currentWeek;
   }, [currentWeek, searchParams]);
   const shifts = useWeekShifts(weekStart);
+  const readiness = useScheduleReadiness(weekStart);
   const report = useWeeklyReport(weekStart);
   const coverage = useCoverageWarnings(weekStart);
   const weekEnd = useMemo(() => { const value = new Date(weekStart); value.setDate(value.getDate() + 6); return value; }, [weekStart]);
@@ -110,7 +111,7 @@ export default function SchedulePage() {
         <>
           <Button
             tone="success"
-            disabled={!draftCount || publishWeek.isPending}
+            disabled={!draftCount || readiness.isPending || !readiness.data?.isReady || publishWeek.isPending}
             onClick={() => publishWeek.mutate()}
           >
             {publishWeek.isPending ? "Publishing…" : `Publish week${draftCount ? ` (${draftCount})` : ""}`}
@@ -154,6 +155,19 @@ export default function SchedulePage() {
       {publishWeek.isError ? (
         <StateMessage tone="error" title="Could not publish this week" detail={publishWeek.error?.message} />
       ) : null}
+      {readiness.isError ? (
+        <StateMessage tone="error" title="Could not check schedule readiness" detail={readiness.error?.message} />
+      ) : readiness.isPending ? (
+        <StateMessage title="Checking schedule readiness…" detail="Running the final assignment and labour-rule preflight." />
+      ) : readiness.data?.isReady ? (
+        <StateMessage title="Schedule readiness: Ready" detail={`${readiness.data.totalShifts} active shifts passed validation.`} />
+      ) : (
+        <StateMessage
+          tone="error"
+          title={`Schedule readiness: ${readiness.data?.issues?.length ?? 0} blocking ${(readiness.data?.issues?.length ?? 0) === 1 ? "issue" : "issues"}`}
+          detail={(readiness.data?.issues ?? []).slice(0, 3).map((issue) => `Shift ${issue.shiftId}: ${issue.errors.join(" ")}`).join(" ")}
+        />
+      )}
       {copyWeek.isError ? (
         <StateMessage tone="error" title="Could not copy the previous week" detail={copyWeek.error?.message} />
       ) : null}

@@ -11,6 +11,15 @@ export function useWeekShifts(weekStart) {
   });
 }
 
+/** Final server-side publication preflight for every active shift in a week. */
+export function useScheduleReadiness(weekStart) {
+  const week = toDateParam(weekStart ?? startOfWeek());
+  return useQuery({
+    queryKey: ["schedule", "readiness", week],
+    queryFn: () => get(`/Schedule/week/readiness${query({ weekStart: week })}`),
+  });
+}
+
 /** One employee's shifts from `from` onwards. */
 export function useEmployeeShifts(employeeId, from) {
   return useQuery({
