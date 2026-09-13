@@ -2,6 +2,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { del, get, post, put, query } from "./client";
 import { startOfWeek, toDateParam } from "../lib/format";
 
+// datetime-local controls have no zone. The organization currently operates in
+// America/Jamaica (UTC-05:00, with no daylight-saving transitions).
+const asOrganizationInstant = (value) => {
+  if (!value || /(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return value;
+  return `${value}:00${process.env.REACT_APP_ORGANIZATION_UTC_OFFSET || "-05:00"}`;
+};
+
+const withScheduleOffsets = (shift) => ({
+  ...shift,
+  startTime: asOrganizationInstant(shift.startTime),
+  endTime: asOrganizationInstant(shift.endTime),
+});
+
 /** Shifts inside one Monday-first week, for the calendar. */
 export function useWeekShifts(weekStart) {
   const week = toDateParam(weekStart ?? startOfWeek());
@@ -38,7 +51,7 @@ export function useShiftCandidates({ start, end, role, requiredSkill, breakMinut
 
   return useQuery({
     queryKey: ["schedule", "candidates", start, end, role, requiredSkill, breakMinutes, excludeShiftId],
-    queryFn: () => get(`/Schedule/candidates${query({ start, end, role, requiredSkill, breakMinutes, excludeShiftId })}`),
+    queryFn: () => get(`/Schedule/candidates${query({ start: asOrganizationInstant(start), end: asOrganizationInstant(end), role, requiredSkill, breakMinutes, excludeShiftId })}`),
     enabled: valid,
   });
 }
@@ -47,7 +60,7 @@ export function useCreateShift() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (shift) => post("/Schedule", shift),
+    mutationFn: (shift) => post("/Schedule", withScheduleOffsets(shift)),
     onSuccess: () => {
       // The new shift changes the calendar, the roster and every report.
       queryClient.invalidateQueries({ queryKey: ["schedule"] });
@@ -67,7 +80,7 @@ export function useUpdateShift() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (shift) => put(`/Schedule/${encodeURIComponent(shift.id)}`, shift),
+    mutationFn: (shift) => put(`/Schedule/${encodeURIComponent(shift.id)}`, withScheduleOffsets(shift)),
     onSuccess: () => invalidateScheduleData(queryClient),
   });
 }

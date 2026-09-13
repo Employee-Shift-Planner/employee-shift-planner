@@ -3,6 +3,7 @@
 // strings the design calls for.
 
 const SHORT_DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+export const ORGANIZATION_TIME_ZONE = process.env.REACT_APP_ORGANIZATION_TIME_ZONE || "America/Jamaica";
 
 /** Monday 00:00 of the week containing `date`, matching the API's week maths. */
 export const startOfWeek = (date = new Date()) => {
@@ -37,7 +38,7 @@ export const formatWeekRange = (weekStart) => {
 
 /** "8:00" — 24-hour clock used inside the compact shift blocks. */
 const clock = (date) =>
-  `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
+  new Intl.DateTimeFormat(undefined, { timeZone: ORGANIZATION_TIME_ZONE, hour: "numeric", minute: "2-digit", hour12: false }).format(date);
 
 /** "8:00–12:00" for a shift block. */
 export const formatShiftRange = (startIso, endIso) =>
@@ -45,10 +46,22 @@ export const formatShiftRange = (startIso, endIso) =>
 
 /** "8:00 AM–12:00 PM" for the detail and mobile screens. */
 export const formatShiftRangeLong = (startIso, endIso) => {
-  const options = { hour: "numeric", minute: "2-digit" };
+  const options = { hour: "numeric", minute: "2-digit", timeZone: ORGANIZATION_TIME_ZONE };
   const start = new Date(startIso).toLocaleTimeString(undefined, options);
   const end = new Date(endIso).toLocaleTimeString(undefined, options);
   return `${start}–${end}`;
+};
+
+/** Convert an instant to the organization's wall-clock value for datetime-local inputs. */
+export const toOrganizationDateTimeInput = (value) => {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: ORGANIZATION_TIME_ZONE,
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+    }).formatToParts(new Date(value)).filter(({ type }) => type !== "literal").map(({ type, value: part }) => [type, part])
+  );
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
 };
 
 /** "MON 7" from an ISO date-time. */

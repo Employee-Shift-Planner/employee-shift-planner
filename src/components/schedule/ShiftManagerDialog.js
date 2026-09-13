@@ -7,13 +7,10 @@ import {
 } from "../../api/schedule";
 import Button from "../ui/Button";
 import StateMessage from "../ui/StateMessage";
+import { toOrganizationDateTimeInput } from "../../lib/format";
 import "./ShiftManagerDialog.css";
 
-const toLocalInput = (value) => {
-  const date = new Date(value);
-  const part = (number) => String(number).padStart(2, "0");
-  return `${date.getFullYear()}-${part(date.getMonth() + 1)}-${part(date.getDate())}T${part(date.getHours())}:${part(date.getMinutes())}`;
-};
+const toLocalInput = toOrganizationDateTimeInput;
 
 const initialDraft = (shift) => ({
   id: shift.id,
