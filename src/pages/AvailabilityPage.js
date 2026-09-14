@@ -63,7 +63,7 @@ export default function AvailabilityPage() {
             {exceptions.length ? exceptions.map((rule, index) => <RuleRow exception key={rule.id ?? `e-${index}`} rule={rule} onChange={next => replace(rule, next)} onRemove={() => remove(rule)} />) : <p>No one-off exceptions recorded.</p>}
           </section>
           {save.error ? <StateMessage tone="error" title="Could not save availability" detail={save.error.message} /> : null}
-          <div className="availability-save"><Button disabled={save.isPending}>{save.isPending ? "Saving…" : "Save availability"}</Button></div>
+          <div className="availability-save"><Button type="submit" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save availability"}</Button></div>
         </form>}</QueryState>
       </>}
     </QueryState>

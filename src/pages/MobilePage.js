@@ -28,6 +28,7 @@ export default function MobilePage() {
         <h4>Your next shift</h4>
         {employee.isError || shifts.isError ? <StateMessage tone="error" title="Could not load your shifts" detail={(employee.error ?? shifts.error)?.message} /> : !next ? <StateMessage title="No upcoming shifts" detail="Your schedule is clear." /> : <NextShiftCard shift={{ role: next.role ?? "Scheduled shift", time: formatShiftRangeLong(next.startTime, next.endTime), detail: `${formatShiftDay(next.startTime)} · ${next.breakMinutes || 0} min break` }} />}
         <Button onClick={() => navigate("/time-off")}>Request time off</Button>
+        <Button tone="gray" onClick={() => navigate("/availability")}>Manage availability</Button>
         {swap.isError ? <StateMessage tone="error" title="Could not request shift swap" detail={swap.error?.message} /> : null}
         <h2>This week</h2>
         {(shifts.data ?? []).map((shift) => (

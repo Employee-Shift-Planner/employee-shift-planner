@@ -40,3 +40,5 @@ pnpm-debug.log*
 *.seed
 /.cache/
 /.eslintcache
+/test-results/
+/playwright-report/
