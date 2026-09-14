@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { clearSession, getStoredUser, getToken, post, storeSession } from "./client";
+import { clearSession, getSessionExpiration, getStoredUser, getToken, post, storeSession, subscribeToSession } from "./client";
 
 export const isSignedIn = () => Boolean(getToken());
 
@@ -15,6 +16,26 @@ export const currentRole = () => {
 export const isManager = () => ["Administrator", "Supervisor"].includes(currentRole());
 export const isAdministrator = () => currentRole() === "Administrator";
 export const homeForCurrentRole = () => isManager() ? "/schedule" : "/mobile";
+
+/** Keeps route guards in sync with logout, another browser tab and JWT expiry. */
+export function useSession() {
+  const [signedIn, setSignedIn] = useState(isSignedIn);
+
+  useEffect(() => {
+    let timer;
+    const refresh = () => {
+      setSignedIn(isSignedIn());
+      window.clearTimeout(timer);
+      const expiresAt = getSessionExpiration();
+      if (expiresAt) timer = window.setTimeout(refresh, Math.max(0, expiresAt - Date.now()) + 25);
+    };
+    const unsubscribe = subscribeToSession(refresh);
+    refresh();
+    return () => { unsubscribe(); window.clearTimeout(timer); };
+  }, []);
+
+  return signedIn;
+}
 
 /**
  * The label shown at the foot of the sidebar. The API's user record carries an

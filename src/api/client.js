@@ -21,6 +21,8 @@ export class ApiError extends Error {
 
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
+const EXPIRES_KEY = "sessionExpiresAt";
+export const SESSION_CHANGED_EVENT = "shiftly:session-changed";
 
 // localStorage throws in private-mode Safari and in some embedded webviews, so
 // every access is guarded.
@@ -41,7 +43,38 @@ const safeWrite = (key, value) => {
   }
 };
 
-export const getToken = () => safeRead(TOKEN_KEY);
+const tokenExpiration = (token) => {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(window.atob(normalized)).exp * 1000 || null;
+  } catch {
+    return null;
+  }
+};
+
+const announceSessionChange = () => {
+  try { window.dispatchEvent(new Event(SESSION_CHANGED_EVENT)); } catch { /* no browser event target */ }
+};
+
+export const getSessionExpiration = () => {
+  const value = Number(safeRead(EXPIRES_KEY));
+  return Number.isFinite(value) && value > 0 ? value : null;
+};
+
+export const getToken = () => {
+  const token = safeRead(TOKEN_KEY);
+  const expiresAt = getSessionExpiration();
+  if (token && expiresAt && expiresAt <= Date.now()) {
+    safeWrite(TOKEN_KEY, null);
+    safeWrite(USER_KEY, null);
+    safeWrite(EXPIRES_KEY, null);
+    announceSessionChange();
+    return null;
+  }
+  return token;
+};
 
 export const getStoredUser = () => {
   const raw = safeRead(USER_KEY);
@@ -56,9 +89,23 @@ export const getStoredUser = () => {
 export const storeSession = (token, user) => {
   safeWrite(TOKEN_KEY, token ?? null);
   safeWrite(USER_KEY, user ? JSON.stringify(user) : null);
+  safeWrite(EXPIRES_KEY, token ? String(tokenExpiration(token) ?? "") : null);
+  announceSessionChange();
 };
 
 export const clearSession = () => storeSession(null, null);
+
+export const subscribeToSession = (listener) => {
+  const onStorage = (event) => {
+    if ([TOKEN_KEY, USER_KEY, EXPIRES_KEY].includes(event.key)) listener();
+  };
+  window.addEventListener(SESSION_CHANGED_EVENT, listener);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(SESSION_CHANGED_EVENT, listener);
+    window.removeEventListener("storage", onStorage);
+  };
+};
 
 /** Build a query string from defined values only. */
 export const query = (params) => {

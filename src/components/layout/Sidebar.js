@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { NAV_ITEMS } from "../../data/navigation";
-import { currentRole, currentUserLabel } from "../../api/auth";
+import { currentRole, currentUserLabel, signOut } from "../../api/auth";
 import "./Sidebar.css";
 
 /**
@@ -11,6 +12,13 @@ import "./Sidebar.css";
  * highlights "Schedule", /employees/:id highlights "Employees".
  */
 export default function Sidebar({ active }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const logout = () => {
+    signOut(queryClient);
+    navigate("/", { replace: true });
+  };
+
   return (
     <aside className="sidebar">
       <div>
@@ -32,7 +40,10 @@ export default function Sidebar({ active }) {
           );
         })}
       </nav>
-      <strong>{currentUserLabel()}<small>{currentRole()}</small></strong>
+      <div className="sidebar-session">
+        <strong>{currentUserLabel()}<small>{currentRole()}</small></strong>
+        <button type="button" onClick={logout}>Log out</button>
+      </div>
     </aside>
   );
 }
