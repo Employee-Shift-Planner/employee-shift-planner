@@ -38,7 +38,7 @@ export default function App() {
       <Route path="/employees/:employeeId" element={protectedPage(<EmployeeDetailPage />, MANAGERS)} />
       <Route path="/employees/:employeeId/edit" element={protectedPage(<EmployeeFormPage />, MANAGERS)} />
 
-      <Route path="/availability" element={protectedPage(<AvailabilityPage />, MANAGERS)} />
+      <Route path="/availability" element={protectedPage(<AvailabilityPage />)} />
       <Route path="/time-off" element={protectedPage(<TimeOffPage />)} />
       <Route path="/reports" element={protectedPage(<ReportsPage />, MANAGERS)} />
       <Route path="/notifications" element={protectedPage(<NotificationsPage />)} />

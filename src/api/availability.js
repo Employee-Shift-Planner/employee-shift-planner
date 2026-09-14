@@ -1,6 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { get, put } from "./client";
 
+export function useEmployeeAvailability(employeeId) {
+  return useQuery({ queryKey: ["availability", "employee", employeeId], queryFn: () => get(`/Availability/employee/${encodeURIComponent(employeeId)}`), enabled: Boolean(employeeId) });
+}
+
+export function useSaveEmployeeAvailability(employeeId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (rules) => put(`/Availability/employee/${encodeURIComponent(employeeId)}`, rules),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["availability"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule", "readiness"] });
+    },
+  });
+}
+
 /** One row per employee with a cell for every day of the week. */
 export function useAvailabilityMatrix() {
   return useQuery({

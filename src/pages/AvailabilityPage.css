@@ -1,0 +1,15 @@
+.availability-person { padding: 20px; margin-bottom: 20px; }
+.availability-person label { display: grid; gap: 7px; max-width: 360px; font-weight: 700; }
+.availability-person select, .availability-rule-row input, .availability-rule-row select { padding: 9px; border: 1px solid #dbe1eb; border-radius: 8px; background: white; }
+.availability-editor { display: grid; gap: 20px; }
+.availability-editor > .card { padding: 22px; }
+.availability-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; }
+.availability-heading h2 { margin: 0 0 5px; }
+.availability-heading p { margin: 0 0 18px; color: var(--muted); }
+.availability-rule-row { display: grid; grid-template-columns: 140px 105px 125px 125px minmax(160px, 1fr) auto; align-items: end; gap: 10px; padding: 13px 0; border-top: 1px solid #edf0f5; }
+.availability-rule-row label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; }
+.availability-rule-row .availability-check { display: flex; align-items: center; padding-bottom: 10px; }
+.remove-rule { border: 0; background: transparent; color: var(--red); font-weight: 700; padding: 10px 4px; cursor: pointer; }
+.availability-save { display: flex; justify-content: flex-end; }
+@media (max-width: 1050px) { .availability-rule-row { grid-template-columns: repeat(2, minmax(160px, 1fr)); } }
+@media (max-width: 600px) { .availability-heading { display: grid; } .availability-rule-row { grid-template-columns: 1fr; } }
