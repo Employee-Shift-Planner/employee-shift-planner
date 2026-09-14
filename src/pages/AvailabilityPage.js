@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
-import StateMessage, { QueryState } from "../components/ui/StateMessage";
+import { QueryState } from "../components/ui/StateMessage";
+import SaveFeedback from "../components/ui/SaveFeedback";
 import { isManager } from "../api/auth";
 import { useCurrentEmployee, useEmployees } from "../api/employees";
 import { useEmployeeAvailability, useSaveEmployeeAvailability } from "../api/availability";
@@ -41,9 +42,9 @@ export default function AvailabilityPage() {
   useEffect(() => { if (availability.data) setDraft(availability.data.map(normalize)); }, [availability.data]);
   const recurring = useMemo(() => (draft ?? []).filter(x => !x.specificDate), [draft]);
   const exceptions = useMemo(() => (draft ?? []).filter(x => x.specificDate), [draft]);
-  const replace = (rule, next) => setDraft(rows => rows.map(x => x === rule ? next : x));
-  const remove = rule => setDraft(rows => rows.filter(x => x !== rule));
-  const add = rule => setDraft(rows => [...(rows ?? []), rule]);
+  const replace = (rule, next) => { save.reset(); setDraft(rows => rows.map(x => x === rule ? next : x)); };
+  const remove = rule => { save.reset(); setDraft(rows => rows.filter(x => x !== rule)); };
+  const add = rule => { save.reset(); setDraft(rows => [...(rows ?? []), rule]); };
   const submit = event => {
     event.preventDefault();
     const rules = (draft ?? []).map(({ id, employeeId: ignored, employee, ...rule }) => ({ ...rule,
@@ -62,7 +63,7 @@ export default function AvailabilityPage() {
           <section className="card"><div className="availability-heading"><div><h2>One-off exceptions</h2><p>Date-specific entries replace every weekly range for that date.</p></div><Button type="button" tone="gray" onClick={() => add(exceptionRule())}>Add exception</Button></div>
             {exceptions.length ? exceptions.map((rule, index) => <RuleRow exception key={rule.id ?? `e-${index}`} rule={rule} onChange={next => replace(rule, next)} onRemove={() => remove(rule)} />) : <p>No one-off exceptions recorded.</p>}
           </section>
-          {save.error ? <StateMessage tone="error" title="Could not save availability" detail={save.error.message} /> : null}
+          <SaveFeedback mutation={save} success="Availability saved." />
           <div className="availability-save"><Button type="submit" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save availability"}</Button></div>
         </form>}</QueryState>
       </>}

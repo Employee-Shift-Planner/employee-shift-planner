@@ -4,6 +4,11 @@
   background: var(--bg);
 }
 
+.global-save-progress { position: fixed; z-index: 1000; top: 0; left: 0; right: 0; height: 4px; overflow: hidden; background: #dbeafe; }
+.global-save-progress span { display: block; width: 35%; height: 100%; background: var(--blue); animation: saving-progress 1s ease-in-out infinite; }
+@keyframes saving-progress { from { transform: translateX(-100%); } to { transform: translateX(385%); } }
+@media (prefers-reduced-motion: reduce) { .global-save-progress span { width: 100%; animation: none; } }
+
 .shell > main {
   margin-left: 236px;
   width: calc(100% - 236px);

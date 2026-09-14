@@ -1,4 +1,5 @@
 import Sidebar from "./Sidebar";
+import { useIsMutating } from "@tanstack/react-query";
 import "./Shell.css";
 
 /**
@@ -6,8 +7,10 @@ import "./Shell.css";
  * (title + supporting copy + action buttons) and the screen body.
  */
 export default function Shell({ active, title, copy, actions, children }) {
+  const saving = useIsMutating();
   return (
     <div className="shell">
+      {saving ? <div className="global-save-progress" role="progressbar" aria-label="Saving changes"><span /></div> : null}
       <Sidebar active={active} />
       <main>
         <header>

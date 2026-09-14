@@ -10,6 +10,7 @@ import HolidaySettings from "../components/settings/HolidaySettings";
 import { useCurrentEmployee } from "../api/employees";
 import { useNotificationHistory, useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
 import { QueryState } from "../components/ui/StateMessage";
+import SaveFeedback from "../components/ui/SaveFeedback";
 import "./NotificationsPage.css";
 import { isAdministrator } from "../api/auth";
 
@@ -45,6 +46,8 @@ export default function NotificationsPage({ variant = "notifications" }) {
   ] : [];
 
   const toggleRule = (ruleId) => {
+    if (save.isPending) return;
+    save.reset();
     setDraft((current) => ({ ...(current ?? preferences.data), [ruleId]: !(current ?? preferences.data)[ruleId] }));
   };
 
@@ -53,12 +56,13 @@ export default function NotificationsPage({ variant = "notifications" }) {
       active={active}
       title={title}
       copy={copy}
-      actions={<Button disabled={!draft || save.isPending} onClick={() => save.mutate(draft, { onSuccess: () => setDraft(null) })}>{save.isPending ? "Saving…" : "Save changes"}</Button>}
+      actions={<Button disabled={!draft || save.isPending} onClick={() => save.mutate(draft, { onSuccess: () => setDraft(null) })}>{save.isPending ? "Saving…" : save.isSuccess ? "Saved" : "Save changes"}</Button>}
     >
       {variant === "settings" ? <PositionsSettings /> : null}
       {variant === "settings" ? <StaffingRequirementsSettings /> : null}
       {variant === "settings" ? <HolidaySettings /> : null}
       {variant === "settings" && isAdministrator() ? <UserAccessSettings /> : null}
+      <SaveFeedback mutation={save} success="Notification settings saved." />
       <QueryState query={employee} empty={{ title: "No employee profile", detail: "Your user account is not linked to an employee." }}>
         {() => <QueryState query={preferences}>
           {() => <div className="notices">
