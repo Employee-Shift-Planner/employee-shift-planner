@@ -40,3 +40,92 @@
 .notification-history-list p {
   margin: 0.35rem 0;
 }
+
+.settings-workspace {
+  align-items: start;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 230px minmax(0, 1fr);
+}
+
+.settings-section-nav {
+  background: var(--card, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 14px;
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  position: sticky;
+  top: 20px;
+}
+
+.settings-section-nav > p {
+  color: var(--muted-color, #64748b);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 7px 10px 9px;
+  text-transform: uppercase;
+}
+
+.settings-section-nav button {
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  padding: 11px 12px;
+  text-align: left;
+}
+
+.settings-section-nav button:hover {
+  background: #f1f5f9;
+}
+
+.settings-section-nav button.active {
+  background: #e8f0ff;
+  color: var(--blue, #1d4ed8);
+}
+
+.settings-section-nav button span {
+  color: var(--muted-color, #64748b);
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.settings-section {
+  min-width: 0;
+}
+
+.settings-mobile-picker {
+  display: none;
+}
+
+@media (max-width: 820px) {
+  .settings-workspace {
+    display: block;
+  }
+
+  .settings-section-nav {
+    display: none;
+  }
+
+  .settings-mobile-picker {
+    display: grid;
+    font-size: 0.8rem;
+    font-weight: 700;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .settings-mobile-picker select {
+    background: var(--card, #fff);
+    border: 1px solid var(--border-color, #dbe1ea);
+    border-radius: 9px;
+    font: inherit;
+    padding: 11px 12px;
+    width: 100%;
+  }
+}
