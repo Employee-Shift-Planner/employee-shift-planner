@@ -56,6 +56,6 @@ test("manager records real clock times from the attendance workflow", async () =
   fireEvent.click(screen.getByRole("button", { name:"Save" }));
 
   await waitFor(() => expect(saved).toBeDefined());
-  expect(saved.clockIn).toBe("2026-09-14T08:12:00-05:00");
-  expect(saved.clockOut).toBe("2026-09-14T16:00:00-05:00");
+  expect(saved.clockIn).toBe("2026-09-14T13:12:00.000Z");
+  expect(saved.clockOut).toBe("2026-09-14T21:00:00.000Z");
 });

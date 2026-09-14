@@ -1,11 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { get, post, put, query } from "./client";
-import { startOfWeek, toDateParam } from "../lib/format";
+import { startOfWeek, toDateParam, toOrganizationInstant } from "../lib/format";
 
-const asOrganizationInstant = (value) => {
-  if (!value || /(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return value || null;
-  return `${value}:00${process.env.REACT_APP_ORGANIZATION_UTC_OFFSET || "-05:00"}`;
-};
+const asOrganizationInstant = (value) => value ? toOrganizationInstant(value) : null;
 
 export const useSwapRequests = () => useQuery({ queryKey: ["operations", "swaps"], queryFn: () => get("/Operations/swaps") });
 export function useCreateSwapRequest() { const client = useQueryClient(); return useMutation({ mutationFn: (value) => post("/Operations/swaps", value), onSuccess: () => client.invalidateQueries({ queryKey: ["operations"] }) }); }

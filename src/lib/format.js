@@ -3,7 +3,20 @@
 // strings the design calls for.
 
 const SHORT_DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-export const ORGANIZATION_TIME_ZONE = process.env.REACT_APP_ORGANIZATION_TIME_ZONE || "America/Jamaica";
+export const organizationTimeZone = () => localStorage.getItem("organization-timezone") || process.env.REACT_APP_ORGANIZATION_TIME_ZONE || "America/Jamaica";
+
+/** Convert a timezone-less form value into an instant in the saved organization timezone. */
+export const toOrganizationInstant = (value) => {
+  if (!value || /(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return value;
+  const normalized = value.length === 16 ? `${value}:00` : value;
+  const assumedUtc = new Date(`${normalized}Z`);
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+    timeZone:organizationTimeZone(), year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23",
+  }).formatToParts(assumedUtc).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
+  const represented = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), Number(parts.hour), Number(parts.minute), Number(parts.second));
+  return new Date(assumedUtc.getTime() - (represented - assumedUtc.getTime())).toISOString();
+};
 
 /** Monday 00:00 of the week containing `date`, matching the API's week maths. */
 export const startOfWeek = (date = new Date()) => {
@@ -38,7 +51,7 @@ export const formatWeekRange = (weekStart) => {
 
 /** "8:00" — 24-hour clock used inside the compact shift blocks. */
 const clock = (date) =>
-  new Intl.DateTimeFormat(undefined, { timeZone: ORGANIZATION_TIME_ZONE, hour: "numeric", minute: "2-digit", hour12: false }).format(date);
+  new Intl.DateTimeFormat(undefined, { timeZone: organizationTimeZone(), hour: "numeric", minute: "2-digit", hour12: false }).format(date);
 
 /** "8:00–12:00" for a shift block. */
 export const formatShiftRange = (startIso, endIso) =>
@@ -46,7 +59,7 @@ export const formatShiftRange = (startIso, endIso) =>
 
 /** "8:00 AM–12:00 PM" for the detail and mobile screens. */
 export const formatShiftRangeLong = (startIso, endIso) => {
-  const options = { hour: "numeric", minute: "2-digit", timeZone: ORGANIZATION_TIME_ZONE };
+  const options = { hour: "numeric", minute: "2-digit", timeZone: organizationTimeZone() };
   const start = new Date(startIso).toLocaleTimeString(undefined, options);
   const end = new Date(endIso).toLocaleTimeString(undefined, options);
   return `${start}–${end}`;
@@ -56,7 +69,7 @@ export const formatShiftRangeLong = (startIso, endIso) => {
 export const toOrganizationDateTimeInput = (value) => {
   const parts = Object.fromEntries(
     new Intl.DateTimeFormat("en-CA", {
-      timeZone: ORGANIZATION_TIME_ZONE,
+      timeZone: organizationTimeZone(),
       year: "numeric", month: "2-digit", day: "2-digit",
       hour: "2-digit", minute: "2-digit", hourCycle: "h23",
     }).formatToParts(new Date(value)).filter(({ type }) => type !== "literal").map(({ type, value: part }) => [type, part])

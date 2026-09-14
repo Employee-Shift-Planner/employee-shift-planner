@@ -1,13 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { del, get, post, put, query } from "./client";
-import { startOfWeek, toDateParam } from "../lib/format";
+import { startOfWeek, toDateParam, toOrganizationInstant } from "../lib/format";
 
 // datetime-local controls have no zone. The organization currently operates in
 // America/Jamaica (UTC-05:00, with no daylight-saving transitions).
-const asOrganizationInstant = (value) => {
-  if (!value || /(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return value;
-  return `${value}:00${process.env.REACT_APP_ORGANIZATION_UTC_OFFSET || "-05:00"}`;
-};
+const asOrganizationInstant = toOrganizationInstant;
 
 const withScheduleOffsets = (shift) => ({
   ...shift,

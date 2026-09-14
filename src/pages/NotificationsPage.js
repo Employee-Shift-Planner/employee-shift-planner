@@ -7,6 +7,7 @@ import PositionsSettings from "../components/settings/PositionsSettings";
 import StaffingRequirementsSettings from "../components/settings/StaffingRequirementsSettings";
 import UserAccessSettings from "../components/settings/UserAccessSettings";
 import HolidaySettings from "../components/settings/HolidaySettings";
+import OrganizationSettings from "../components/settings/OrganizationSettings";
 import { useCurrentEmployee } from "../api/employees";
 import { useNotificationHistory, useNotificationPreferences, useSaveNotificationPreferences } from "../api/notifications";
 import { QueryState } from "../components/ui/StateMessage";
@@ -58,6 +59,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
       copy={copy}
       actions={<Button disabled={!draft || save.isPending} onClick={() => save.mutate(draft, { onSuccess: () => setDraft(null) })}>{save.isPending ? "Saving…" : save.isSuccess ? "Saved" : "Save changes"}</Button>}
     >
+      {variant === "settings" ? <OrganizationSettings /> : null}
       {variant === "settings" ? <PositionsSettings /> : null}
       {variant === "settings" ? <StaffingRequirementsSettings /> : null}
       {variant === "settings" ? <HolidaySettings /> : null}

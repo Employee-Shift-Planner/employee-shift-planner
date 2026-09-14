@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import Button from "../ui/Button";
 import StateMessage from "../ui/StateMessage";
 import { useCancelShift, useCreateShift, useShiftCandidates, useUpdateShift } from "../../api/schedule";
-import { formatShiftRange } from "../../lib/format";
+import { formatShiftRange, toOrganizationInstant } from "../../lib/format";
 import "./ScheduleBuilder.css";
 
 const VIEWS = ["Employee", "Position", "Coverage"];
@@ -135,7 +135,7 @@ function CoverageView({ shifts, requirements, employees, weekStart, days, positi
   const datePart = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   const dayName = date.toLocaleDateString("en-US", { weekday:"long" });
   const relevant = requirements.filter(x => x.isActive && x.dayOfWeek === dayName && (!positionFilter || x.positionTitle === positionFilter));
-  const count = hour => { const slot = new Date(`${datePart}T${String(hour).padStart(2, "0")}:00:00${process.env.REACT_APP_ORGANIZATION_UTC_OFFSET || "-05:00"}`); return shifts.filter(shift => new Date(shift.startTime) <= slot && new Date(shift.endTime) > slot && (!positionFilter || employees[shift.employeeId]?.positionTitle === positionFilter)).length; };
+  const count = hour => { const slot = new Date(toOrganizationInstant(`${datePart}T${String(hour).padStart(2, "0")}:00:00`)); return shifts.filter(shift => new Date(shift.startTime) <= slot && new Date(shift.endTime) > slot && (!positionFilter || employees[shift.employeeId]?.positionTitle === positionFilter)).length; };
   const required = hour => relevant.filter(x => { const start=Number(String(x.startTime).slice(0,2)), end=Number(String(x.endTime).slice(0,2)); return start < end ? hour >= start && hour < end : hour >= start || hour < end; }).reduce((sum,x) => sum + x.requiredEmployees, 0);
   return <section className="coverage-view card"><div className="coverage-day-tabs">{days.map((label,index) => <button className={day === index ? "active" : ""} onClick={() => setDay(index)} key={label}>{label}</button>)}</div><div className="coverage-scroll"><table><thead><tr><th></th>{hours.map(hour => <th key={hour}>{hour % 12 || 12}{hour < 12 ? "AM" : "PM"}</th>)}</tr></thead><tbody><tr><th>Required</th>{hours.map(hour => <td key={hour}>{required(hour)}</td>)}</tr><tr><th>Scheduled</th>{hours.map(hour => { const scheduled=count(hour), needed=required(hour); return <td className={scheduled < needed ? "gap" : ""} key={hour}>{scheduled}{scheduled < needed ? <small>GAP</small> : null}</td>; })}</tr></tbody></table></div></section>;
 }
