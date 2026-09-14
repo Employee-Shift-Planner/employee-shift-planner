@@ -66,6 +66,25 @@ export function useLogin() {
   });
 }
 
+/**
+ * Both password-recovery endpoints are public. The API should always return a
+ * successful forgot-password response, even when the email is not registered,
+ * so this screen cannot be used to discover employee accounts.
+ */
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: ({ email }) =>
+      post("/auth/forgot-password", { email }, { auth: false }),
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: ({ email, token, password }) =>
+      post("/auth/reset-password", { email, token, password }, { auth: false }),
+  });
+}
+
 export function signOut(queryClient) {
   clearSession();
   queryClient?.clear();

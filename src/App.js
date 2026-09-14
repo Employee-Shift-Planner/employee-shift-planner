@@ -1,6 +1,8 @@
 import "./App.css";
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SchedulePage from "./pages/SchedulePage";
 import CreateShiftPage from "./pages/CreateShiftPage";
 import EmployeesPage from "./pages/EmployeesPage";
@@ -27,6 +29,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<Navigate replace to="/" />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       <Route path="/schedule" element={protectedPage(<SchedulePage />, MANAGERS)} />
       <Route path="/shiftplanner" element={<Navigate replace to="/schedule" />} />

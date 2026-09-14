@@ -25,6 +25,7 @@ The Employee Shift Planner is a modern web application designed to help managers
 - Create React App / `react-scripts`
 - Plain CSS components
 - JWT bearer authentication supplied by the Scheduler API
+- Password recovery through public forgot/reset API endpoints
 
 ## Requirements and setup
 
@@ -64,6 +65,8 @@ Frontend guards match the API policies, but API authorization is the security bo
 | Route | Purpose |
 | --- | --- |
 | `/` | Login |
+| `/forgot-password` | Request a password reset email |
+| `/reset-password?email=…&token=…` | Choose a new password from an emailed link |
 | `/schedule` | Supervisor weekly planner; accepts `?week=YYYY-MM-DD` |
 | `/create-shift` | Create a draft shift |
 | `/employees` | Employee directory and profiles |
@@ -107,6 +110,18 @@ The optimized bundle is written to `build/`. Tests currently cover routing and a
 6. Run tests and deploy the generated bundle.
 
 `staticwebapp.config.json` supplies static-host routing behavior.
+
+## Password-recovery API contract
+
+The client calls `POST /api/auth/forgot-password` with `{ "email": "…" }` and
+`POST /api/auth/reset-password` with `{ "email": "…", "token": "…", "password": "…" }`.
+Both endpoints are unauthenticated. The forgot endpoint must return the same
+successful response for known and unknown addresses, create a single-use
+time-limited token, and email a URL using the frontend's `/reset-password`
+route. The reset endpoint must validate the token, enforce the server's password
+policy, update the password, and invalidate the token. Configure the frontend
+origin and mail credentials as server-side settings; never expose them through
+`REACT_APP_*`.
 
 ## Repository hygiene
 

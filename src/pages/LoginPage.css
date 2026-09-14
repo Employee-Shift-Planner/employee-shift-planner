@@ -50,6 +50,28 @@
   margin-bottom: 20px;
 }
 
+.login-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.login a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login a:hover {
+  text-decoration: underline;
+}
+
+.login-link {
+  align-self: center;
+  margin-top: 24px;
+  font-size: 13px;
+}
+
 .login input {
   display: block;
   width: 100%;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import StateMessage from "../components/ui/StateMessage";
 import { homeForCurrentRole, isSignedIn, useLogin } from "../api/auth";
@@ -59,7 +59,10 @@ export default function LoginPage() {
           />
         </label>
         <label htmlFor="password">
-          Password
+          <span className="login-label-row">
+            Password
+            <Link to="/forgot-password">Forgot password?</Link>
+          </span>
           <input
             id="password"
             name="password"
