@@ -4,49 +4,25 @@ import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import Metrics from "../components/ui/Metrics";
 import StateMessage from "../components/ui/StateMessage";
-import WeekCalendar from "../components/schedule/WeekCalendar";
+import ScheduleBuilder from "../components/schedule/ScheduleBuilder";
 import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
 import { useCopyWeek, usePublishWeek, useScheduleReadiness, useWeekShifts } from "../api/schedule";
 import { useWeeklyReport } from "../api/reports";
 import { useCoverageWarnings } from "../api/staffing";
+import { useStaffingRequirements } from "../api/staffing";
+import { useEmployees } from "../api/employees";
 import { useHolidays } from "../api/holidays";
 import {
   formatDayHeading,
   formatHours,
   formatCurrencyCompact,
   formatPercent,
-  formatShiftRange,
   formatWeekRange,
   startOfWeek,
   toDateParam,
-  toneFor,
 } from "../lib/format";
 import { addWeeks, fromDateParam } from "../utils/week";
 import "./SchedulePage.css";
-
-/** Place each shift in its day column, stacking same-day shifts down the rows. */
-const toCalendarBlocks = (shifts, weekStart) => {
-  const perDay = new Map();
-
-  return shifts.map((shift) => {
-    const start = new Date(shift.startTime);
-    const dayIndex = Math.floor((start - weekStart) / 86_400_000);
-    const column = Math.min(Math.max(dayIndex, 0), 6) + 1;
-    const row = (perDay.get(column) ?? 0) + 1;
-    perDay.set(column, row);
-
-    return {
-      id: shift.id,
-      column,
-      row,
-      label: shift.role || shift.employeeName,
-      time: formatShiftRange(shift.startTime, shift.endTime),
-      tone: toneFor(shift.employeeId, shift.assignedColor),
-      source: shift,
-      isDraft: !shift.isPublished,
-    };
-  });
-};
 
 export default function SchedulePage() {
   const navigate = useNavigate();
@@ -61,6 +37,8 @@ export default function SchedulePage() {
   const readiness = useScheduleReadiness(weekStart);
   const report = useWeeklyReport(weekStart);
   const coverage = useCoverageWarnings(weekStart);
+  const requirements = useStaffingRequirements();
+  const employees = useEmployees();
   const weekEnd = useMemo(() => { const value = new Date(weekStart); value.setDate(value.getDate() + 6); return value; }, [weekStart]);
   const holidays = useHolidays(toDateParam(weekStart), toDateParam(weekEnd));
   const publishWeek = usePublishWeek(weekStart);
@@ -192,7 +170,7 @@ export default function SchedulePage() {
           detail={shifts.error?.message}
         />
       ) : (
-        <WeekCalendar days={days} shifts={toCalendarBlocks(shifts.data, weekStart)} onShiftSelect={setSelectedShift} />
+        <ScheduleBuilder days={days} weekStart={weekStart} shifts={shifts.data} employees={employees.data ?? []} requirements={requirements.data ?? []} onOpenShift={setSelectedShift} />
       )}
       {selectedShift ? (
         <ShiftManagerDialog shift={selectedShift} onClose={() => setSelectedShift(null)} />
