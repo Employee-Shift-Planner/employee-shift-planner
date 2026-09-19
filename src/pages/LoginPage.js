@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
+import PasswordInput from "../components/ui/PasswordInput";
 import StateMessage from "../components/ui/StateMessage";
 import { homeForCurrentRole, isSignedIn, useLogin } from "../api/auth";
 import "./LoginPage.css";
@@ -63,10 +64,9 @@ export default function LoginPage() {
             Password
             <Link to="/forgot-password">Forgot password?</Link>
           </span>
-          <input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             autoComplete="current-password"
             required
             value={form.password}
