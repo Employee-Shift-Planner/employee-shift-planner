@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useCreateUser, useUpdateUserAccess, useUsers } from "../../api/users";
 import { useEmployees } from "../../api/employees";
 import Button from "../ui/Button";
+import PasswordInput from "../ui/PasswordInput";
 import StateMessage from "../ui/StateMessage";
 import "./UserAccessSettings.css";
 
@@ -35,7 +36,7 @@ export default function UserAccessSettings() {
         <form className="card user-access-form" onSubmit={add}>
           <h3>Create account</h3>
           <label>Email<input required type="email" maxLength="100" value={form.email} onChange={(event) => setForm((value) => ({ ...value, email: event.target.value }))} /></label>
-          <label>Temporary password<input required type="password" minLength="6" value={form.password} onChange={(event) => setForm((value) => ({ ...value, password: event.target.value }))} /></label>
+          <label htmlFor="temporary-password">Temporary password<PasswordInput id="temporary-password" required minLength="6" value={form.password} onChange={(event) => setForm((value) => ({ ...value, password: event.target.value }))} /></label>
           <label>Role<select value={form.role} onChange={(event) => setForm((value) => ({ ...value, role: event.target.value }))}>{ROLES.map((role) => <option key={role}>{role}</option>)}</select></label>
           <label>Employee profile<select required={form.role === "Employee"} value={form.employeeId} onChange={(event) => setForm((value) => ({ ...value, employeeId: event.target.value }))}><option value="">Not linked</option>{employeeOptions.map((employee) => <option key={employee.employeeId} value={employee.employeeId}>{employee.fullName}</option>)}</select></label>
           <Button type="submit" disabled={create.isPending}>{create.isPending ? "Creating…" : "Create user"}</Button>

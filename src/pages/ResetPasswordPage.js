@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useResetPassword } from "../api/auth";
 import Button from "../components/ui/Button";
+import PasswordInput from "../components/ui/PasswordInput";
 import StateMessage from "../components/ui/StateMessage";
 import "./LoginPage.css";
 
@@ -52,10 +53,9 @@ export default function ResetPasswordPage() {
           <>
             <label htmlFor="password">
               New password
-              <input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 autoComplete="new-password"
                 minLength="8"
                 required
@@ -65,10 +65,9 @@ export default function ResetPasswordPage() {
             </label>
             <label htmlFor="confirmation">
               Confirm new password
-              <input
+              <PasswordInput
                 id="confirmation"
                 name="confirmation"
-                type="password"
                 autoComplete="new-password"
                 minLength="8"
                 required
