@@ -3,8 +3,8 @@
 // The base URL comes from REACT_APP_API_BASE_URL so local, staging and
 // production builds can point at different hosts without a code change.
 
-//const DEFAULT_BASE_URL = "https://employeeschedulerapi.azurewebsites.net/api"
-const DEFAULT_BASE_URL = "http://localhost:5113/api" // Uncomment this line for local development;
+const DEFAULT_BASE_URL = "https://scheduler-api-h2d8bfatb6f2bnhg.centralus-01.azurewebsites.net/api";
+//const DEFAULT_BASE_URL = "http://localhost:5113/api" // Uncomment this line for local development;
 
 export const API_BASE_URL = (
   process.env.REACT_APP_API_BASE_URL || DEFAULT_BASE_URL
