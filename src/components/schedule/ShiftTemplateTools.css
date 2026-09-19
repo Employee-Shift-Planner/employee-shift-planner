@@ -1,0 +1,74 @@
+.shift-template-tools {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.8fr) minmax(320px, 1.2fr);
+  gap: 16px 24px;
+  margin-bottom: 24px;
+  padding: 18px 22px;
+}
+
+.shift-template-tools h2,
+.shift-template-tools p {
+  margin: 0;
+}
+
+.shift-template-tools p {
+  margin-top: 6px;
+}
+
+.shift-template-controls,
+.shift-template-save {
+  display: flex;
+  gap: 10px;
+}
+
+.shift-template-save {
+  grid-column: 2;
+}
+
+.shift-template-tools select,
+.shift-template-tools input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid #dbe1eb;
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+
+.shift-template-tools .btn {
+  min-width: auto;
+}
+
+.shift-template-tools .state,
+.shift-template-message {
+  grid-column: 1 / -1;
+}
+
+.shift-template-tools .state {
+  padding: 12px;
+}
+
+.shift-template-message {
+  margin: 0;
+  color: var(--green);
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .shift-template-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .shift-template-save {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .shift-template-controls,
+  .shift-template-save {
+    flex-direction: column;
+  }
+}

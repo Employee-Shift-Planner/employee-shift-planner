@@ -1,0 +1,48 @@
+.matrix {
+  min-width: 900px;
+  padding: 14px 16px 42px;
+}
+
+.mrow {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(7, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 104px;
+  font-size: 13px;
+}
+
+.mhead {
+  min-height: 54px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.mrow button {
+  height: 58px;
+  border: 0;
+  border-radius: 8px;
+  font: 600 10px inherit;
+  cursor: default;
+}
+
+/* Cells only become interactive once "Edit availability" is on. */
+.matrix.editing .mrow button {
+  cursor: pointer;
+}
+
+.yes {
+  background: #e5f7ed;
+  color: var(--green);
+}
+
+.no {
+  background: #ffebeb;
+  color: var(--red);
+}
+
+@media (max-width: 1000px) {
+  .matrix {
+    overflow: auto;
+  }
+}

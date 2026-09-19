@@ -1,0 +1,17 @@
+.user-access-settings { margin-bottom: 28px; }
+.user-access-settings > div:first-child h2, .user-access-form h3, .user-access-list h3 { margin: 0; }
+.user-access-settings > div:first-child p { margin: 6px 0 16px; color: var(--muted); font-size: 13px; }
+.user-access-message { color: var(--green); font-size: 13px; font-weight: 700; }
+.user-access-layout { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(400px, 1.2fr); gap: 24px; }
+.user-access-form, .user-access-list { padding: 22px; }
+.user-access-form { display: grid; gap: 16px; }
+.user-access-form label { display: grid; gap: 7px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.user-access-form input, .user-access-form select, .user-access-row select { width: 100%; border: 1px solid #dbe1eb; border-radius: 8px; padding: 10px 11px; background: #fff; color: var(--ink); font: inherit; }
+.user-access-form .btn { justify-self: start; }
+.user-access-row { display: grid; grid-template-columns: minmax(180px, 1fr) 150px auto; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid #edf0f5; }
+.user-access-row > div { display: grid; gap: 4px; min-width: 0; }
+.user-access-row b { overflow: hidden; text-overflow: ellipsis; }
+.user-access-row span { color: var(--muted); font-size: 11px; }
+.user-access-row button { border: 0; color: var(--blue); background: transparent; font-weight: 700; cursor: pointer; }
+@media (max-width: 850px) { .user-access-layout { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .user-access-row { grid-template-columns: 1fr; } }

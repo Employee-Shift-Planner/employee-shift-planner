@@ -1,0 +1,24 @@
+.schedule-builder { display: grid; gap: 16px; margin-top: 18px; }
+.schedule-toolbar { padding: 16px; display: grid; gap: 14px; }
+.view-tabs { display: flex; gap: 8px; }
+.view-tabs button, .coverage-day-tabs button { border: 0; border-radius: 8px; padding: 9px 14px; background: #edf1f7; color: var(--muted); font-weight: 700; cursor: pointer; }
+.view-tabs button[aria-selected="true"], .coverage-day-tabs button.active { background: var(--blue); color: white; }
+.schedule-filters { display: grid; grid-template-columns: 1fr 220px 220px; gap: 12px; }
+.schedule-filters label { display: grid; gap: 5px; font-size: 11px; font-weight: 700; color: var(--muted); }
+.schedule-filters input, .schedule-filters select, .bulk-toolbar input, .bulk-toolbar select { border: 1px solid #dbe1eb; border-radius: 8px; padding: 9px; background: white; }
+.bulk-toolbar { position: sticky; z-index: 10; top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 9px; padding: 12px 16px; box-shadow: 0 8px 24px #1e293b1a; }
+.bulk-toolbar input { width: 145px; }.clear-selection { border: 0; background: none; color: var(--muted); font-weight: 700; }
+.undo-bar { display: flex; justify-content: space-between; align-items: center; border-radius: 9px; padding: 10px 14px; background: #e7f7f0; color: #13734f; font-weight: 700; }
+.planner-grid { min-width: 1080px; overflow: hidden; padding: 0; }
+.planner-grid-row { display: grid; grid-template-columns: 180px repeat(7, minmax(125px, 1fr)); border-top: 1px solid #edf0f5; }
+.planner-grid-row > * { min-width: 0; padding: 10px; border-left: 1px solid #edf0f5; }
+.planner-grid-row > *:first-child { border-left: 0; }.planner-grid-head { position: sticky; top: 0; background: #f8fafc; color: var(--muted); font-size: 11px; }
+.planner-grid-row > strong small { display: block; margin-top: 4px; color: var(--muted); font-weight: 400; }
+.planner-day-cell { min-height: 68px; }.off { display: block; padding-top: 13px; text-align: center; color: #9aa4b2; font-size: 11px; }
+.planner-shift { display: flex; align-items: start; gap: 4px; margin-bottom: 5px; border: 1px solid #dbe7fb; border-radius: 7px; padding: 5px; background: #eff6ff; }
+.planner-shift.selected { outline: 2px solid var(--blue); }.planner-shift > button { min-width: 0; border: 0; background: none; text-align: left; cursor: pointer; }
+.planner-shift b, .planner-shift span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }.planner-shift span { color: var(--muted); }
+.position-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }.position-view > section { padding: 18px; }.position-view h2 { margin-top: 0; text-transform: uppercase; }
+.coverage-view { padding: 18px; }.coverage-day-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }.coverage-scroll { overflow-x: auto; }
+.coverage-view table { width: 100%; min-width: 1000px; border-collapse: collapse; text-align: center; }.coverage-view th, .coverage-view td { padding: 12px 8px; border: 1px solid #edf0f5; }.coverage-view td.gap { background: #ffebeb; color: var(--red); font-weight: 800; }.coverage-view td small { display: block; font-size: 8px; }
+@media (max-width: 1100px) { .schedule-builder { overflow-x: auto; }.schedule-filters { grid-template-columns: 1fr; } }

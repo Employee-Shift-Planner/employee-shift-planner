@@ -1,0 +1,18 @@
+.staffing-settings { margin-bottom: 28px; }
+.staffing-settings-copy h2, .staffing-form h3, .staffing-list h3 { margin: 0; }
+.staffing-settings-copy p { margin: 6px 0 16px; color: var(--muted); font-size: 13px; }
+.staffing-settings-message { color: var(--green); font-size: 13px; font-weight: 700; }
+.staffing-settings-layout { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(360px, 1.15fr); gap: 24px; }
+.staffing-form, .staffing-list { padding: 22px; }
+.staffing-form { display: grid; gap: 16px; }
+.staffing-form label { display: grid; gap: 7px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.staffing-form input, .staffing-form select { width: 100%; border: 1px solid #dbe1eb; border-radius: 8px; padding: 10px 11px; color: var(--ink); background: #fff; font: inherit; }
+.staffing-time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.staffing-form .btn { justify-self: start; }
+.staffing-list ul { margin: 12px 0 0; padding: 0; list-style: none; }
+.staffing-list li { display: flex; justify-content: space-between; gap: 14px; padding: 14px 0; border-bottom: 1px solid #edf0f5; }
+.staffing-list li.paused { opacity: .55; }
+.staffing-list li p { margin: 5px 0 0; }
+.staffing-list-actions { display: flex; gap: 8px; }
+.staffing-list-actions button { border: 0; padding: 0; color: var(--blue); background: transparent; font: 700 12px inherit; cursor: pointer; }
+@media (max-width: 800px) { .staffing-settings-layout { grid-template-columns: 1fr; } }

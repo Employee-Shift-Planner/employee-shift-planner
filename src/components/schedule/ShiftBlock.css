@@ -1,0 +1,66 @@
+.shift {
+  width: 100%;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 9px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 11px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shift:hover,
+.shift:focus-visible {
+  filter: brightness(0.92);
+  outline: 3px solid rgba(46, 102, 242, 0.25);
+  outline-offset: 2px;
+}
+
+.shift span {
+  font-size: 10px;
+}
+
+.shift em {
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 2px 5px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.shift.draft {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(255, 255, 255, 0.12) 6px,
+    rgba(255, 255, 255, 0.12) 12px
+  );
+}
+
+.shift.blue {
+  background: var(--blue);
+}
+
+.shift.green {
+  background: var(--green);
+}
+
+.shift.red {
+  background: var(--red);
+}
+
+.shift.orange {
+  background: var(--orange);
+}
+
+.shift.purple {
+  background: var(--purple);
+}

@@ -1,0 +1,11 @@
+.assign {
+  height: 410px;
+  padding: 18px 22px;
+}
+
+.assign p,
+.assign label {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 18px 0;
+}

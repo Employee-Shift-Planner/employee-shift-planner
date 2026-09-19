@@ -1,0 +1,5 @@
+.organization-settings { margin-bottom: 30px; }.organization-settings > div > h2 { margin-bottom: 5px; }.organization-settings > div > p { color: var(--muted); }
+.organization-form { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 16px; padding: 22px; }
+.organization-form label { display: grid; gap: 6px; font-size: 12px; font-weight: 700; }.organization-form input { padding: 10px; border: 1px solid #dbe1eb; border-radius: 8px; }.organization-form small, .organization-form .btn { align-self: end; }
+.organization-detection { border-radius: 8px; padding: 11px 14px; background: #eff6ff; color: var(--blue); }.organization-readonly { border-radius: 8px; padding: 11px 14px; background: #f3f4f6; color: var(--muted); }
+@media (max-width: 850px) { .organization-form { grid-template-columns: 1fr; } }

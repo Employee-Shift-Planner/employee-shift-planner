@@ -1,0 +1,17 @@
+.next {
+  height: 154px;
+  background: var(--blue);
+  border-radius: 16px;
+  color: #fff;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.next h2 {
+  font-size: 20px;
+}
+
+.next p {
+  font-size: 12px;
+  color: #d1e0ff;
+}
