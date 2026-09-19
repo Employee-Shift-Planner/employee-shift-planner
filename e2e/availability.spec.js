@@ -18,7 +18,7 @@ test("employee signs in and saves a recurring availability range", async ({ page
 
   await page.goto("/");
   await page.getByLabel("Email address").fill("alex@test.local");
-  await page.getByLabel("Password").fill("correct-password");
+  await page.locator('input[name="password"]').fill("correct-password");
   await page.getByRole("button", { name:"Sign in" }).click();
   await page.getByRole("button", { name:"Manage availability" }).click();
   await expect(page.getByRole("heading", { name:"My Availability" })).toBeVisible();
