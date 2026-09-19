@@ -131,8 +131,9 @@ const parse = (text) => {
 /** Pull the most useful message out of an ASP.NET error payload. */
 const messageFor = (payload, status) => {
   if (typeof payload === "string" && payload.trim()) return payload;
-  if (payload?.message) return payload.message;
-  if (payload?.title) return payload.title;
+  const reference = payload?.traceId ? ` Reference: ${payload.traceId}` : "";
+  if (payload?.message) return `${payload.message}${reference}`;
+  if (payload?.title) return `${payload.title}${reference}`;
   if (payload?.errors) {
     const first = Object.values(payload.errors).flat()[0];
     if (first) return first;
