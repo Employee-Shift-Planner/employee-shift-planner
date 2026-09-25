@@ -109,7 +109,9 @@ The optimized bundle is written to `build/`. Tests currently cover routing and a
 5. Build with the production `REACT_APP_API_BASE_URL`.
 6. Run tests and deploy the generated bundle.
 
-`staticwebapp.config.json` supplies static-host routing behavior.
+`public/staticwebapp.config.json` supplies static-host routing behavior and is
+copied into `build/` so direct navigation to client-side routes is rewritten to
+the React entry point.
 
 ## Password-recovery API contract
 
