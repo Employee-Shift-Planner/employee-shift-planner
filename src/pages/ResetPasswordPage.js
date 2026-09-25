@@ -42,13 +42,19 @@ export default function ResetPasswordPage() {
         <h2>Reset password</h2>
         <p>Enter and confirm your new password.</p>
         {!hasResetLink ? (
-          <StateMessage
-            tone="error"
-            title="Invalid reset link"
-            detail="Request a new password reset link and try again."
-          />
+          <>
+            <StateMessage
+              tone="error"
+              title="Invalid reset link"
+              detail="This link is incomplete. Request a new password reset email and use the link in that message."
+            />
+            <Link className="login-primary-link" to="/forgot-password">Request a new reset link</Link>
+          </>
         ) : resetPassword.isSuccess ? (
-          <StateMessage title="Password updated" detail="You can now sign in with your new password." />
+          <>
+            <StateMessage title="Password updated" detail="Your password was changed successfully. You can now sign in with your new password." />
+            <Link className="login-primary-link" to="/">Continue to sign in</Link>
+          </>
         ) : (
           <>
             <label htmlFor="password">
@@ -76,11 +82,16 @@ export default function ResetPasswordPage() {
               />
             </label>
             {validationError || resetPassword.isError ? (
-              <StateMessage
-                tone="error"
-                title="Could not reset password"
-                detail={validationError || resetPassword.error?.message}
-              />
+              <>
+                <StateMessage
+                  tone="error"
+                  title="Could not reset password"
+                  detail={validationError || resetPassword.error?.message}
+                />
+                {resetPassword.isError ? (
+                  <Link className="login-inline-link" to="/forgot-password">Request a new reset link</Link>
+                ) : null}
+              </>
             ) : null}
             <Button type="submit" disabled={resetPassword.isPending}>
               {resetPassword.isPending ? "Updating…" : "Update password"}

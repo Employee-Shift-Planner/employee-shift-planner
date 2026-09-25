@@ -88,3 +88,13 @@ test("rejects mismatched replacement passwords before calling the API", () => {
   expect(screen.getByText("Passwords do not match.")).toBeInTheDocument();
   expect(request).not.toHaveBeenCalled();
 });
+
+test("an invalid reset URL offers a new password reset link", () => {
+  renderAt("/reset-password");
+
+  expect(screen.getByText("Invalid reset link")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Request a new reset link" })).toHaveAttribute(
+    "href",
+    "/forgot-password"
+  );
+});

@@ -27,10 +27,19 @@ export default function ForgotPasswordPage() {
         <h2>Forgot password?</h2>
         <p>Enter the email address associated with your account.</p>
         {forgotPassword.isSuccess ? (
-          <StateMessage
-            title="Check your email"
-            detail="If an account exists for that address, we sent a password reset link."
-          />
+          <>
+            <StateMessage
+              title="Check your email"
+              detail="If an account exists for that address, a reset link is on its way. It expires in 30 minutes, so please use it soon. Check your spam folder if you do not see it."
+            />
+            <button
+              className="login-text-button"
+              type="button"
+              onClick={() => forgotPassword.reset()}
+            >
+              Send a link to a different email
+            </button>
+          </>
         ) : (
           <>
             <label htmlFor="email">
