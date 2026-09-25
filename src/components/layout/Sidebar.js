@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { NAV_ITEMS } from "../../data/navigation";
 import { currentRole, currentUserLabel, signOut } from "../../api/auth";
+import shiftlyIcon from "../../assets/shiftly-icon.png";
 import "./Sidebar.css";
 
 /**
@@ -21,9 +22,12 @@ export default function Sidebar({ active }) {
 
   return (
     <aside className="sidebar">
-      <div>
-        <b>SHIFTLY</b>
-        <small>WORKFORCE PLANNER</small>
+      <div className="sidebar-brand">
+        <img src={shiftlyIcon} alt="" aria-hidden="true" />
+        <span>
+          <b>SHIFTLY</b>
+          <small>WORKFORCE PLANNER</small>
+        </span>
       </div>
       <nav>
         {NAV_ITEMS.filter((item) => item.roles.includes(currentRole())).map(({ label, path }) => {
