@@ -72,6 +72,43 @@
   font-size: 13px;
 }
 
+.login-primary-link {
+  align-self: stretch;
+  background: var(--blue);
+  border-radius: 10px;
+  color: #fff !important;
+  margin-top: 18px;
+  padding: 14px 20px;
+  text-align: center;
+}
+
+.login-primary-link:hover {
+  text-decoration: none !important;
+  filter: brightness(0.94);
+}
+
+.login-inline-link,
+.login-text-button {
+  align-self: center;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.login-text-button {
+  background: none;
+  border: 0;
+  color: var(--blue);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px;
+}
+
+.login-text-button:hover {
+  text-decoration: underline;
+}
+
 .login input {
   display: block;
   width: 100%;
