@@ -116,11 +116,23 @@ function ShiftCell({ shift, selected, toggle, open }) {
 }
 
 function EmployeeView({ employees, shifts, days, weekStart, selected, toggle, open, reassign, busy }) {
-  return <div className="planner-grid card"><div className="planner-grid-row planner-grid-head"><b>Employee</b>{days.map(day => <b key={day}>{day}</b>)}</div>
+  return <><div className="planner-grid card"><div className="planner-grid-row planner-grid-head"><b>Employee</b>{days.map(day => <b key={day}>{day}</b>)}</div>
     {employees.map(employee => <div className="planner-grid-row" key={employee.employeeId} onDragOver={e => e.preventDefault()} onDrop={e => { const shift=shifts.find(x => x.id === Number(e.dataTransfer.getData("text/shift-id"))); if (shift && !busy) reassign(shift, employee.employeeId); }}>
       <strong>{employee.fullName}<small>{employee.positionTitle || "Unassigned"}</small></strong>
       {days.map((day, index) => <div className="planner-day-cell" key={day}>{shifts.filter(x => x.employeeId === employee.employeeId && dayIndex(x.startTime, weekStart) === index).map(shift => <ShiftCell key={shift.id} shift={shift} selected={selected.includes(shift.id)} toggle={toggle} open={open} />)}{!shifts.some(x => x.employeeId === employee.employeeId && dayIndex(x.startTime, weekStart) === index) ? <span className="off">OFF</span> : null}</div>)}
-    </div>)}</div>;
+    </div>)}</div><MobileEmployeeView employees={employees} shifts={shifts} days={days} weekStart={weekStart} open={open} /></>;
+}
+
+function MobileEmployeeView({ employees, shifts, days, weekStart, open }) {
+  const [day, setDay] = useState(() => Math.max(0, Math.min(6, Math.floor((new Date() - weekStart) / 86400000))));
+  const employeeById = Object.fromEntries(employees.map(employee => [employee.employeeId, employee]));
+  const dayShifts = shifts.filter(shift => dayIndex(shift.startTime, weekStart) === day).sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+  const moveDay = direction => setDay(value => Math.max(0, Math.min(6, value + direction)));
+  return <section className="mobile-planner" aria-label="Daily schedule">
+    <div className="mobile-day-tabs" role="tablist" aria-label="Choose schedule day">{days.map((label, index) => <button key={label} role="tab" aria-selected={day === index} onClick={() => setDay(index)}><span>{label.split(" ")[0]}</span><b>{label.match(/\d+/)?.[0] ?? index + 1}</b></button>)}</div>
+    <div className="mobile-day-heading"><button disabled={day === 0} onClick={() => moveDay(-1)} aria-label="Previous day">←</button><div><b>{days[day]}</b><span>{dayShifts.length} {dayShifts.length === 1 ? "shift" : "shifts"}</span></div><button disabled={day === 6} onClick={() => moveDay(1)} aria-label="Next day">→</button></div>
+    <div className="mobile-shift-list">{dayShifts.length ? dayShifts.map(shift => { const employee = employeeById[shift.employeeId]; const initials = (employee?.fullName || shift.employeeName || "Open shift").split(" ").map(part => part[0]).slice(0, 2).join(""); return <button className="mobile-shift-card" key={shift.id} onClick={() => open(shift)}><span className="mobile-shift-avatar">{initials}</span><span className="mobile-shift-copy"><b>{employee?.fullName || shift.employeeName || "Open shift"}</b><small>{shift.role || employee?.positionTitle || "Shift"}</small><strong>{formatShiftRange(shift.startTime, shift.endTime)}</strong></span><span className={`mobile-shift-status ${shift.isPublished ? "published" : "draft"}`}>{shift.isPublished ? "Published" : "Draft"}</span><span className="mobile-shift-chevron" aria-hidden="true">›</span></button>; }) : <div className="mobile-schedule-empty"><b>No shifts scheduled</b><span>This day is clear. Choose another day to continue.</span></div>}</div>
+  </section>;
 }
 
 function PositionView({ shifts, selected, toggle, open }) {
