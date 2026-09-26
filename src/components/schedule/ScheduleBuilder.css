@@ -21,4 +21,39 @@
 .position-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }.position-view > section { padding: 18px; }.position-view h2 { margin-top: 0; text-transform: uppercase; }
 .coverage-view { padding: 18px; }.coverage-day-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }.coverage-scroll { overflow-x: auto; }
 .coverage-view table { width: 100%; min-width: 1000px; border-collapse: collapse; text-align: center; }.coverage-view th, .coverage-view td { padding: 12px 8px; border: 1px solid #edf0f5; }.coverage-view td.gap { background: #ffebeb; color: var(--red); font-weight: 800; }.coverage-view td small { display: block; font-size: 8px; }
+.mobile-planner { display: none; }
 @media (max-width: 1100px) { .schedule-builder { overflow-x: auto; }.schedule-filters { grid-template-columns: 1fr; } }
+@media (max-width: 700px) {
+  .schedule-builder { overflow: visible; margin-inline: -16px; }
+  .schedule-toolbar { margin-inline: 16px; padding: 14px; }
+  .view-tabs { overflow-x: auto; padding-bottom: 2px; }
+  .view-tabs button { flex: 0 0 auto; }
+  .planner-grid { display: none; }
+  .mobile-planner { display: block; }
+  .mobile-day-tabs { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; padding: 8px 12px; overflow-x: auto; background: var(--surface); border-block: 1px solid var(--border); }
+  .mobile-day-tabs button { min-width: 42px; min-height: 54px; display: grid; place-items: center; gap: 1px; border: 0; border-radius: 10px; background: transparent; color: var(--text-secondary); font: inherit; }
+  .mobile-day-tabs button span { font-size: 9px; font-weight: 700; text-transform: uppercase; }
+  .mobile-day-tabs button b { font-size: 14px; }
+  .mobile-day-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.22); }
+  .mobile-day-heading { padding: 18px 16px 12px; display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; text-align: center; }
+  .mobile-day-heading div { display: grid; gap: 2px; }
+  .mobile-day-heading div b { font-size: 15px; }
+  .mobile-day-heading div span { color: var(--text-secondary); font-size: 11px; }
+  .mobile-day-heading > button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); }
+  .mobile-day-heading > button:disabled { opacity: .35; }
+  .mobile-shift-list { display: grid; gap: 10px; padding: 0 16px 12px; }
+  .mobile-shift-card { width: 100%; min-height: 82px; padding: 13px; display: grid; grid-template-columns: 42px minmax(0,1fr) auto 12px; align-items: center; gap: 11px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-sm); text-align: left; font: inherit; }
+  .mobile-shift-avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 800; }
+  .mobile-shift-copy { min-width: 0; display: grid; gap: 2px; }
+  .mobile-shift-copy b, .mobile-shift-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-shift-copy b { color: var(--text); font-size: 13px; }
+  .mobile-shift-copy small { color: var(--text-secondary); font-size: 11px; }
+  .mobile-shift-copy strong { margin-top: 3px; color: var(--text); font-size: 12px; }
+  .mobile-shift-status { padding: 4px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; }
+  .mobile-shift-status.published { background: #e8f7ef; color: #13734f; }
+  .mobile-shift-status.draft { background: #fff3d6; color: #916000; }
+  .mobile-shift-chevron { color: #94a3b8; font-size: 22px; }
+  .mobile-schedule-empty { min-height: 160px; padding: 32px; display: grid; place-items: center; align-content: center; gap: 5px; border: 1px dashed #cbd5e1; border-radius: 14px; color: var(--text-secondary); text-align: center; }
+  .mobile-schedule-empty b { color: var(--text); font-size: 14px; }
+  .mobile-schedule-empty span { font-size: 12px; }
+}

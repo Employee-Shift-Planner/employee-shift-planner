@@ -1,19 +1,26 @@
 .btn {
-  height: 44px;
-  min-width: 140px;
+  min-height: 44px;
+  min-width: 132px;
   padding: 0 16px;
   border: 0;
-  border-radius: 10px;
-  background: var(--blue);
+  border-radius: var(--radius-sm);
+  background: var(--primary);
   color: #fff;
   font: 600 14px inherit;
   cursor: pointer;
+  transition: background .15s ease, box-shadow .15s ease, transform .15s ease;
 }
+.btn:hover:not(:disabled) { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(37,99,235,.22); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
 
 .btn.success {
   background: var(--green);
 }
 
 .btn.gray {
-  background: var(--muted);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
 }
+.btn.gray:hover:not(:disabled) { background: var(--surface-subtle); box-shadow: none; }
