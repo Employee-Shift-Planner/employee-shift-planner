@@ -102,8 +102,11 @@ export default function UserAccessSettings() {
 
         <section className="card user-access-list" aria-labelledby="existing-users-heading">
           <div className="user-access-card-heading">
-            <h3 id="existing-users-heading">Existing users</h3>
-            <p>{existingUsers.length} {existingUsers.length === 1 ? "account" : "accounts"}</p>
+            <div>
+              <h3 id="existing-users-heading">Existing users</h3>
+              <p>Manage roles, linked profiles, and sign-in access.</p>
+            </div>
+            <span className="user-access-count">{existingUsers.length} {existingUsers.length === 1 ? "account" : "accounts"}</span>
           </div>
           {users.isPending ? <p role="status">Loading users…</p> : null}
           {!users.isPending && existingUsers.length === 0 ? <p className="user-access-empty">No user accounts yet.</p> : null}
