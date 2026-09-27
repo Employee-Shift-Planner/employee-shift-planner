@@ -9,6 +9,9 @@
   gap: 24px;
 }
 
+#overview, #coverage, #labour-cost { scroll-margin-top: 24px; }
+#coverage > .card { height: 100%; }
+
 .labour-forecast { margin-top: 24px; padding: 22px; }
 .labour-forecast-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .labour-forecast-heading h2, .labour-forecast-heading p { margin: 0; }

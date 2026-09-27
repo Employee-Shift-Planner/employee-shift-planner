@@ -19,6 +19,18 @@
   padding: 7px 12px;
 }
 
+.schedule-summary { display: grid; grid-template-columns: minmax(165px,1.2fr) repeat(4,minmax(100px,.7fr)) auto; align-items: stretch; margin: 0 0 20px; overflow: hidden; }
+.schedule-summary-heading { padding: 15px 18px; display: grid; align-content: center; gap: 2px; border-right: 1px solid var(--border); }
+.schedule-summary-heading b { font-size: 13px; }
+.schedule-summary-heading span { color: var(--text-secondary); font-size: 10px; }
+.schedule-summary > button { min-width: 0; padding: 12px 14px; display: grid; align-content: center; gap: 2px; border: 0; border-right: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; text-align: left; }
+.schedule-summary > button:hover { background: var(--surface-subtle); }
+.schedule-summary > button strong { font-size: 16px; }
+.schedule-summary > button span { color: var(--text-secondary); font-size: 10px; white-space: nowrap; }
+.schedule-summary > button.needs-attention strong { color: var(--danger); }
+.schedule-summary .schedule-summary-report { padding-inline: 16px; grid-template-columns: auto auto; align-items: center; gap: 8px; border-right: 0; color: var(--primary); }
+.schedule-summary .schedule-summary-report span { color: inherit; font-weight: 700; }
+
 .publication-status {
   display: flex;
   align-items: center;
@@ -81,6 +93,12 @@
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .schedule-summary { grid-template-columns: repeat(2,1fr); }
+  .schedule-summary-heading { grid-column: 1 / -1; border-right: 0; border-bottom: 1px solid var(--border); }
+  .schedule-summary > button { border-bottom: 1px solid var(--border); }
+  .schedule-summary > button:nth-of-type(even) { border-right: 0; }
+  .schedule-summary .schedule-summary-report { grid-column: 1 / -1; min-height: 44px; justify-content: center; border-bottom: 0; }
 }
 .holiday-week { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
 .holiday-week article { display: grid; gap: 3px; padding: 11px 14px; border: 1px solid #f0d994; border-radius: 9px; background: #fff9e8; color: var(--ink); }

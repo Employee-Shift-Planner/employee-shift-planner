@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
-import Metrics from "../components/ui/Metrics";
 import StateMessage from "../components/ui/StateMessage";
 import ScheduleBuilder from "../components/schedule/ScheduleBuilder";
 import ShiftManagerDialog from "../components/schedule/ShiftManagerDialog";
@@ -14,7 +13,6 @@ import { useEmployees } from "../api/employees";
 import { useHolidays } from "../api/holidays";
 import {
   formatDayHeading,
-  formatHours,
   formatCurrencyCompact,
   formatPercent,
   formatWeekRange,
@@ -63,22 +61,7 @@ export default function SchedulePage() {
     [weekStart]
   );
 
-  const metrics = [
-    { value: report.data?.scheduledShifts ?? "—", label: "Scheduled shifts", tone: "blue" },
-    {
-      value: report.data ? formatHours(report.data.totalHours) : "—",
-      label: "Total hours",
-      tone: "green",
-    },
-    { value: coverage.data?.length ?? "—", label: "Coverage gaps", tone: "red" },
-    {
-      value: report.data ? formatPercent(report.data.availabilityFitPercent) : "—",
-      label: "Availability fit",
-      tone: "orange",
-    },
-    { value: report.data ? formatCurrencyCompact(report.data.labourCost, report.data.currency) : "—", label: "Forecast labour cost", tone: "purple" },
-    { value: report.data ? formatHours(report.data.overtimeHours) : "—", label: "Overtime", tone: "red" },
-  ];
+  const openReport = (focus) => navigate(`/reports?week=${toDateParam(weekStart)}#${focus}`);
 
   return (
     <Shell
@@ -117,7 +100,14 @@ export default function SchedulePage() {
           Next →
         </Button>
       </nav>
-      <Metrics items={metrics} />
+      <section className="schedule-summary card" aria-label="Current week scheduling summary">
+        <div className="schedule-summary-heading"><b>Week at a glance</b><span>Operational signals for this schedule</span></div>
+        <button type="button" onClick={() => openReport("coverage")}><strong>{report.data ? formatPercent(report.data.coveragePercent) : "—"}</strong><span>Coverage</span></button>
+        <button type="button" className={(coverage.data?.length ?? 0) > 0 ? "needs-attention" : ""} onClick={() => openReport("coverage")}><strong>{coverage.data?.length ?? "—"}</strong><span>Coverage gaps</span></button>
+        <button type="button" className={(readiness.data?.issues?.length ?? 0) > 0 ? "needs-attention" : ""} onClick={() => document.querySelector(".schedule-readiness")?.scrollIntoView({ behavior: "smooth", block: "center" })}><strong>{readiness.data?.issues?.length ?? "—"}</strong><span>Conflicts</span></button>
+        <button type="button" onClick={() => openReport("labour-cost")}><strong>{report.data ? formatCurrencyCompact(report.data.labourCost, report.data.currency) : "—"}</strong><span>Forecast cost</span></button>
+        <button type="button" className="schedule-summary-report" onClick={() => openReport("overview")}><span>Full report</span><strong aria-hidden="true">→</strong></button>
+      </section>
       {holidays.isError ? <StateMessage tone="error" title="Could not load holidays" detail={holidays.error?.message} /> : null}
       {holidays.isSuccess && holidays.data.length ? <section className="holiday-week" aria-label="Holidays this week">{holidays.data.map((holiday) => <article key={holiday.id}><b>{holiday.date} · {holiday.name}</b><span>{holiday.schedulingPolicy === "Closed" ? "Closed — shifts cannot be assigned" : holiday.schedulingPolicy === "Warning" ? "Review holiday staffing" : "Holiday"}</span></article>)}</section> : null}
       {coverage.isError ? <StateMessage tone="error" title="Could not check staffing coverage" detail={coverage.error?.message} /> : null}
@@ -134,17 +124,15 @@ export default function SchedulePage() {
         <StateMessage tone="error" title="Could not publish this week" detail={publishWeek.error?.message} />
       ) : null}
       {readiness.isError ? (
-        <StateMessage tone="error" title="Could not check schedule readiness" detail={readiness.error?.message} />
+        <div className="schedule-readiness"><StateMessage tone="error" title="Could not check schedule readiness" detail={readiness.error?.message} /></div>
       ) : readiness.isPending ? (
-        <StateMessage title="Checking schedule readiness…" detail="Running the final assignment and labour-rule preflight." />
-      ) : readiness.data?.isReady ? (
-        <StateMessage title="Schedule readiness: Ready" detail={`${readiness.data.totalShifts} active shifts passed validation.`} />
-      ) : (
-        <StateMessage
+        <div className="schedule-readiness"><StateMessage title="Checking schedule readiness…" detail="Running the final assignment and labour-rule preflight." /></div>
+      ) : readiness.data?.isReady ? null : (
+        <div className="schedule-readiness"><StateMessage
           tone="error"
           title={`Schedule readiness: ${readiness.data?.issues?.length ?? 0} blocking ${(readiness.data?.issues?.length ?? 0) === 1 ? "issue" : "issues"}`}
           detail={(readiness.data?.issues ?? []).slice(0, 3).map((issue) => `Shift ${issue.shiftId}: ${issue.errors.join(" ")}`).join(" ")}
-        />
+        /></div>
       )}
       {copyWeek.isError ? (
         <StateMessage tone="error" title="Could not copy the previous week" detail={copyWeek.error?.message} />
