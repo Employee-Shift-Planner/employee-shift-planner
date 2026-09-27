@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiError, get, put } from "./client";
+import { ApiError, del, get, put } from "./client";
 
 /** The defaults the API applies to an employee with no saved row yet. */
 export const DEFAULT_PREFERENCES = {
@@ -55,4 +55,12 @@ export function useNotificationHistory(employeeId) {
     enabled: Boolean(employeeId),
     queryFn: () => get(`/NotificationPreferences/${encodeURIComponent(employeeId)}/history`),
   });
+}
+
+export function registerPushSubscription(subscription) {
+  return put("/Employee/me/push-subscription", { subscription: JSON.stringify(subscription) });
+}
+
+export function revokePushSubscription() {
+  return del("/Employee/me/push-subscription");
 }

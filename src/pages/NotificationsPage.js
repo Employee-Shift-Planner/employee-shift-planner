@@ -4,6 +4,7 @@ import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import NotificationRules from "../components/notifications/NotificationRules";
 import EmailPreview from "../components/notifications/EmailPreview";
+import PushNotifications from "../components/notifications/PushNotifications";
 import PositionsSettings from "../components/settings/PositionsSettings";
 import StaffingRequirementsSettings from "../components/settings/StaffingRequirementsSettings";
 import UserAccessSettings from "../components/settings/UserAccessSettings";
@@ -60,7 +61,6 @@ export default function NotificationsPage({ variant = "notifications" }) {
     { id: "upcomingReminder", label: "Upcoming shift reminder", enabled: value.upcomingReminder },
     { id: "schedulePublished", label: "Weekly schedule published", enabled: value.schedulePublished },
     { id: "smsEnabled", label: "SMS alerts", enabled: value.smsEnabled },
-    { id: "pushEnabled", label: "Push alerts", enabled: value.pushEnabled },
   ] : [];
 
   const toggleRule = (ruleId) => {
@@ -75,6 +75,7 @@ export default function NotificationsPage({ variant = "notifications" }) {
       {() => <QueryState query={preferences}>
         {() => <div className="notices">
           <NotificationRules rules={rules} onToggle={toggleRule} />
+          <PushNotifications enabled={Boolean(value?.pushEnabled)} onChange={(enabled) => { save.reset(); setDraft((current) => ({ ...(current ?? preferences.data), pushEnabled: enabled })); }} />
           <EmailPreview preview={{ subject: "Your shift was updated", body: `Hi ${employee.data.firstName}, a change was made to your schedule.`, action: "View schedule" }} />
           <section className="card notification-history">
             <h2>Delivery history</h2>

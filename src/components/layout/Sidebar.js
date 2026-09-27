@@ -5,6 +5,7 @@ import { BarChart3, Bell, BriefcaseBusiness, CalendarDays, Clock3, LogOut, MoreH
 import { NAV_ITEMS } from "../../data/navigation";
 import { currentRole, currentUserLabel, signOut } from "../../api/auth";
 import shiftlyIcon from "../../assets/shiftly-icon.png";
+import { disablePushNotifications } from "../../lib/pushNotifications";
 import "./Sidebar.css";
 
 const ICONS = { calendar: CalendarDays, users: Users, clock: Clock3, briefcase: BriefcaseBusiness, chart: BarChart3, bell: Bell, settings: Settings, more: MoreHorizontal, logout: LogOut };
@@ -22,6 +23,9 @@ export default function Sidebar({ active }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logout = () => {
+    // Revoke this browser before clearing the bearer token. Accounts without
+    // linked employee profiles simply have no subscription to revoke.
+    disablePushNotifications().catch(() => { /* logout must still succeed offline */ });
     signOut(queryClient);
     navigate("/", { replace: true });
   };
