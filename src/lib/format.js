@@ -4,6 +4,7 @@
 
 const SHORT_DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 export const organizationTimeZone = () => localStorage.getItem("organization-timezone") || process.env.REACT_APP_ORGANIZATION_TIME_ZONE || "America/Jamaica";
+export const organizationCurrency = () => localStorage.getItem("organization-currency") || process.env.REACT_APP_ORGANIZATION_CURRENCY || "JMD";
 
 /** Convert a timezone-less form value into an instant in the saved organization timezone. */
 export const toOrganizationInstant = (value) => {
@@ -98,12 +99,20 @@ export const formatAvailabilityCell = ({ isAvailable, startTime, endTime }) => {
 };
 
 /** "JMD 428K" — the labour-cost metric, abbreviated to fit its tile. */
-export const formatCurrencyCompact = (amount, currency = "JMD") => {
+export const formatCurrencyCompact = (amount, currency = organizationCurrency()) => {
   const value = Number(amount) || 0;
   if (Math.abs(value) >= 1_000_000) return `${currency} ${(value / 1_000_000).toFixed(1)}M`;
   if (Math.abs(value) >= 1_000) return `${currency} ${Math.round(value / 1_000)}K`;
   return `${currency} ${Math.round(value)}`;
 };
+
+/** Full monetary value with an explicit ISO code, avoiding ambiguous "$" labels. */
+export const formatCurrency = (amount, currency = organizationCurrency()) => new Intl.NumberFormat(undefined, {
+  style: "currency",
+  currency,
+  currencyDisplay: "code",
+  maximumFractionDigits: 2,
+}).format(Number(amount) || 0);
 
 export const formatHours = (hours) => `${Math.round(Number(hours) || 0)}h`;
 

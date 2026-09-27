@@ -4,6 +4,8 @@ import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import StateMessage from "../components/ui/StateMessage";
 import { useEmployee, usePositions, useSaveEmployee } from "../api/employees";
+import { useOrganizationSettings } from "../api/organization";
+import { organizationCurrency } from "../lib/format";
 import "./EmployeeFormPage.css";
 
 const EMPTY = {
@@ -18,8 +20,10 @@ export default function EmployeeFormPage() {
   const navigate = useNavigate();
   const employee = useEmployee(employeeId);
   const positions = usePositions();
+  const organization = useOrganizationSettings();
   const save = useSaveEmployee(employeeId);
   const [form, setForm] = useState(EMPTY);
+  const currency = organization.data?.currency || organizationCurrency();
 
   useEffect(() => {
     if (employee.data) {
@@ -57,7 +61,7 @@ export default function EmployeeFormPage() {
           <label>Skills<input maxLength="500" placeholder="First aid, Forklift" value={form.skills} onChange={update("skills")} /><small>Separate multiple skills with commas.</small></label>
           <label>Certifications<input maxLength="500" placeholder="Food handler, CPR" value={form.certifications} onChange={update("certifications")} /><small>Separate multiple certifications with commas.</small></label>
           <label>Maximum weekly hours<input required type="number" min="1" max="168" value={form.maxWeeklyHours} onChange={update("maxWeeklyHours")} /></label>
-          <label>Hourly rate (JMD)<input required type="number" min="0" max="1000000" step="0.01" value={form.hourlyRate} onChange={update("hourlyRate")} /><small>Use 0 to apply the company default rate.</small></label>
+          <label>Hourly rate ({currency})<input required type="number" min="0" max="1000000" step="0.01" value={form.hourlyRate} onChange={update("hourlyRate")} /><small>Use 0 to apply the company default rate in {currency}.</small></label>
           <label>Overtime starts after<input required type="number" min="1" max="168" value={form.overtimeThresholdHours} onChange={update("overtimeThresholdHours")} /></label>
           <label className="employee-active"><input type="checkbox" checked={form.active} onChange={update("active")} /> Active employee</label>
         </div>

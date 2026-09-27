@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import StateMessage from "../ui/StateMessage";
 import SaveFeedback from "../ui/SaveFeedback";
 import "./OrganizationSettings.css";
+import { CURRENCY_OPTIONS, timeZoneOptions, withCurrentCountry, withCurrentOption } from "../../data/regionalOptions";
 
 const CURRENCIES = { JM:"JMD", US:"USD", CA:"CAD", GB:"GBP", TT:"TTD", BB:"BBD", BS:"BSD", KY:"KYD", AU:"AUD", NZ:"NZD", IN:"INR", JP:"JPY", CN:"CNY", DE:"EUR", FR:"EUR", ES:"EUR", IT:"EUR", NL:"EUR" };
 const ZONE_COUNTRIES = { "America/Jamaica":"JM", "America/New_York":"US", "America/Toronto":"CA", "Europe/London":"GB", "Asia/Kolkata":"IN", "Asia/Tokyo":"JP", "Australia/Sydney":"AU" };
@@ -51,10 +52,10 @@ export default function OrganizationSettings() {
     {!administrator ? <p className="organization-readonly">Only administrators can change these organization-wide settings.</p> : null}
     <form className="card organization-form" onSubmit={submit}>
       <label>Location<input required maxLength="120" disabled={!administrator || save.isPending} value={form.locationName} onChange={change("locationName")} placeholder="Kingston office" /></label>
-      <label>Country code<input required minLength="2" maxLength="2" disabled={!administrator || save.isPending} value={form.countryCode} onChange={change("countryCode")} /></label>
+      <label>Country<select required disabled={!administrator || save.isPending} value={form.countryCode} onChange={change("countryCode")}>{withCurrentCountry(form.countryCode).map(({ code, name }) => <option key={code} value={code}>{name} ({code})</option>)}</select></label>
       <label>Region code<input maxLength="20" disabled={!administrator || save.isPending} value={form.regionCode} onChange={change("regionCode")} placeholder="Optional" /></label>
-      <label>Timezone<input required maxLength="100" disabled={!administrator || save.isPending} value={form.timeZone} onChange={change("timeZone")} placeholder="America/Jamaica" /></label>
-      <label>Currency<input required minLength="3" maxLength="3" disabled={!administrator || save.isPending} value={form.currency} onChange={change("currency")} placeholder="JMD" /></label>
+      <label>Timezone<select required disabled={!administrator || save.isPending} value={form.timeZone} onChange={change("timeZone")}>{withCurrentOption(timeZoneOptions(), form.timeZone).map(zone => <option key={zone}>{zone}</option>)}</select></label>
+      <label>Currency<select required disabled={!administrator || save.isPending} value={form.currency} onChange={change("currency")}>{withCurrentOption(CURRENCY_OPTIONS, form.currency).map(currency => <option key={currency}>{currency}</option>)}</select></label>
       {form.latitude != null ? <small>Detected coordinates: {Number(form.latitude).toFixed(4)}, {Number(form.longitude).toFixed(4)}</small> : null}
       {administrator ? <Button type="submit" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save organization defaults"}</Button> : null}
     </form>
