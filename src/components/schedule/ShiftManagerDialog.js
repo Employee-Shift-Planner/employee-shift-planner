@@ -8,9 +8,11 @@ import {
 import Button from "../ui/Button";
 import StateMessage from "../ui/StateMessage";
 import { toOrganizationDateTimeInput } from "../../lib/format";
+import { usePositions } from "../../api/employees";
 import "./ShiftManagerDialog.css";
 
 const toLocalInput = toOrganizationDateTimeInput;
+const BREAK_OPTIONS = [0, 15, 30, 45, 60, 90, 120];
 
 const initialDraft = (shift) => ({
   id: shift.id,
@@ -37,6 +39,7 @@ export default function ShiftManagerDialog({ shift, onClose }) {
   const updateShift = useUpdateShift();
   const cancelShift = useCancelShift();
   const copyShift = useCreateShift();
+  const positions = usePositions();
   const validWindow = Boolean(draft.startTime && draft.endTime && new Date(draft.endTime) > new Date(draft.startTime));
   const candidates = useShiftCandidates({
     start: draft.startTime,
@@ -60,6 +63,11 @@ export default function ShiftManagerDialog({ shift, onClose }) {
       ? options
       : [{ employeeId: draft.employeeId, fullName: shift.employeeName, status: "Current assignment" }, ...options];
   }, [candidates.data, draft.employeeId, shift.employeeName]);
+  const roleOptions = useMemo(() => {
+    const values = (positions.data ?? []).filter(position => position.isActive).map(position => position.title);
+    return draft.role && !values.includes(draft.role) ? [draft.role, ...values] : values;
+  }, [positions.data, draft.role]);
+  const breakOptions = BREAK_OPTIONS.includes(Number(draft.breakMinutes)) ? BREAK_OPTIONS : [Number(draft.breakMinutes), ...BREAK_OPTIONS].sort((a, b) => a - b);
 
   const update = (field) => (event) => {
     setDraft((current) => ({ ...current, [field]: event.target.value }));
@@ -107,7 +115,7 @@ export default function ShiftManagerDialog({ shift, onClose }) {
 
         <form onSubmit={save}>
           <div className="shift-dialog-grid">
-            <label>Role<input required maxLength="100" value={draft.role} onChange={update("role")} /></label>
+            <label>Role<select required value={draft.role} onChange={update("role")}><option value="">Select position</option>{roleOptions.map(role => <option key={role}>{role}</option>)}</select></label>
             <label>
               Assigned employee
               <select value={draft.employeeId} onChange={update("employeeId")} disabled={candidates.isPending}>
@@ -125,7 +133,7 @@ export default function ShiftManagerDialog({ shift, onClose }) {
             <label>Starts<input required type="datetime-local" value={draft.startTime} onChange={update("startTime")} /></label>
             <label>Ends<input required type="datetime-local" value={draft.endTime} onChange={update("endTime")} /></label>
             <label>Required skill<input maxLength="200" value={draft.requiredSkill} onChange={update("requiredSkill")} /></label>
-            <label>Break (minutes)<input type="number" min="0" max="240" value={draft.breakMinutes} onChange={update("breakMinutes")} /></label>
+            <label>Break<select value={draft.breakMinutes} onChange={update("breakMinutes")}>{breakOptions.map(minutes => <option key={minutes} value={minutes}>{minutes ? `${minutes} minutes` : "No break"}</option>)}</select></label>
             <label className="shift-dialog-notes">Notes<textarea rows="3" value={draft.notes} onChange={update("notes")} /></label>
           </div>
 

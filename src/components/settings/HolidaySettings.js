@@ -3,6 +3,7 @@ import { useCreateHoliday, useDeleteHoliday, useHolidaySettings, useHolidays, us
 import Button from "../ui/Button";
 import StateMessage from "../ui/StateMessage";
 import "./HolidaySettings.css";
+import { withCurrentCountry } from "../../data/regionalOptions";
 
 const year = new Date().getFullYear();
 const emptyHoliday = { date: `${year}-01-01`, name: "", schedulingPolicy: "Warning" };
@@ -48,10 +49,10 @@ export default function HolidaySettings() {
     <div className="holiday-settings-layout">
       <form className="card holiday-form" onSubmit={saveLocation}>
         <h3>Holiday location</h3>
-        <label>Country code<input required minLength="2" maxLength="2" value={location.countryCode} onChange={changeLocation("countryCode")} placeholder="JM" /></label>
+        <label>Country<select required value={location.countryCode} onChange={changeLocation("countryCode")}>{withCurrentCountry(location.countryCode).map(({ code, name }) => <option key={code} value={code}>{name} ({code})</option>)}</select></label>
         <label>Region code (optional)<input maxLength="20" value={location.regionCode} onChange={changeLocation("regionCode")} placeholder="JM-01" /></label>
         <label className="holiday-checkbox"><input type="checkbox" checked={location.autoImportEnabled} onChange={changeLocation("autoImportEnabled")} /> Import when location is saved</label>
-        <div className="holiday-import-row"><label>Year<input type="number" min="2000" max={year + 5} value={importYear} onChange={(event) => setImportYear(Number(event.target.value))} /></label><Button type="button" tone="gray" disabled={busy} onClick={() => importHolidays.mutate(importYear, { onSuccess: (result) => setMessage(`Imported ${result.imported} holidays for ${result.year}.`) })}>Import year</Button></div>
+        <div className="holiday-import-row"><label>Year<select value={importYear} onChange={(event) => setImportYear(Number(event.target.value))}>{Array.from({ length: 7 }, (_, index) => year - 1 + index).map(value => <option key={value} value={value}>{value}</option>)}</select></label><Button type="button" tone="gray" disabled={busy} onClick={() => importHolidays.mutate(importYear, { onSuccess: (result) => setMessage(`Imported ${result.imported} holidays for ${result.year}.`) })}>Import year</Button></div>
         <Button type="submit" disabled={busy}>{save.isPending ? "Saving…" : "Save location"}</Button>
       </form>
       <form className="card holiday-form" onSubmit={addHoliday}>

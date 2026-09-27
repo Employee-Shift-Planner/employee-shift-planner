@@ -8,6 +8,7 @@ import ConflictBanner from "../components/schedule/ConflictBanner";
 import ShiftTemplateTools from "../components/schedule/ShiftTemplateTools";
 import { useCreateShift, useShiftCandidates } from "../api/schedule";
 import { useHolidays } from "../api/holidays";
+import { usePositions } from "../api/employees";
 import StateMessage from "../components/ui/StateMessage";
 import { startOfWeek, toDateParam } from "../lib/format";
 import { fromDateParam } from "../utils/week";
@@ -34,6 +35,7 @@ export default function CreateShiftPage() {
   const create = useCreateShift();
   const shiftDate = draft.startTime?.slice(0, 10);
   const holidays = useHolidays(shiftDate, shiftDate);
+  const positions = usePositions();
   const dayHoliday = holidays.data?.[0];
   const validWindow = Boolean(draft.startTime && draft.endTime && new Date(draft.endTime) > new Date(draft.startTime));
   const validBreak = Number(draft.breakMinutes) >= 0 && Number(draft.breakMinutes) <= 240;
@@ -53,7 +55,7 @@ export default function CreateShiftPage() {
     >
       <ShiftTemplateTools shift={draft} weekStart={selectedWeek} onApply={applyTemplate} />
       <div className="create">
-        <ShiftDetailsCard shift={draft} onChange={update} />
+        <ShiftDetailsCard shift={draft} positions={positions.data ?? []} onChange={update} />
         <div>
           {candidates.isPending ? <StateMessage title="Checking availability…" /> : candidates.isError ? <StateMessage tone="error" title="Could not check candidates" detail={candidates.error?.message} /> : <AssignEmployees candidates={candidates.data ?? []} selectedId={employeeId} onSelect={setEmployeeId} />}
           {conflict ? <ConflictBanner title="Some employees cannot take this shift" detail={conflict.detail ?? conflict.status} /> : null}
