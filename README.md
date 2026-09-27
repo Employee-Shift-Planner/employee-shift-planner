@@ -1,6 +1,6 @@
 # Employee Shift Planner
 
-React frontend for Shiftly, a workforce scheduling application for administrators, supervisors, and employees. The companion ASP.NET Core API is in the sibling `Scheduler-API` directory and is the security and data boundary. Test
+React frontend for Shiftly, a workforce scheduling application for administrators, supervisors, and employees. The companion ASP.NET Core API is in the sibling `Scheduler-API` directory and is the security and data boundary.
 
 ## What the application covers
 
