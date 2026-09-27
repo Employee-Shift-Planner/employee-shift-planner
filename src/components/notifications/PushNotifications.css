@@ -1,0 +1,8 @@
+.push-notifications { padding: 20px 22px; display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: center; gap: 16px; }
+.push-notifications h2 { margin: 0; }
+.push-notifications p { margin: 5px 0 0; line-height: 1.5; }
+.push-state { padding: 5px 9px; border-radius: 999px; background: #f1f5f9; color: var(--text-secondary); font-size: 11px; font-weight: 700; }
+.push-state.enabled { background: #e8f7ef; color: var(--success); }
+.push-notifications small, .push-error { grid-column: 1 / -1; color: var(--text-secondary); }
+.push-notifications .push-error { color: var(--danger); }
+@media (max-width: 700px) { .push-notifications { grid-template-columns: 1fr; }.push-state { justify-self: start; }.push-notifications .btn { width: 100%; }.push-notifications small, .push-error { grid-column: 1; } }

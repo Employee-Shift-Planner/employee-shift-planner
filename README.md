@@ -50,6 +50,14 @@ REACT_APP_API_BASE_URL=https://localhost:7213/api
 
 The value must include `/api`. Never put secrets in `REACT_APP_*` variables because they are embedded in the browser bundle.
 
+To enable browser push notifications, provide the public VAPID key at build time:
+
+```dotenv
+REACT_APP_WEB_PUSH_PUBLIC_KEY=your_url_safe_public_vapid_key
+```
+
+The public VAPID key is safe to embed in the browser. Keep the private VAPID key and push-provider credentials in server-side configuration only. Employees register their browser subscription from Notifications; push subscription data is never entered or exposed through employee administration.
+
 ## Roles
 
 | Role | Access |
