@@ -1,3 +1,5 @@
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import Shell from "../components/layout/Shell";
 import Button from "../components/ui/Button";
 import Metrics from "../components/ui/Metrics";
@@ -5,11 +7,18 @@ import CoverageCard from "../components/reports/CoverageCard";
 import InsightCard from "../components/reports/InsightCard";
 import { useWeeklyReport } from "../api/reports";
 import { QueryState } from "../components/ui/StateMessage";
-import { formatCurrencyCompact, formatHours, formatPercent } from "../lib/format";
+import { formatCurrencyCompact, formatHours, formatPercent, formatWeekRange, startOfWeek } from "../lib/format";
+import { fromDateParam } from "../utils/week";
 import "./ReportsPage.css";
 
 export default function ReportsPage() {
-  const report = useWeeklyReport();
+  const [searchParams] = useSearchParams();
+  const weekStart = useMemo(() => startOfWeek(fromDateParam(searchParams.get("week")) ?? undefined), [searchParams]);
+  const report = useWeeklyReport(weekStart);
+  useEffect(() => {
+    if (!report.isSuccess || !window.location.hash) return;
+    window.requestAnimationFrame(() => document.querySelector(window.location.hash)?.scrollIntoView({ block: "start" }));
+  }, [report.isSuccess]);
   const money = (amount, currency) => new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(amount);
   const exportExcel = () => {
     if (!report.data) return;
@@ -33,7 +42,7 @@ export default function ReportsPage() {
     <Shell
       active="Reports"
       title="Reports & exports"
-      copy="Track coverage, hours and labour-cost risk."
+      copy={`${formatWeekRange(weekStart)} · Coverage, hours and labour-cost risk.`}
       actions={
         <>
           <Button disabled={!report.data} onClick={() => window.print()}>Export PDF</Button>
@@ -43,22 +52,22 @@ export default function ReportsPage() {
     >
       <QueryState query={report}>
         {(data) => <>
-          <Metrics items={[
+          <div id="overview"><Metrics items={[
             { value: formatPercent(data.coveragePercent), label: "Coverage", tone: "green" },
             { value: formatHours(data.totalHours), label: "Hours", tone: "blue" },
             { value: data.coverageGaps, label: "Coverage gaps", tone: "red" },
             { value: formatCurrencyCompact(data.labourCost, data.currency), label: "Labour cost", tone: "purple" },
             { value: formatHours(data.overtimeHours), label: "Overtime hours", tone: "red" },
             { value: formatCurrencyCompact(data.overtimeLabourCost, data.currency), label: "Overtime cost", tone: "orange" },
-          ]} />
+          ]} /></div>
           <div className="reports">
-            <CoverageCard coverage={data.coverageByDay.map((day) => ({ day: day.day.slice(0, 3).toUpperCase(), value: formatPercent(day.coveragePercent) }))} />
+            <div id="coverage"><CoverageCard coverage={data.coverageByDay.map((day) => ({ day: day.day.slice(0, 3).toUpperCase(), value: formatPercent(day.coveragePercent) }))} /></div>
             <div>
               <InsightCard title="Needs attention" detail={data.coverageGaps ? `${data.coverageGaps} day${data.coverageGaps === 1 ? "" : "s"} fall below minimum staffing.` : "No staffing gaps this week."} />
               <InsightCard title="Availability fit" detail={`${formatPercent(data.availabilityFitPercent)} of scheduled shifts fit declared availability.`} />
             </div>
           </div>
-          <section className="card labour-forecast">
+          <section id="labour-cost" className="card labour-forecast">
             <div className="labour-forecast-heading"><div><h2>Labour-cost forecast</h2><p>Regular and overtime estimates based on assigned shifts.</p></div><b>{data.overtimeMultiplier}× overtime</b></div>
             {data.labourCostByEmployee.length === 0 ? <p>No scheduled labour cost this week.</p> : <div className="labour-forecast-table"><table><thead><tr><th>Employee</th><th>Regular</th><th>Overtime</th><th>Rate</th><th>Regular cost</th><th>Overtime cost</th><th>Total</th></tr></thead><tbody>
               {data.labourCostByEmployee.map((row) => <tr key={row.employeeId}><td>{row.fullName}</td><td>{formatHours(row.regularHours)}</td><td className={row.overtimeHours ? "cost-warning" : ""}>{formatHours(row.overtimeHours)}</td><td>{money(row.hourlyRate, data.currency)}</td><td>{money(row.regularCost, data.currency)}</td><td>{money(row.overtimeCost, data.currency)}</td><td><b>{money(row.totalCost, data.currency)}</b></td></tr>)}
