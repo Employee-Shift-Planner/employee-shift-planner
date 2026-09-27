@@ -1,140 +1,180 @@
 # Employee Shift Planner
 
-## Project Description
+React frontend for Shiftly, a workforce scheduling application for administrators, supervisors, and employees. The companion ASP.NET Core API is in the sibling `Scheduler-API` directory and is the security and data boundary.
 
-The Employee Shift Planner is a modern web application designed to help managers and team leaders efficiently schedule and manage employee shifts. This project aims to streamline the process of shift planning, ensuring that all shifts are covered and that employees are assigned shifts that fit their availability and preferences.
+## What the application covers
 
-## Features
-
-- Weekly schedule with past and upcoming week navigation
-- Create, edit, reassign, copy, cancel, draft, and publish shifts
-- Whole-week copying and reusable shift templates
-- Employee profiles, positions, availability, and conflict checks
-- Time-off requests and supervisor approval
-- Staffing requirements and live coverage warnings
-- Country/region public-holiday imports, manual closures, and schedule warnings
-- Hourly rates, overtime thresholds, and labour-cost forecasting
-- Shift swaps, attendance recording, and audit history
-- Administrator, Supervisor, and Employee access levels
-- Employee mobile schedule and notification preferences
-- Weekly CSV and print/PDF reports
+- Weekly draft and published schedules, shift copying, templates, and assignment checks
+- Employee profiles, positions, availability, time off, rates, and overtime thresholds
+- Staffing requirements, holidays, coverage warnings, and labour-cost forecasting
+- Shift swaps, attendance, audit history, notifications, and weekly reports
+- Administrator, Supervisor, and Employee experiences, including a mobile employee schedule
+- Password recovery and browser push-notification subscriptions
 
 ## Technology
 
-- React 18, React Router 6, and TanStack React Query 5
-- Create React App / `react-scripts`
-- Plain CSS components
-- JWT bearer authentication supplied by the Scheduler API
-- Password recovery through public forgot/reset API endpoints
+- React 18 and Create React App (`react-scripts`)
+- React Router 6 and TanStack React Query 5
+- Plain CSS components and Lucide icons
+- JWT bearer authentication supplied by Scheduler API
+- Jest/React Testing Library and Playwright
 
-## Requirements and setup
+## Repository relationship
 
-Use Node.js 18 or later, npm, and a running Scheduler API with migrations applied.
+```text
+Employer Shift Planner/
+├── employee-shift-planner/  # this React application
+└── Scheduler-API/           # ASP.NET Core API and EF Core migrations
+```
+
+Run the API and apply its migrations before using data-backed frontend features. The frontend never connects directly to SQL Server.
+
+## Local development
+
+Requirements: Node.js 18 or later, npm, and a running Scheduler API.
 
 ```bash
 npm install
-npm start
 ```
 
-The app opens at `http://localhost:3000` and defaults to `http://localhost:5113/api`. Override the API origin with:
-
-```bash
-REACT_APP_API_BASE_URL=https://localhost:7213/api npm start
-```
-
-Or create an ignored `.env.local` file:
+Create an ignored `.env.local` file:
 
 ```dotenv
 REACT_APP_API_BASE_URL=https://localhost:7213/api
-```
-
-The value must include `/api`. Never put secrets in `REACT_APP_*` variables because they are embedded in the browser bundle.
-
-To enable browser push notifications, provide the public VAPID key at build time:
-
-```dotenv
+# Optional: enables browser push subscription registration
 REACT_APP_WEB_PUSH_PUBLIC_KEY=your_url_safe_public_vapid_key
 ```
 
-The public VAPID key is safe to embed in the browser. Keep the private VAPID key and push-provider credentials in server-side configuration only. Employees register their browser subscription from Notifications; push subscription data is never entered or exposed through employee administration.
+Then start the application:
 
-## Roles
+```bash
+npm start
+```
 
-| Role | Access |
+The frontend opens at `http://localhost:3000`. `REACT_APP_API_BASE_URL` must include `/api`. Set it explicitly for local development: the source fallback currently targets the deployed API. Restart the development server after changing environment variables.
+
+All `REACT_APP_*` values are embedded in the browser bundle. The VAPID public key is safe to expose; database credentials, JWT signing keys, VAPID private keys, and provider credentials are not.
+
+For a local HTTPS API certificate warning, trust the .NET development certificate:
+
+```bash
+dotnet dev-certs https --trust
+```
+
+## Authentication and roles
+
+The login response is stored by the API client and attached to authenticated requests. Route guards improve navigation, but API authorization remains authoritative.
+
+| Role | Main access |
 | --- | --- |
-| Administrator | Full supervisor access plus account creation, roles, and activation |
-| Supervisor | Scheduling, employees, availability, approvals, reporting, settings, attendance, swaps, and audit history |
-| Employee | Personal published schedule, notifications, time-off, and swap requests |
+| Administrator | Supervisor capabilities plus user creation, roles, activation, and organization settings |
+| Supervisor | Scheduling, employees, availability, approvals, reports, operations, and settings |
+| Employee | Own published schedule, notifications, time off, and swap requests |
 
-Frontend guards match the API policies, but API authorization is the security boundary. Employee accounts are linked to employee profiles by matching email addresses.
+Employee identity uses the explicit `User.EmployeeId` relationship. Matching email addresses alone does not grant access. Role or access changes require a new sign-in token.
 
 ## Main routes
 
 | Route | Purpose |
 | --- | --- |
 | `/` | Login |
-| `/forgot-password` | Request a password reset email |
-| `/reset-password?email=…&token=…` | Choose a new password from an emailed link |
-| `/schedule` | Supervisor weekly planner; accepts `?week=YYYY-MM-DD` |
+| `/forgot-password` | Request a password-reset email |
+| `/reset-password?email=…&token=…` | Set a password from an emailed link |
+| `/schedule` | Weekly planner; accepts `?week=YYYY-MM-DD` |
 | `/create-shift` | Create a draft shift |
 | `/employees` | Employee directory and profiles |
 | `/availability` | Recurring availability matrix |
 | `/time-off` | Submit and review leave requests |
 | `/operations` | Swaps, attendance, and audit history |
 | `/reports` | Coverage, hours, and cost reports |
-| `/notifications` | Notification preferences |
-| `/settings` | Positions, staffing requirements, holidays, and user access |
+| `/notifications` | Preferences, delivery history, and browser push |
+| `/settings` | Organization, positions, staffing, holidays, and user access |
 | `/mobile` | Employee-facing published schedule |
 
-## Source organization
+## Source map and data flow
 
 ```text
-src/api/          API hooks, authenticated fetch wrapper, and session helpers
-src/components/   Layout, UI primitives, and feature components
-src/pages/        Route-level screens
-src/lib/          Shared date and display formatting
-src/utils/        Week-selection helpers
-src/data/         Static navigation and fallback display data
+src/api/          fetch client, session storage, and React Query hooks
+src/components/   layout, reusable UI, and feature components
+src/pages/        route-level screens
+src/lib/          shared formatting, including organization-aware currency
+src/utils/        week and date helpers
+src/data/         navigation and regional option data
+e2e/              Playwright browser tests
+public/           static files, service worker, and Azure routing config
+scripts/          developer utilities and sample-data scripts
 ```
+
+Pages use hooks from `src/api`; those hooks call the shared authenticated client and cache server state with React Query. Organization settings control regional display such as currency. Keep API contracts in the API layer rather than issuing ad-hoc requests from components.
 
 ## Commands
 
 ```bash
-npm start
-npm test -- --watchAll=false
-npm run build
-npm run deploy
+npm start                    # development server
+npm test -- --watchAll=false # unit/component tests once
+npm run test:e2e             # Playwright tests
+npm run build                # optimized build in build/
 ```
 
-The optimized bundle is written to `build/`. Tests currently cover routing and authentication guards; future workflows should add focused component and API-hook coverage.
+Install Playwright's browser once before the first end-to-end run if necessary:
 
-## Deployment checklist
+```bash
+npx playwright install chromium
+```
 
-1. Apply pending Scheduler API migrations.
-2. Confirm an Administrator account exists.
-3. Match account emails to employee profile emails.
-4. Configure the API CORS allowlist with the frontend's exact origin.
-5. Build with the production `REACT_APP_API_BASE_URL`.
-6. Run tests and deploy the generated bundle.
+There is no `npm run deploy` script. Deployment is handled by GitHub Actions.
 
-`public/staticwebapp.config.json` supplies static-host routing behavior and is
-copied into `build/` so direct navigation to client-side routes is rewritten to
-the React entry point.
+## Sample employees
 
-## Password-recovery API contract
+With the API running and an Administrator or Supervisor account available:
 
-The client calls `POST /api/auth/forgot-password` with `{ "email": "…" }` and
-`POST /api/auth/reset-password` with `{ "email": "…", "token": "…", "password": "…" }`.
-Both endpoints are unauthenticated. The forgot endpoint must return the same
-successful response for known and unknown addresses, create a single-use
-time-limited token, and email a URL using the frontend's `/reset-password`
-route. The reset endpoint must validate the token, enforce the server's password
-policy, update the password, and invalidate the token. Configure the frontend
-origin and mail credentials as server-side settings; never expose them through
-`REACT_APP_*`.
+```bash
+./scripts/add-sample-employees.sh
+```
 
-## Repository hygiene
+The script can prompt for manager credentials or use `TOKEN` and `API_BASE_URL` environment variables. Review the script before targeting a shared environment; it creates real employee records.
 
-The `.gitignore` excludes dependencies, generated builds, coverage, environment files, editor state, and OS/iCloud metadata. Source directories—including `src/lib/`—must remain tracked.
+## Deployment
 
-No license file is currently included. Confirm licensing before redistribution.
+`.github/workflows/azure-static-web-apps-black-mud-04e096110.yml` deploys `master` to Azure Static Web Apps. It requires the repository secret:
+
+```text
+AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_MUD_04E096110
+```
+
+The token must belong to the intended Static Web App. A missing, expired, or mismatched token produces “No matching Static Web App was found or the api key was invalid.” Regenerate the deployment token in Azure and replace the GitHub secret; never place it in the workflow file.
+
+Before deployment:
+
+1. Apply API migrations and verify `/healthz`.
+2. Configure the API's exact CORS origin for the deployed frontend.
+3. Build with the production API URL and, when enabled, the VAPID public key.
+4. Run unit and end-to-end tests.
+5. Confirm an active Administrator exists and user accounts are linked to employee profiles.
+
+`public/staticwebapp.config.json` rewrites direct client-side route requests to `index.html`. Do not remove it from the build output.
+
+## Password recovery and push notifications
+
+The client calls anonymous `POST /api/Auth/forgot-password` and `POST /api/Auth/reset-password`. The API owns token lifetime, password policy, single-use validation, and email delivery.
+
+Employees subscribe their current browser from Notifications. The browser creates the push subscription; the frontend sends it to `PUT /api/Employee/me/push-subscription` and removes it with `DELETE /api/Employee/me/push-subscription`. Do not add a manually editable “push token” field to employee administration.
+
+Push requires HTTPS outside localhost, notification permission, the service worker, a public VAPID key in the frontend, and matching private/provider configuration on the API.
+
+## Troubleshooting
+
+- **CORS error:** add the frontend's exact scheme, host, and port to `Cors:AllowedOrigins` in the API.
+- **401 after a role/profile change:** sign out and back in to obtain a new JWT.
+- **Network calls reach the wrong API:** inspect `REACT_APP_API_BASE_URL`, then restart or rebuild the frontend.
+- **Direct route returns 404 after deployment:** verify `staticwebapp.config.json` exists in `build/`.
+- **Push unavailable:** use HTTPS, grant browser permission, and check the VAPID public key and service-worker registration.
+- **Static Web Apps rejects the token:** regenerate the token for the correct Azure resource and update the GitHub secret.
+
+## Maintenance and security
+
+- Keep generated dependencies, builds, coverage, environment files, and test artifacts out of Git.
+- Never commit connection strings, JWT keys, deployment tokens, SMTP credentials, or push-provider secrets.
+- Treat changes to routes, roles, API contracts, configuration, or deployment as documentation changes too.
+- `UX-REDESIGN.md` records the current interface direction and responsive behavior.
+- No license is included. Confirm licensing before redistribution.
