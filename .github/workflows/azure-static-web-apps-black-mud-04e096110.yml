@@ -43,7 +43,7 @@ jobs:
       - name: Verify deployment token
         if: github.event_name != 'pull_request'
         env:
-          AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_MUD_04E096110 }}
+          AZURE_STATIC_WEB_APPS_API_TOKEN: ff9b73828e796f0428d778e2da87952de0f54c89b0901920ff470ac3280b19db02-d90458d5-132a-4db2-a883-2e40a5d6d541010013204e096110
         run: |
           if [ -z "$AZURE_STATIC_WEB_APPS_API_TOKEN" ]; then
             echo "::error::Repository secret AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_MUD_04E096110 is missing. Add the deployment token from the black-mud Azure Static Web App."
@@ -54,7 +54,7 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_MUD_04E096110 }}
+          azure_static_web_apps_api_token: ff9b73828e796f0428d778e2da87952de0f54c89b0901920ff470ac3280b19db02-d90458d5-132a-4db2-a883-2e40a5d6d541010013204e096110
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
@@ -72,5 +72,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_MUD_04E096110 }}
+          azure_static_web_apps_api_token: ff9b73828e796f0428d778e2da87952de0f54c89b0901920ff470ac3280b19db02-d90458d5-132a-4db2-a883-2e40a5d6d541010013204e096110
           action: "close"
