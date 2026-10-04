@@ -19,6 +19,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:e2e": "playwright test",
+    "capture:guide": "node e2e/capture-user-guide.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

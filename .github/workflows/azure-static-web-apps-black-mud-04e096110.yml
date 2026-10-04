@@ -2,7 +2,6 @@
 name: Deploy frontend to Azure (black-mud)
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - master
@@ -22,7 +21,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
@@ -81,5 +80,4 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_MUD_04E096110 }}
           action: "close"
