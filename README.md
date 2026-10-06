@@ -179,3 +179,9 @@ Push requires HTTPS outside localhost, notification permission, the service work
 - Treat changes to routes, roles, API contracts, configuration, or deployment as documentation changes too.
 - `UX-REDESIGN.md` records the current interface direction and responsive behavior.
 - No license is included. Confirm licensing before redistribution.
+
+## Illustrated user guide
+
+The [user guide](docs/user-guide/SHIFTLY-USER-GUIDE.md) and [PDF](docs/user-guide/SHIFTLY-USER-GUIDE.pdf) cover manager and employee workflows. Screenshots use fictional data with intercepted API requests.
+
+To refresh screenshots, start the local frontend, then run `npm run capture:guide`. Set `GUIDE_BASE_URL` for a different local URL. Run `npm run build:guide` to regenerate the printable HTML and PDF. Both commands use Chrome; set `PLAYWRIGHT_CHROME_PATH` to override its executable path.

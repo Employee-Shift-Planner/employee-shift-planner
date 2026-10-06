@@ -2,7 +2,7 @@
 
 **Audience:** Administrators, Supervisors, and Employees  
 **Application:** Employee Shift Planner (Shiftly)  
-**Guide version:** 1.0 — October 2026
+**Guide version:** 1.1 — October 6, 2026
 
 > The screenshots in this guide use fictional demonstration data. Menus and actions vary by role.
 
@@ -49,10 +49,12 @@ Select **Log out** when you finish using a shared computer.
 
 ### Add an employee
 
+![Add employee form](images/07-add-employee.png)
+
 1. Select **Employees**.
 2. Select **+ Add employee**.
 3. Enter the employee ID, name, and contact details.
-4. Choose a position.
+4. Choose a position and, if applicable, a preferred shift.
 5. Add skills or certifications when they affect shift eligibility.
 6. Enter maximum weekly hours, hourly rate, and overtime threshold.
 7. Leave **Active** enabled for a current employee.
@@ -60,11 +62,22 @@ Select **Log out** when you finish using a shared computer.
 
 ### Edit an employee
 
+![Employee profile and actions](images/06-employee-profile.png)
+
 1. Select **Employees**.
 2. Select the employee’s row.
 3. Review the profile, weekly load, and upcoming shifts.
-4. Select **Edit employee**.
+4. Select **Edit profile**.
 5. Make the changes and save.
+
+### Delete an employee
+
+1. Select **Employees** and open the employee’s profile.
+2. Select **Delete employee**.
+3. Review the confirmation and confirm only if the employee should be removed.
+4. After deletion, Shiftly returns to the employee directory.
+
+Deletion removes the employee from the directory and prevents new shift assignments. Existing shifts and historical records are preserved. If deletion fails, the profile shows an error; check the message before trying again.
 
 ### Good practice
 
@@ -73,17 +86,30 @@ Select **Log out** when you finish using a shared computer.
 - Keep hourly rates and overtime thresholds current so report forecasts remain useful.
 - Mark former employees inactive instead of reusing their record.
 
-## 5. Record recurring availability
+## 5. Record availability
+
+![Weekly availability and one-off exceptions](images/08-availability.png)
+
+### Weekly availability
 
 1. Select **Availability**.
 2. Managers choose the employee; employees see their own availability.
 3. Select **Add range**.
-4. Choose the day, start time, and end time.
-5. Indicate whether the range is available or unavailable.
+4. Choose the day and leave **Available** checked to enter **From** and **To** times.
+5. Clear **Available** to mark the day unavailable; time fields are disabled for unavailable entries.
 6. Add more ranges as needed.
 7. Select **Save availability**.
 
-Availability is a recurring weekly pattern. Use **Time off** for specific calendar dates.
+You can add multiple windows per day, including overnight ranges such as 10 PM–6 AM. With no weekly restrictions, all times are treated as available.
+
+### One-off exceptions
+
+1. In **One-off exceptions**, select **Add exception**.
+2. Choose the date.
+3. Leave **Available** unchecked for an unavailable date, or check it and enter **From** and **To** times for an available window.
+4. Add optional notes, then select **Save availability**.
+
+Date-specific entries replace every weekly range for that date. Use **Remove** to delete an unwanted range or exception, then save. Use **Time off** for leave that requires approval.
 
 ## 6. Review time-off requests
 
@@ -127,6 +153,8 @@ Before editing, review:
 - **Forecast cost:** estimated regular and overtime labour cost.
 
 ### Create a shift
+
+![Create a draft shift](images/12-create-shift.png)
 
 1. Select **+ Create shift**.
 2. Choose the employee.
@@ -177,6 +205,8 @@ Draft shifts are hidden from employees. Publishing makes the current shifts visi
 
 ## 9. Handle daily operations
 
+![Shift swaps, attendance and audit history](images/09-operations.png)
+
 1. Select **Operations**.
 2. Use the **Shift swaps** area to review employee swap requests.
 3. Confirm that the proposed employee is eligible and does not create a conflict.
@@ -193,10 +223,12 @@ Draft shifts are hidden from employees. Publishing makes the current shifts visi
 3. Check **Needs attention** for under-staffed days.
 4. Review **Availability fit** to identify assignments outside declared availability.
 5. Review the employee-level labour-cost table.
-6. Select **Export PDF** for a printable report.
+6. Select **Export PDF** to open the browser’s print dialog, then choose a printer or save as PDF.
 7. Select **Export Excel** to download the report as a spreadsheet-compatible CSV file.
 
 ## 11. Configure notifications
+
+![Notification preferences and delivery history](images/10-notifications.png)
 
 1. Select **Notifications**.
 2. Choose which schedule and request updates should generate alerts.
@@ -207,6 +239,8 @@ Draft shifts are hidden from employees. Publishing makes the current shifts visi
 Browser push requires permission and, outside local development, a secure HTTPS connection.
 
 ## 12. Employee quick start
+
+![Employee published schedule](images/13-my-schedule.png)
 
 1. Sign in and open **My schedule**.
 2. Review published shifts and shift details.
@@ -219,9 +253,11 @@ If a manager says a shift was added but it is not visible, ask whether the week 
 
 ## 13. Administrator setup checklist
 
+![Organization settings](images/11-settings.png)
+
 Complete these items before managers build the first live schedule:
 
-1. In **Settings**, confirm the organization name, time zone, and currency.
+1. In **Settings**, confirm the location, country, time zone, and currency.
 2. Create the positions used by the organization.
 3. Define minimum staffing requirements.
 4. Import or add holidays and set their scheduling policy.
@@ -239,6 +275,8 @@ Complete these items before managers build the first live schedule:
 | Shift cannot be assigned | Review availability, overlapping shifts, time off, maximum hours, skills, and holiday rules. |
 | Publish button is disabled | Resolve readiness conflicts and confirm there is at least one draft change. |
 | Employee cannot see a new shift | Confirm the week was published and the employee is viewing the correct week. |
+| Employee has no linked profile | Ask an Administrator to link the user account to the correct employee profile in **Settings**. Matching email addresses alone do not link accounts. |
+| Employee disappeared from the directory | Ask a manager whether the profile was marked inactive or deleted. Deleted employees cannot receive new assignments; existing shifts and history remain. |
 | Report does not match the planner | Refresh the page and confirm that schedule edits were saved. |
 | Browser notifications do not work | Allow browser notifications, use HTTPS, and check notification preferences. |
 
@@ -247,4 +285,3 @@ Complete these items before managers build the first live schedule:
 Create one **6-minute manager workflow video** at 1080p, plus a separate **90-second employee quick-start video**. Short role-specific videos are easier to update and prevent employees from sitting through administrator-only setup.
 
 Use the detailed recording script in [VIDEO-DEMO-SCRIPT.md](VIDEO-DEMO-SCRIPT.md).
-

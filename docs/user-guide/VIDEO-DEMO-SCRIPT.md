@@ -27,7 +27,7 @@
 | 0:00–0:15 | Show title card, then the sign-in screen. | “In this video, you’ll create, check, and publish a weekly employee schedule in Shiftly.” |
 | 0:15–0:35 | Sign in as a Supervisor. Pause on the Schedule page. | “Managers land on the weekly schedule, where coverage, conflicts, and forecast labour cost are visible at a glance.” |
 | 0:35–1:05 | Open **Employees** and select one employee. Briefly show position, hours, skills, and status. | “Start by confirming that employee details, work limits, and skills are current.” |
-| 1:05–1:35 | Open **Availability**. Add or show a Monday morning range and save. | “Availability records the employee’s recurring weekly pattern. Specific leave dates belong in Time off.” |
+| 1:05–1:35 | Open **Availability**. Add or show a Monday morning range, point to **One-off exceptions**, and save. | “Availability records weekly working windows and date-specific exceptions. Exceptions replace weekly ranges for that date. Use Time off for leave that needs approval.” |
 | 1:35–2:05 | Open **Time off**. Review the pending request and approve it. | “Review pending leave before scheduling the affected week so Shiftly can prevent invalid assignments.” |
 | 2:05–2:40 | Return to **Schedule**. Point to coverage, gaps, conflicts, cost, and the draft notice. | “The week-at-a-glance panel highlights operational risk. Drafts remain hidden from employees until publication.” |
 | 2:40–3:25 | Select **+ Create shift**. Fill employee, date, times, role, break, and required skill. Save. | “Create the shift, review eligibility feedback, and save it as a draft.” |
@@ -69,4 +69,3 @@
 - Audio is clear and consistent, without background music under key instructions.
 - The recording contains no real employee data or credentials.
 - The final video is tested on both desktop and mobile playback.
-
