@@ -6,6 +6,7 @@ React frontend for Shiftly, a workforce scheduling application for administrator
 
 - Weekly draft and published schedules, shift copying, templates, and assignment checks
 - Employee profiles, positions, availability, time off, rates, and overtime thresholds
+- Soft delete employees from their profile: removes them from the directory and new shift assignments while preserving existing shifts and historical records
 - Staffing requirements, holidays, coverage warnings, and labour-cost forecasting
 - Shift swaps, attendance, audit history, notifications, and weekly reports
 - Administrator, Supervisor, and Employee experiences, including a mobile employee schedule

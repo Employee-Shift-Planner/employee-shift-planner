@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { get, post, put, query } from "./client";
+import { del, get, post, put, query } from "./client";
 import { currentUser } from "./auth";
 import { startOfWeek, toDateParam } from "../lib/format";
 
@@ -103,5 +103,18 @@ export function useCurrentEmployee(options = {}) {
     queryFn: () => get("/Employee/me"),
     retry: false,
     ...options,
+  });
+}
+
+/** Remove an employee from the directory while retaining historical records. */
+export function useDeleteEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (employeeId) => del(`/Employee/${encodeURIComponent(employeeId)}`),
+    onSuccess: () => {
+      ["employees", "availability", "reports", "schedule"].forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      });
+    },
   });
 }
