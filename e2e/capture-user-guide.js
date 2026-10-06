@@ -1,5 +1,7 @@
 const { chromium } = require("@playwright/test");
 const path = require("path");
+const fs = require("fs");
+const baseURL = process.env.GUIDE_BASE_URL || "http://127.0.0.1:3000";
 
 const output = path.resolve(__dirname, "../docs/user-guide/images");
 const employees = [
@@ -47,53 +49,89 @@ async function mock(route) {
   if (p.endsWith("/auth/login")) return json({ token:"guide-token", user:{ id:1,email:"manager@shiftly.demo",role:"Administrator" } });
   if (p.includes("/schedule/week/readiness")) return json({ isReady:true, issues:[] });
   if (p.includes("/schedule/week")) return json(shifts);
-  if (p.endsWith("/schedule")) return json(shifts);
+  if (p.endsWith("/schedule")) return json(url.searchParams.has("employeeId") ? shifts.filter(x => x.employeeId === "E002" && x.isPublished) : shifts);
   if (p.includes("/reports/weekly")) return json(report);
   if (p.includes("/staffingrequirements/coverage")) return json([{ requirementId:1,date:"2026-10-03",dayOfWeek:"Saturday",startTime:"10:00",endTime:"16:00",positionTitle:"Sales Associate",scheduledEmployees:2,requiredEmployees:3,missingEmployees:1 }]);
   if (p.endsWith("/staffingrequirements")) return json([]);
   if (p.includes("/employee/roster")) return json(roster);
+  if (p.endsWith("/employee/e001/summary")) return json({ employee:{ ...employees[0], maxWeeklyHours:40, hourlyRate:1300, overtimeThresholdHours:40, preferredShift:"Morning" }, scheduledHours:40, maxWeeklyHours:40, upcomingShifts:shifts.filter(x => x.employeeId === "E001") });
+  if (p.endsWith("/api/employee/e001")) return json({ ...employees[0], maxWeeklyHours:40, hourlyRate:1300, overtimeThresholdHours:40, positionId:1 });
   if (p.endsWith("/employee")) return json(employees);
   if (p.endsWith("/employee/me")) return json(employees[1]);
-  if (p.endsWith("/position")) return json([{ id:1,title:"Store Manager" },{ id:2,title:"Sales Associate" },{ id:3,title:"Cashier" }]);
+  if (p.endsWith("/position")) return json([{ positionId:1,title:"Store Manager",isActive:true },{ positionId:2,title:"Sales Associate",isActive:true },{ positionId:3,title:"Cashier",isActive:true }]);
   if (p.includes("/availability/matrix")) return json([]);
-  if (p.includes("/availability/employee/")) return json([]);
+  if (p.includes("/availability/employee/")) return json([
+    { id:1, dayOfWeek:"Monday",startTime:"08:00",endTime:"16:30",specificDate:null,isAvailable:true,notes:"Regular working window" },
+    { id:2, dayOfWeek:"Friday",startTime:null,endTime:null,specificDate:"2026-10-09",isAvailable:false,notes:"One-off exception" },
+  ]);
   if (p.endsWith("/timeoffrequests")) return json([
     { id:1,employeeId:"E003",employeeName:"Keisha Morgan",startDate:"2026-10-09",endDate:"2026-10-10",reason:"Family commitment",status:"Pending" },
     { id:2,employeeId:"E002",employeeName:"Daniel Brown",startDate:"2026-09-18",endDate:"2026-09-18",reason:"Appointment",status:"Approved",reviewNotes:"Coverage confirmed" },
   ]);
   if (p.includes("/holidays")) return json([]);
-  if (p.includes("/organizationSettings".toLowerCase())) return json({ organizationName:"Harbour Street Market",currency:"JMD",timeZoneId:"America/Jamaica" });
+  if (p.includes("/organizationSettings".toLowerCase())) return json({ organizationName:"Harbour Street Market",currency:"JMD",timeZone:"America/Jamaica",locationName:"Kingston office",countryCode:"JM",regionCode:"",isConfigured:true });
   if (p.includes("/shifttemplates")) return json([]);
   if (p.includes("/operations/swaps")) return json([]);
   if (p.includes("/operations/attendance")) return json([]);
   if (p.includes("/operations/audit")) return json([]);
-  if (p.includes("/notificationpreferences")) return json([]);
+  if (p.endsWith("/history")) return json([]);
+  if (p.includes("/notificationpreferences")) return json({newShiftAssignment:true,shiftChanged:true,upcomingReminder:true,schedulePublished:true,smsEnabled:false,pushEnabled:false,reminderHoursBefore:12});
   if (p.endsWith("/user")) return json([]);
   return json([]);
 }
 
 (async () => {
+  fs.mkdirSync(output, { recursive:true });
   const browser = await chromium.launch({
     headless:true,
     executablePath:process.env.PLAYWRIGHT_CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   });
-  const page = await browser.newPage({ viewport:{ width:1440,height:1000 }, deviceScaleFactor:1 });
+  const page = await browser.newPage({ viewport:{ width:1440,height:1000 }, deviceScaleFactor:1, timezoneId:"America/Jamaica" });
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
   await page.route("**/api/**", mock);
-  await page.goto("http://127.0.0.1:3000/");
+  await page.goto(`${baseURL}/`);
   await page.screenshot({ path:path.join(output,"01-sign-in.png"), fullPage:true });
   await page.getByLabel("Email address").fill("manager@shiftly.demo");
   await page.locator('input[name="password"]').fill("demo-password");
   await page.getByRole("button", { name:"Sign in" }).click();
   await page.waitForURL("**/schedule");
+  await page.goto(`${baseURL}/schedule?week=2026-09-28`);
+  await page.waitForTimeout(700);
   await page.screenshot({ path:path.join(output,"02-weekly-schedule.png"), fullPage:true });
-  await page.goto("http://127.0.0.1:3000/employees");
+  await page.goto(`${baseURL}/employees`);
   await page.waitForTimeout(500);
   await page.screenshot({ path:path.join(output,"03-employees.png"), fullPage:true });
-  await page.goto("http://127.0.0.1:3000/time-off");
+  await page.goto(`${baseURL}/time-off`);
   await page.waitForTimeout(500);
   await page.screenshot({ path:path.join(output,"04-time-off.png"), fullPage:true });
-  await page.goto("http://127.0.0.1:3000/reports?week=2026-09-28");
+  await page.goto(`${baseURL}/reports?week=2026-09-28`);
   await page.waitForTimeout(500);
   await page.screenshot({ path:path.join(output,"05-reports.png"), fullPage:true });
+  for (const [route, name, heading] of [
+    ["employees/E001","06-employee-profile.png","Alicia Grant"],
+    ["employees/new","07-add-employee.png","Add employee"],
+    ["availability","08-availability.png","Team Availability"],
+    ["operations","09-operations.png","Operations"],
+    ["notifications","10-notifications.png","Notifications"],
+    ["settings","11-settings.png","Settings"],
+    ["create-shift","12-create-shift.png","Create shift"],
+  ]) {
+    await page.goto(`${baseURL}/${route}`);
+    await page.getByRole("heading", { name:heading, exact:true }).waitFor();
+    await page.waitForTimeout(700);
+    await page.screenshot({ path:path.join(output,name), fullPage:true });
+  }
+  await page.route(url => url.pathname.toLowerCase().endsWith("/auth/login"), route => route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({token:"employee-guide-token",user:{id:2,email:"employee@shiftly.demo",role:"Employee"}})}));
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+  await page.goto(`${baseURL}/`);
+  await page.getByLabel("Email address").fill("employee@shiftly.demo");
+  await page.locator('input[name="password"]').fill("demo-password");
+  await page.getByRole("button", { name:"Sign in" }).click();
+  await page.waitForURL("**/mobile");
+  await page.setViewportSize({width:430,height:932});
+  await page.waitForTimeout(700);
+  await page.screenshot({path:path.join(output,"13-my-schedule.png"),fullPage:true});
   await browser.close();
+  if (errors.length) throw new Error(errors.join("\n"));
 })();
