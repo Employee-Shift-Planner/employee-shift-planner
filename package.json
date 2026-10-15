@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@tanstack/react-query": "5.17.19",
-    "@testing-library/jest-dom": "5.17.0",
+    "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "13.4.0",
     "exceljs": "^3.4.0",
     "jspdf": "^4.2.1",
