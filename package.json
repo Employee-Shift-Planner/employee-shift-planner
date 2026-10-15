@@ -6,7 +6,7 @@
   "dependencies": {
     "@tanstack/react-query": "5.17.19",
     "@testing-library/jest-dom": "5.17.0",
-    "@testing-library/react": "13.4.0",
+    "@testing-library/react": "16.3.3",
     "exceljs": "^3.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
