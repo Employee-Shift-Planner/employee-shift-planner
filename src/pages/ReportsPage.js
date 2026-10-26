@@ -1,3 +1,4 @@
+import { useWorkWeekStartDay } from "../api/organization";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import DownloadDialog from "../components/ui/DownloadDialog";
@@ -14,8 +15,9 @@ import { fromDateParam } from "../utils/week";
 import "./ReportsPage.css";
 
 export default function ReportsPage() {
+  const workWeekStartDay = useWorkWeekStartDay();
   const [searchParams] = useSearchParams();
-  const weekStart = useMemo(() => startOfWeek(fromDateParam(searchParams.get("week")) ?? undefined), [searchParams]);
+  const weekStart = useMemo(() => startOfWeek(fromDateParam(searchParams.get("week")) ?? undefined, workWeekStartDay), [searchParams, workWeekStartDay]);
   const [downloadOpen, setDownloadOpen] = useState(false);
   const report = useWeeklyReport(weekStart);
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { useWorkWeekStartDay } from "../api/organization";
 import { useConfirm } from "../components/ui/ConfirmProvider";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -27,17 +28,18 @@ import { addWeeks, fromDateParam } from "../utils/week";
 import "./SchedulePage.css";
 
 export default function SchedulePage() {
+  const workWeekStartDay = useWorkWeekStartDay();
   const confirm = useConfirm();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedShift, setSelectedShift] = useState(null);
   const [publishOpen, setPublishOpen] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const currentWeek = useMemo(() => startOfWeek(), []);
+  const currentWeek = useMemo(() => startOfWeek(new Date(), workWeekStartDay), [workWeekStartDay]);
   const weekStart = useMemo(() => {
     const requested = fromDateParam(searchParams.get("week"));
-    return requested ? startOfWeek(requested) : currentWeek;
-  }, [currentWeek, searchParams]);
+    return requested ? startOfWeek(requested, workWeekStartDay) : currentWeek;
+  }, [currentWeek, searchParams, workWeekStartDay]);
   const shifts = useWeekShifts(weekStart);
   const readiness = useScheduleReadiness(weekStart);
   const report = useWeeklyReport(weekStart);

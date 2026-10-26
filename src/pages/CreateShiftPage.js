@@ -1,3 +1,4 @@
+import { useWorkWeekStartDay } from "../api/organization";
 import useUnsavedChanges from "../lib/useUnsavedChanges";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -17,12 +18,13 @@ import { fromDateParam } from "../utils/week";
 import "./CreateShiftPage.css";
 
 export default function CreateShiftPage() {
+  const workWeekStartDay = useWorkWeekStartDay();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedWeek = useMemo(() => {
     const requested = fromDateParam(searchParams.get("week"));
-    return startOfWeek(requested ?? new Date());
-  }, [searchParams]);
+    return startOfWeek(requested ?? new Date(), workWeekStartDay);
+  }, [searchParams, workWeekStartDay]);
   const schedulePath = `/schedule?week=${toDateParam(selectedWeek)}`;
   const backToSchedule = () => navigate(schedulePath);
   const initial = useMemo(() => {
