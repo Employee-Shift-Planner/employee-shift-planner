@@ -1,15 +1,36 @@
 .assign {
-  height: 410px;
+  min-height: 180px;
+  min-width: 0;
   padding: 18px 22px;
 }
 
-.assign p,
-.assign label {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.assign p {
   margin: 18px 0;
 }
 
-.assign { height: auto; min-height: 180px; }
-.assign label { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; min-height: 44px; align-items: center; }
-@media (max-width: 700px) { .assign label { grid-template-columns: 1fr; } }
+.assign-list {
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
+.assign-list:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 2px;
+}
+
+.assign label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  min-height: 44px;
+  align-items: center;
+  margin: 18px 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .assign-list { max-height: 300px; }
+  .assign label { grid-template-columns: 1fr; }
+}
