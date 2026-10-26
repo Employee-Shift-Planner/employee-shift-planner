@@ -22,7 +22,11 @@ const USER_KEY = "user";
 const EXPIRES_KEY = "sessionExpiresAt";
 export const SESSION_CHANGED_EVENT = "shiftly:session-changed";
 
-// Access credentials live only in memory. Reloading requires a new sign-in.
+// Legacy bearer credentials and the cookie session profile live only in memory.
+// HttpOnly cookie sessions are restored from /auth/me after a reload.
+let csrfToken = null;
+let cookieSession = false;
+export const hasCookieSession = () => cookieSession;
 const session = new Map();
 const safeRead = (key) => session.get(key) ?? null;
 const safeWrite = (key, value) => {
@@ -78,6 +82,8 @@ export const getStoredUser = () => {
 };
 
 export const storeSession = (token, user) => {
+  cookieSession = false;
+  csrfToken = null;
   safeWrite(TOKEN_KEY, token ?? null);
   safeWrite(USER_KEY, user ? JSON.stringify(user) : null);
   safeWrite(EXPIRES_KEY, token ? String(tokenExpiration(token) ?? "") : null);
@@ -85,6 +91,16 @@ export const storeSession = (token, user) => {
 };
 
 export const clearSession = () => storeSession(null, null);
+
+export const restoreCookieSession = async () => {
+  const data = await get("/auth/me");
+  if (!data?.user || !data?.csrfToken) throw new Error("Could not restore your Microsoft session.");
+  storeSession(null, data.user);
+  cookieSession = true;
+  csrfToken = data.csrfToken;
+  announceSessionChange();
+  return data.user;
+};
 
 export const subscribeToSession = (listener) => {
   window.addEventListener(SESSION_CHANGED_EVENT, listener);
@@ -141,11 +157,13 @@ export async function request(path, options = {}) {
 
   const token = auth ? getToken() : null;
   if (token) headers.Authorization = `Bearer ${token}`;
+  if (auth && csrfToken && !["GET", "HEAD", "OPTIONS"].includes(method)) headers["X-CSRF-TOKEN"] = csrfToken;
 
   let response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       method,
+      credentials: "include",
       headers,
       signal,
       body: body === undefined ? undefined : JSON.stringify(body),

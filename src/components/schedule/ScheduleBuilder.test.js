@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import ScheduleBuilder from "./ScheduleBuilder";
 
 const mockUpdateAsync = jest.fn(() => Promise.resolve());
@@ -61,4 +61,17 @@ test("reassignment is available as a button without dragging", () => {
   render(<ScheduleBuilder shifts={shifts} employees={employees} requirements={[]} weekStart={weekStart} days={days} onOpenShift={open} />);
   fireEvent.click(screen.getByRole("button", { name: "Reassign shift for John Brown" }));
   expect(open).toHaveBeenCalledWith(expect.objectContaining({ id: 10, focusAssignment: true }));
+});
+
+
+test("coverage filters use the assigned shift role for rotating employees", () => {
+  render(<ScheduleBuilder shifts={shifts} employees={employees} requirements={[
+    { id:1, dayOfWeek:"Monday", startTime:"08:00", endTime:"12:00", requiredEmployees:1, isActive:true, positionTitle:"Dining" }
+  ]} weekStart={weekStart} days={days} onOpenShift={() => {}} />);
+  fireEvent.click(screen.getByRole("tab", { name:"Coverage view" }));
+  fireEvent.change(screen.getByLabelText("Position"), { target:{ value:"Dining" } });
+  expect(within(screen.getByRole("row", { name:/Scheduled/ })).getAllByRole("cell")[3]).toHaveTextContent("1");
+  expect(screen.queryByText("GAP")).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText("Position"), { target:{ value:"Server" } });
+  expect(within(screen.getByRole("row", { name:/Scheduled/ })).getAllByRole("cell")[3]).toHaveTextContent("0");
 });

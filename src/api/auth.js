@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { clearSession, getSessionExpiration, getStoredUser, getToken, post, storeSession, subscribeToSession } from "./client";
+import { clearSession, hasCookieSession, getSessionExpiration, getStoredUser, getToken, post, storeSession, subscribeToSession } from "./client";
 
-export const isSignedIn = () => Boolean(getToken());
+export const isSignedIn = () => Boolean(getToken()) || hasCookieSession();
 
 export const currentUser = () => getStoredUser();
 

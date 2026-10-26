@@ -1,3 +1,4 @@
+import { microsoftLoginEnabled, microsoftLoginUrl } from "./MicrosoftSession";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -37,6 +38,7 @@ export default function SessionRecovery({ account }) {
   return <Modal onClose={() => {}} busy aria-labelledby="session-expired-title">
     <h2 id="session-expired-title">Your session expired</h2>
     <p>Your unsaved work is still on this page. Sign in again as {account.email} to continue.</p>
+    {microsoftLoginEnabled ? <p><a className="btn" href={microsoftLoginUrl}>Sign in with Microsoft</a></p> : null}
     <form onSubmit={submit}>
       <label htmlFor="session-password">Password<PasswordInput id="session-password" required autoFocus autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} /></label>
       {login.isError ? <StateMessage tone="error" title="Could not sign in" detail={login.error?.message} /> : null}

@@ -1,3 +1,4 @@
+import { microsoftLoginEnabled, microsoftLoginUrl } from "../components/auth/MicrosoftSession";
 import PolicyLinks from "../components/legal/PolicyLinks";
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -51,6 +52,10 @@ export default function LoginPage() {
         <p>Sign in to manage schedules and your team.</p>
         {location.state?.sessionExpired ? <StateMessage title="Your session expired" detail="Sign in again to continue." /> : null}
         {location.state?.passwordChanged ? <StateMessage title="Password updated" detail="Sign in with your new password to continue." /> : null}
+        {microsoftLoginEnabled ? <>
+          <a className="btn" href={microsoftLoginUrl}>Sign in with Microsoft</a>
+          {new URLSearchParams(location.search).has("microsoftError") ? <StateMessage tone="error" title="Microsoft sign-in failed" detail="Try again or contact your administrator to check your account access." /> : null}
+        </> : null}
         <label htmlFor="email">
           Email address
           <input

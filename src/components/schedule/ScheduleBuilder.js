@@ -27,13 +27,14 @@ export default function ScheduleBuilder({ shifts, employees, requirements, weekS
 
   const employeeById = useMemo(() => Object.fromEntries(employees.map(x => [x.employeeId, x])), [employees]);
   const departments = useMemo(() => [...new Set(shifts.map(x => x.role).filter(Boolean))].sort(), [shifts]);
-  const positions = useMemo(() => [...new Set(employees.map(x => x.positionTitle).filter(Boolean))].sort(), [employees]);
+  const positions = useMemo(() => [...new Set([...employees.map(x => x.positionTitle), ...shifts.map(x => x.role), ...requirements.map(x => x.positionTitle)].filter(Boolean))].sort(), [employees, shifts, requirements]);
   const filteredEmployees = useMemo(() => employees.filter(employee =>
     (!employeeFilter || employee.fullName.toLowerCase().includes(employeeFilter.toLowerCase())) &&
-    (!positionFilter || employee.positionTitle === positionFilter)), [employees, employeeFilter, positionFilter]);
+    (!positionFilter || view !== "Employee" || employee.positionTitle === positionFilter)), [employees, employeeFilter, positionFilter, view]);
   const filteredShifts = useMemo(() => shifts.filter(shift =>
     (!departmentFilter || shift.role === departmentFilter) &&
-    filteredEmployees.some(employee => employee.employeeId === shift.employeeId)), [shifts, filteredEmployees, departmentFilter]);
+    (!positionFilter || view === "Employee" || (shift.role?.trim() || employeeById[shift.employeeId]?.positionTitle) === positionFilter) &&
+    filteredEmployees.some(employee => employee.employeeId === shift.employeeId)), [shifts, filteredEmployees, departmentFilter, positionFilter, view, employeeById]);
   const filterCount = [employeeFilter, departmentFilter, positionFilter].filter(Boolean).length;
   const clearFilters = () => { setEmployeeFilter(""); setDepartmentFilter(""); setPositionFilter(""); };
   const chosen = filteredShifts.filter(x => selected.includes(x.id));
@@ -160,7 +161,7 @@ function CoverageView({ shifts, requirements, employees, weekStart, days, positi
   const datePart = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   const dayName = date.toLocaleDateString("en-US", { weekday:"long" });
   const relevant = requirements.filter(x => x.isActive && x.dayOfWeek === dayName && (!positionFilter || x.positionTitle === positionFilter));
-  const count = hour => { const slot = new Date(toOrganizationInstant(`${datePart}T${String(hour).padStart(2, "0")}:00:00`)); return shifts.filter(shift => new Date(shift.startTime) <= slot && new Date(shift.endTime) > slot && (!positionFilter || employees[shift.employeeId]?.positionTitle === positionFilter)).length; };
+  const count = hour => { const slot = new Date(toOrganizationInstant(`${datePart}T${String(hour).padStart(2, "0")}:00:00`)); return shifts.filter(shift => new Date(shift.startTime) <= slot && new Date(shift.endTime) > slot && (!positionFilter || (shift.role?.trim() || employees[shift.employeeId]?.positionTitle) === positionFilter)).length; };
   const required = hour => relevant.filter(x => { const start=Number(String(x.startTime).slice(0,2)), end=Number(String(x.endTime).slice(0,2)); return start < end ? hour >= start && hour < end : hour >= start || hour < end; }).reduce((sum,x) => sum + x.requiredEmployees, 0);
   return <section className="coverage-view card"><div className="coverage-day-tabs">{days.map((label,index) => <button className={day === index ? "active" : ""} onClick={() => setDay(index)} key={label}>{label}</button>)}</div><div className="coverage-scroll"><table><thead><tr><th></th>{hours.map(hour => <th key={hour}>{hour % 12 || 12}{hour < 12 ? "AM" : "PM"}</th>)}</tr></thead><tbody><tr><th>Required</th>{hours.map(hour => <td key={hour}>{required(hour)}</td>)}</tr><tr><th>Scheduled</th>{hours.map(hour => { const scheduled=count(hour), needed=required(hour); return <td className={scheduled < needed ? "gap" : ""} key={hour}>{scheduled}{scheduled < needed ? <small>GAP</small> : null}</td>; })}</tr></tbody></table></div></section>;
 }

@@ -5,6 +5,7 @@ export default function AssignEmployees({ candidates, selectedId, onSelect }) {
   return (
     <section className="card assign">
       <h2>Assign employees</h2>
+      <p>Employees can work a different role for this shift without changing their primary position. Availability and required qualifications still apply.</p>
       {!candidates.length ? <p>No eligible employees found. Adjust the shift details or check employee availability.</p> : null}
       {candidates.map((candidate) => (
         <label key={candidate.employeeId}>

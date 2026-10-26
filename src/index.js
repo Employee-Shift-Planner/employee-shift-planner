@@ -1,3 +1,4 @@
+import MicrosoftSession from "./components/auth/MicrosoftSession";
 import { createQueryClient } from './lib/queryClient';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -16,7 +17,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <MicrosoftSession><RouterProvider router={router} /></MicrosoftSession>
     </QueryClientProvider>
   </React.StrictMode>
 );
