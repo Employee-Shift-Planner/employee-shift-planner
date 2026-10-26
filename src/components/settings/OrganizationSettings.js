@@ -7,6 +7,8 @@ import SaveFeedback from "../ui/SaveFeedback";
 import "./OrganizationSettings.css";
 import { CURRENCY_OPTIONS, timeZoneOptions, withCurrentCountry, withCurrentOption } from "../../data/regionalOptions";
 
+const WEEK_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 const CURRENCIES = { JM:"JMD", US:"USD", CA:"CAD", GB:"GBP", TT:"TTD", BB:"BBD", BS:"BSD", KY:"KYD", AU:"AUD", NZ:"NZD", IN:"INR", JP:"JPY", CN:"CNY", DE:"EUR", FR:"EUR", ES:"EUR", IT:"EUR", NL:"EUR" };
 const ZONE_COUNTRIES = { "America/Jamaica":"JM", "America/New_York":"US", "America/Toronto":"CA", "Europe/London":"GB", "Asia/Kolkata":"IN", "Asia/Tokyo":"JP", "Australia/Sydney":"AU" };
 const localeCountry = () => {
@@ -25,7 +27,7 @@ const detectedSettings = async () => {
   const countryCode = ZONE_COUNTRIES[timeZone] || localeCountry() || "JM";
   const coordinates = await locate();
   return { locationName:coordinates.latitude == null ? countryCode : `${coordinates.latitude.toFixed(4)}, ${coordinates.longitude.toFixed(4)}`,
-    countryCode, regionCode:null, timeZone, currency:CURRENCIES[countryCode] || "USD", ...coordinates };
+    countryCode, regionCode:null, timeZone, workWeekStartDay:1, currency:CURRENCIES[countryCode] || "USD", ...coordinates };
 };
 
 export default function OrganizationSettings() {
@@ -35,7 +37,7 @@ export default function OrganizationSettings() {
   const [form, setForm] = useState(null);
   const detectionStarted = useRef(false);
 
-  useEffect(() => { if (settings.data) setForm({ ...settings.data, regionCode:settings.data.regionCode ?? "" }); }, [settings.data]);
+  useEffect(() => { if (settings.data) setForm({ ...settings.data, regionCode:settings.data.regionCode ?? "", workWeekStartDay:settings.data.workWeekStartDay ?? 1 }); }, [settings.data]);
   useEffect(() => {
     if (!administrator || !settings.data || settings.data.isConfigured || detectionStarted.current) return;
     detectionStarted.current = true;
@@ -47,7 +49,7 @@ export default function OrganizationSettings() {
   if (settings.isPending || !form) return <section className="card organization-settings"><p>Loading organization settings…</p></section>;
   if (settings.isError) return <StateMessage tone="error" title="Could not load organization settings" detail={settings.error?.message} />;
   return <section className="organization-settings" aria-labelledby="organization-settings-heading">
-    <div><h2 id="organization-settings-heading">Organization defaults</h2><p>Location, timezone and currency used by scheduling, holidays and reports.</p></div>
+    <div><h2 id="organization-settings-heading">Organization defaults</h2><p>Location, timezone, currency and work week used by scheduling, holidays and reports.</p></div>
     {!form.isConfigured && administrator ? <p className="organization-detection">Detecting your location and regional defaults… Your browser may request location permission.</p> : null}
     {!administrator ? <p className="organization-readonly">Only administrators can change these organization-wide settings.</p> : null}
     <form className="card organization-form" onSubmit={submit}>
@@ -56,6 +58,9 @@ export default function OrganizationSettings() {
       <label>Region code<input maxLength="20" disabled={!administrator || save.isPending} value={form.regionCode} onChange={change("regionCode")} placeholder="Optional" /></label>
       <label>Timezone<select required disabled={!administrator || save.isPending} value={form.timeZone} onChange={change("timeZone")}>{withCurrentOption(timeZoneOptions(), form.timeZone).map(zone => <option key={zone}>{zone}</option>)}</select></label>
       <label>Currency<select required disabled={!administrator || save.isPending} value={form.currency} onChange={change("currency")}>{withCurrentOption(CURRENCY_OPTIONS, form.currency).map(currency => <option key={currency}>{currency}</option>)}</select></label>
+      <label>Work week starts<select disabled={!administrator || save.isPending} value={form.workWeekStartDay ?? 1} onChange={event => { save.reset(); setForm(value => ({ ...value, workWeekStartDay:Number(event.target.value) })); }}>{WEEK_DAYS.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
+      <label>Work week ends<select disabled={!administrator || save.isPending} value={((form.workWeekStartDay ?? 1) + 6) % 7} onChange={event => { save.reset(); setForm(value => ({ ...value, workWeekStartDay:(Number(event.target.value) + 1) % 7 })); }}>{WEEK_DAYS.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
+      <p>The work week is seven consecutive days. Changing either day updates the other and changes weekly scheduling, reports and hour limits.</p>
       {form.latitude != null ? <small>Detected coordinates: {Number(form.latitude).toFixed(4)}, {Number(form.longitude).toFixed(4)}</small> : null}
       {administrator ? <Button type="submit" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save organization defaults"}</Button> : null}
     </form>

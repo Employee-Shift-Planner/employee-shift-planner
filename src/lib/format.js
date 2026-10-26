@@ -19,10 +19,10 @@ export const toOrganizationInstant = (value) => {
   return new Date(assumedUtc.getTime() - (represented - assumedUtc.getTime())).toISOString();
 };
 
-/** Monday 00:00 of the week containing `date`, matching the API's week maths. */
-export const startOfWeek = (date = new Date()) => {
+/** Start of the configured seven-day work week. */
+export const startOfWeek = (date = new Date(), startDay = Number(localStorage.getItem("organization-week-start") ?? 1)) => {
   const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  day.setDate(day.getDate() - ((day.getDay() + 6) % 7));
+  day.setDate(day.getDate() - ((day.getDay() - startDay + 7) % 7));
   return day;
 };
 
