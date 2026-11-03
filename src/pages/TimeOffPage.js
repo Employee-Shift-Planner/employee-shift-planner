@@ -1,3 +1,4 @@
+import { useConfirm } from "../components/ui/ConfirmProvider";
 import useUnsavedChanges from "../lib/useUnsavedChanges";
 import { useState } from "react";
 import useIsMobile from "../lib/useIsMobile";
@@ -8,6 +9,8 @@ import Skeleton from "../components/ui/Skeleton";
 import { useCurrentEmployee, useEmployees } from "../api/employees";
 import {
   useCreateTimeOffRequest,
+  useUpdateTimeOffRequest,
+  useDeleteTimeOffRequest,
   useReviewTimeOffRequest,
   useTimeOffRequests,
 } from "../api/timeOff";
@@ -16,13 +19,18 @@ import { isManager } from "../api/auth";
 import "./TimeOffPage.css";
 
 const today = () => toDateParam(new Date());
-const EMPTY = { employeeId: "", startDate: today(), endDate: today(), reason: "" };
+const TYPES = ["Vacation", "Sick leave", "Personal leave", "Bereavement leave", "Maternity leave", "Paternity leave", "Unpaid leave"];
+const EMPTY = { employeeId: "", startDate: today(), endDate: today(), reason: "", type:"Vacation", customType:"" };
 
 const formatDates = (request) => request.startDate === request.endDate
   ? request.startDate
   : `${request.startDate} – ${request.endDate}`;
 
 export default function TimeOffPage() {
+  const confirm = useConfirm();
+  const [editingId, setEditingId] = useState(null);
+  const updateRequest = useUpdateTimeOffRequest();
+  const deleteRequest = useDeleteTimeOffRequest();
   const mobile = useIsMobile();
   const manager = isManager();
   const employees = useEmployees({ enabled: manager });
@@ -32,7 +40,7 @@ export default function TimeOffPage() {
   const reviewRequest = useReviewTimeOffRequest();
   const [form, setForm] = useState(EMPTY);
   const [reviewNotes, setReviewNotes] = useState({});
-  useUnsavedChanges(Boolean(form.reason || form.employeeId || form.startDate !== EMPTY.startDate || form.endDate !== EMPTY.endDate || Object.values(reviewNotes).some(Boolean)));
+  useUnsavedChanges(Boolean(editingId || form.customType || form.type !== EMPTY.type || form.reason || form.employeeId || form.startDate !== EMPTY.startDate || form.endDate !== EMPTY.endDate || Object.values(reviewNotes).some(Boolean)));
   const [message, setMessage] = useState("");
 
   const pending = requests.data?.filter((request) => request.status === "Pending") ?? [];
@@ -40,15 +48,17 @@ export default function TimeOffPage() {
   const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
   const employeeId = manager ? form.employeeId : currentEmployee.data?.employeeId;
 
-  const overlapping = (requests.data ?? []).some(item => item.employeeId === employeeId && item.status !== "Rejected" && item.startDate <= form.endDate && form.startDate <= item.endDate);
+  const overlapping = (requests.data ?? []).some(item => item.id !== editingId && item.employeeId === employeeId && ["Pending", "Approved"].includes(item.status) && item.startDate <= form.endDate && form.startDate <= item.endDate);
   const dateError = form.endDate < form.startDate ? "The end date must be on or after the start date." : overlapping ? "A pending or approved request already overlaps these dates." : "";
   const disabledReason = !employeeId ? "Select an employee to continue." : requests.isPending ? "Checking existing time-off requests…" : requests.isError ? "Existing requests could not be checked. Try again before submitting." : dateError;
   const submit = (event) => {
     event.preventDefault();
     if (disabledReason) return;
-    createRequest.mutate({ ...form, employeeId }, {
+    const mutation = editingId ? updateRequest : createRequest;
+    mutation.mutate({ ...(editingId ? { id:editingId } : {}), ...form, employeeId, type:form.type === "Custom" ? form.customType.trim() : form.type }, {
       onSuccess: () => {
         setForm({ ...EMPTY, startDate: today(), endDate: today() });
+        setEditingId(null);
         setMessage("Time-off request submitted for review.");
       },
     });
@@ -63,7 +73,26 @@ export default function TimeOffPage() {
     });
   };
 
-  const error = createRequest.error ?? reviewRequest.error;
+  const busy = createRequest.isPending || updateRequest.isPending || deleteRequest.isPending || reviewRequest.isPending;
+  const edit = request => {
+    setEditingId(request.id);
+    setForm({ employeeId:request.employeeId, startDate:request.startDate, endDate:request.endDate,
+      reason:request.reason, type:TYPES.includes(request.type) ? request.type : "Custom",
+      customType:TYPES.includes(request.type) ? "" : request.type || "Personal leave" });
+    setMessage("");
+  };
+  const remove = async request => {
+    if (!await confirm(`Delete the time-off request for ${request.employeeName} (${formatDates(request)})?`, "Delete request")) return;
+    deleteRequest.mutate(request.id, { onSuccess: () => {
+      if (editingId === request.id) { setEditingId(null); setForm({ ...EMPTY }); }
+      setMessage("Time-off request deleted.");
+    } });
+  };
+  const actions = request => <div className="time-off-actions">
+    <Button type="button" tone="gray" disabled={busy} onClick={() => edit(request)}>Edit</Button>
+    <Button type="button" tone="gray" disabled={busy} onClick={() => remove(request)}>Delete</Button>
+  </div>;
+  const error = createRequest.error ?? updateRequest.error ?? deleteRequest.error ?? reviewRequest.error;
 
   return (
     <Shell active="Time off" title="Time Off" copy="Submit employee leave and review requests before building the schedule.">
@@ -82,7 +111,8 @@ export default function TimeOffPage() {
           {pending.map((request) => (
             <article className="time-off-request" key={request.id}>
               <div><b>{request.employeeName}</b><span>{formatDates(request)}</span></div>
-              <p>{request.reason}</p>
+              <p><b>{request.type || "Personal leave"}</b> · {request.reason}</p>
+              {actions(request)}
               <textarea
                 rows="2"
                 maxLength="500"
@@ -97,16 +127,19 @@ export default function TimeOffPage() {
               </div>
             </article>
           ))}
-        </section> : <section className="card time-off-queue"><div className="time-off-section-heading"><h2>Your pending requests</h2><span>{pending.length}</span></div>{requests.isPending ? <Skeleton label="Loading your requests…" /> : requests.isError ? <StateMessage tone="error" title="Could not load requests" detail={requests.error?.message} /> : pending.length === 0 ? <p>You have no requests waiting for review.</p> : pending.map((request) => <article className="time-off-request" key={request.id}><div><b>{formatDates(request)}</b><span>Pending</span></div><p>{request.reason}</p></article>)}</section>}
+        </section> : <section className="card time-off-queue"><div className="time-off-section-heading"><h2>Your pending requests</h2><span>{pending.length}</span></div>{requests.isPending ? <Skeleton label="Loading your requests…" /> : requests.isError ? <StateMessage tone="error" title="Could not load requests" detail={requests.error?.message} /> : pending.length === 0 ? <p>You have no requests waiting for review.</p> : pending.map((request) => <article className="time-off-request" key={request.id}><div><b>{formatDates(request)}</b><span>Pending</span></div>{actions(request)}<p><b>{request.type || "Personal leave"}</b> · {request.reason}</p></article>)}</section>}
 
         <form className="card time-off-form" onSubmit={submit}>
-          <h2>New request</h2>
-          {manager ? <label>Employee<select required value={form.employeeId} onChange={update("employeeId")}><option value="">Select employee</option>{(employees.data ?? []).map((employee) => <option key={employee.employeeId} value={employee.employeeId}>{employee.fullName}</option>)}</select></label> : <label>Employee<input readOnly value={currentEmployee.data?.fullName ?? "Loading your profile…"} /></label>}
+          <h2>{editingId ? "Edit request" : "New request"}</h2>
+          {editingId ? <p>Saving changes returns this request to Pending for review.</p> : null}
+          {manager ? <label>Employee<select required disabled={Boolean(editingId)} value={form.employeeId} onChange={update("employeeId")}><option value="">Select employee</option>{(employees.data ?? []).map((employee) => <option key={employee.employeeId} value={employee.employeeId}>{employee.fullName}</option>)}</select></label> : <label>Employee<input readOnly value={currentEmployee.data?.fullName ?? "Loading your profile…"} /></label>}
           <div className="time-off-date-grid">
             <label>From<input required type="date" value={form.startDate} onChange={update("startDate")} /></label>
             <label>Through<input aria-invalid={Boolean(dateError)} aria-describedby={dateError ? "time-off-date-error" : undefined} required type="date" min={form.startDate} value={form.endDate} onChange={update("endDate")} /></label>
           </div>
           {dateError ? <p id="time-off-date-error" className="field-error" role="alert">{dateError}</p> : null}
+          <label>Time-off type<select required value={form.type} onChange={update("type")}>{TYPES.map(type => <option key={type}>{type}</option>)}<option value="Custom">Custom…</option></select></label>
+          {form.type === "Custom" ? <label>Custom time-off type<input required maxLength="100" value={form.customType} onChange={update("customType")} /></label> : null}
           <label>
             Reason
             <textarea required maxLength="500" rows="4" value={form.reason} onChange={update("reason")} placeholder="Vacation, appointment, personal leave…" />
@@ -114,17 +147,18 @@ export default function TimeOffPage() {
           {(manager ? employees : currentEmployee).isError ? <StateMessage tone="error" title="Could not load employee profile" detail={(manager ? employees : currentEmployee).error?.message} /> : null}
           <p className="field-help">Leave balances are not available here. Confirm your remaining entitlement with your administrator.</p>
           {disabledReason ? <p id="time-off-submit-reason" role="status">{disabledReason}</p> : null}
-          <Button type="submit" aria-describedby={disabledReason ? "time-off-submit-reason" : undefined} disabled={createRequest.isPending || Boolean(disabledReason)}>
-            {createRequest.isPending ? "Submitting…" : "Submit request"}
+          <Button type="submit" aria-describedby={disabledReason ? "time-off-submit-reason" : undefined} disabled={busy || Boolean(disabledReason) || (form.type === "Custom" && !form.customType.trim())}>
+            {busy ? "Saving…" : editingId ? "Save changes" : "Submit request"}
           </Button>
+          {editingId ? <Button type="button" tone="gray" disabled={busy} onClick={() => { setEditingId(null); setForm({ ...EMPTY }); }}>Cancel editing</Button> : null}
         </form>
       </div>
 
       <section className="card time-off-history">
         <h2>{manager ? "Request history" : "Your request history"}</h2>
-        {requests.isPending ? <Skeleton label="Loading request history…" /> : requests.isError ? <StateMessage tone="error" title="Could not load request history" detail={requests.error?.message} /> : reviewed.length === 0 ? <p>No requests have been reviewed yet.</p> : mobile ? <div className="request-history-cards">{reviewed.map(request => <details key={request.id} className="request-history-card"><summary><b>{manager ? request.employeeName : formatDates(request)}</b><span className={`time-off-status ${request.status.toLowerCase()}`}>{request.status}</span></summary><p>{formatDates(request)}</p><p>{request.reason}</p><p>Review note: {request.reviewNotes || "No note provided"}</p></details>)}</div> : (
-          <div className="time-off-table-wrap"><table><thead><tr><th>Employee</th><th>Dates</th><th>Reason</th><th>Status</th><th>Review note</th></tr></thead><tbody>
-            {reviewed.map((request) => <tr key={request.id}><td>{request.employeeName}</td><td>{formatDates(request)}</td><td>{request.reason}</td><td><span className={`time-off-status ${request.status.toLowerCase()}`}>{request.status}</span></td><td>{request.reviewNotes || "—"}</td></tr>)}
+        {requests.isPending ? <Skeleton label="Loading request history…" /> : requests.isError ? <StateMessage tone="error" title="Could not load request history" detail={requests.error?.message} /> : reviewed.length === 0 ? <p>No requests have been reviewed yet.</p> : mobile ? <div className="request-history-cards">{reviewed.map(request => <details key={request.id} className="request-history-card"><summary><b>{manager ? request.employeeName : formatDates(request)}</b><span className={`time-off-status ${request.status.toLowerCase()}`}>{request.status}</span></summary><p>{formatDates(request)}</p><p><b>{request.type || "Personal leave"}</b> · {request.reason}</p><p>Review note: {request.reviewNotes || "No note provided"}</p>{actions(request)}</details>)}</div> : (
+          <div className="time-off-table-wrap"><table><thead><tr><th>Employee</th><th>Dates</th><th>Reason</th><th>Status</th><th>Review note</th><th>Actions</th></tr></thead><tbody>
+            {reviewed.map((request) => <tr key={request.id}><td>{request.employeeName}</td><td>{formatDates(request)}</td><td>{request.type || "Personal leave"} · {request.reason}</td><td><span className={`time-off-status ${request.status.toLowerCase()}`}>{request.status}</span></td><td>{request.reviewNotes || "—"}</td><td>{actions(request)}</td></tr>)}
           </tbody></table></div>
         )}
       </section>

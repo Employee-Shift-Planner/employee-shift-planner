@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { get, post, put, query } from "./client";
+import { del, get, post, put, query } from "./client";
 import { currentUser } from "./auth";
 
 export function useTimeOffRequests(filters = {}) {
@@ -9,11 +9,31 @@ export function useTimeOffRequests(filters = {}) {
   });
 }
 
+const invalidateTimeOff = client => {
+  ["time-off", "schedule", "availability", "reports"].forEach(key => client.invalidateQueries({ queryKey:[key] }));
+};
+
+export function useUpdateTimeOffRequest() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...request }) => put(`/TimeOffRequests/${encodeURIComponent(id)}`, request),
+    onSuccess: () => invalidateTimeOff(client),
+  });
+}
+
+export function useDeleteTimeOffRequest() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: id => del(`/TimeOffRequests/${encodeURIComponent(id)}`),
+    onSuccess: () => invalidateTimeOff(client),
+  });
+}
+
 export function useCreateTimeOffRequest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request) => post("/TimeOffRequests", request),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["time-off"] }),
+    onSuccess: () => invalidateTimeOff(queryClient),
   });
 }
 
@@ -25,10 +45,6 @@ export function useReviewTimeOffRequest() {
       reviewNotes: reviewNotes.trim() || null,
       reviewedBy: currentUser()?.email ?? null,
     }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["time-off"] });
-      queryClient.invalidateQueries({ queryKey: ["availability"] });
-      queryClient.invalidateQueries({ queryKey: ["reports"] });
-    },
+    onSuccess: () => invalidateTimeOff(queryClient),
   });
 }

@@ -12,6 +12,7 @@ import { useWeeklyReport } from "../api/reports";
 import { useCoverageWarnings } from "../api/staffing";
 import { useStaffingRequirements } from "../api/staffing";
 import { useEmployees } from "../api/employees";
+import { useTimeOffRequests } from "../api/timeOff";
 import { useHolidays } from "../api/holidays";
 import { isAdministrator } from "../api/auth";
 import PublishWeekDialog from "../components/schedule/PublishWeekDialog";
@@ -47,6 +48,7 @@ export default function SchedulePage() {
   const requirements = useStaffingRequirements();
   const employees = useEmployees();
   const weekEnd = useMemo(() => { const value = new Date(weekStart); value.setDate(value.getDate() + 6); return value; }, [weekStart]);
+  const timeOff = useTimeOffRequests({ from:toDateParam(weekStart), to:toDateParam(weekEnd) });
   const holidays = useHolidays(toDateParam(weekStart), toDateParam(weekEnd));
   const publishWeek = usePublishWeek(weekStart);
   const copyWeek = useCopyWeek(weekStart);
@@ -163,6 +165,7 @@ export default function SchedulePage() {
           <span>{draftCount ? "Employees cannot see draft shifts until you publish the week." : "Employees can see all shifts currently in this week."}</span>
         </div>
       ) : null}
+      {timeOff.isError ? <StateMessage tone="error" title="Could not load time off" detail={timeOff.error?.message} /> : null}
       {shifts.isPending ? (
         <StateMessage title="Loading the week…" detail="Fetching shifts from the scheduler." />
       ) : shifts.isError ? (
@@ -172,7 +175,7 @@ export default function SchedulePage() {
           detail={shifts.error?.message}
         />
       ) : (
-        <ScheduleBuilder days={days} weekStart={weekStart} shifts={shifts.data} employees={employees.data ?? []} requirements={requirements.data ?? []} onOpenShift={setSelectedShift} />
+        <ScheduleBuilder timeOff={timeOff.data ?? []} days={days} weekStart={weekStart} shifts={shifts.data} employees={employees.data ?? []} requirements={requirements.data ?? []} onOpenShift={setSelectedShift} />
       )}
       {selectedShift ? (
         <ShiftManagerDialog shift={selectedShift} onClose={() => setSelectedShift(null)} />
