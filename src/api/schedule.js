@@ -68,6 +68,14 @@ export function useCreateShift() {
   });
 }
 
+export function useCreateShifts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shifts => post("/Schedule/batch", shifts.map(withScheduleOffsets)),
+    onSuccess: () => invalidateScheduleData(queryClient),
+  });
+}
+
 const invalidateScheduleData = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: ["schedule"] });
   queryClient.invalidateQueries({ queryKey: ["employees"] });

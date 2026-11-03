@@ -3,13 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import Button from "../ui/Button";
 import StateMessage from "../ui/StateMessage";
 import { useCancelShift, useCreateShift, useShiftCandidates, useUpdateShift } from "../../api/schedule";
-import { formatShiftRange, toOrganizationInstant } from "../../lib/format";
+import { formatShiftRange, toDateParam, toOrganizationInstant } from "../../lib/format";
 import "./ScheduleBuilder.css";
 
 const VIEWS = ["Employee", "Position", "Coverage"];
 const dayIndex = (value, weekStart) => Math.max(0, Math.min(6, Math.floor((new Date(value) - weekStart) / 86400000)));
 
-export default function ScheduleBuilder({ shifts, employees, requirements, weekStart, days, onOpenShift }) {
+export default function ScheduleBuilder({ shifts, employees, requirements, weekStart, days, onOpenShift, timeOff = [] }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [view, setView] = useState("Employee");
   const [selected, setSelected] = useState([]);
@@ -35,6 +35,7 @@ export default function ScheduleBuilder({ shifts, employees, requirements, weekS
     (!departmentFilter || shift.role === departmentFilter) &&
     (!positionFilter || view === "Employee" || (shift.role?.trim() || employeeById[shift.employeeId]?.positionTitle) === positionFilter) &&
     filteredEmployees.some(employee => employee.employeeId === shift.employeeId)), [shifts, filteredEmployees, departmentFilter, positionFilter, view, employeeById]);
+  const visibleTimeOff = timeOff.filter(item => ["Pending", "Approved"].includes(item.status) && filteredEmployees.some(employee => employee.employeeId === item.employeeId));
   const filterCount = [employeeFilter, departmentFilter, positionFilter].filter(Boolean).length;
   const clearFilters = () => { setEmployeeFilter(""); setDepartmentFilter(""); setPositionFilter(""); };
   const chosen = filteredShifts.filter(x => selected.includes(x.id));
@@ -110,7 +111,8 @@ export default function ScheduleBuilder({ shifts, employees, requirements, weekS
     {(update.isError || create.isError || cancel.isError) ? <StateMessage tone="error" title="Schedule change was not saved" detail={(update.error ?? create.error ?? cancel.error)?.message} /> : null}
 
     <div id="schedule-view-panel" role="tabpanel" aria-labelledby={`view-tab-${view}`} tabIndex={0}>
-    {view === "Employee" ? <EmployeeView employees={filteredEmployees} shifts={filteredShifts} days={days} weekStart={weekStart} selected={selected} toggle={toggle} open={onOpenShift} reassign={reassign} busy={busy} /> : null}
+    {view === "Employee" ? <EmployeeView timeOff={visibleTimeOff} employees={filteredEmployees} shifts={filteredShifts} days={days} weekStart={weekStart} selected={selected} toggle={toggle} open={onOpenShift} reassign={reassign} busy={busy} /> : null}
+    {view !== "Employee" && visibleTimeOff.length ? <section className="card"><h2>Time off this week</h2>{visibleTimeOff.map(item => <p key={item.id}>{item.employeeName} · {item.type} · {item.status} · {item.startDate} – {item.endDate}</p>)}</section> : null}
     {view === "Position" ? <PositionView shifts={filteredShifts} selected={selected} toggle={toggle} open={onOpenShift} /> : null}
     {view === "Coverage" ? <CoverageView shifts={filteredShifts} requirements={requirements} employees={employeeById} weekStart={weekStart} days={days} positionFilter={positionFilter} /> : null}
     </div>
@@ -125,15 +127,27 @@ function ShiftCell({ shift, selected, toggle, open }) {
   </div>;
 }
 
-function EmployeeView({ employees, shifts, days, weekStart, selected, toggle, open, reassign, busy }) {
+function TimeOffCell({ request }) {
+  return <div className={`planner-time-off ${request.status.toLowerCase()}`}>
+    <b>{request.type || "Personal leave"}</b><span>Time off · {request.status}</span>
+  </div>;
+}
+const leaveOnDay = (requests, weekStart, index) => {
+  const date = new Date(weekStart);
+  date.setDate(date.getDate() + index);
+  const day = toDateParam(date);
+  return requests.filter(item => item.startDate <= day && day <= item.endDate);
+};
+
+function EmployeeView({ timeOff, employees, shifts, days, weekStart, selected, toggle, open, reassign, busy }) {
   return <><div className="planner-grid card"><div className="planner-grid-row planner-grid-head"><b>Employee</b>{days.map(day => <b key={day}>{day}</b>)}</div>
     {employees.map(employee => <div className="planner-grid-row" key={employee.employeeId} onDragOver={e => e.preventDefault()} onDrop={e => { const shift=shifts.find(x => x.id === Number(e.dataTransfer.getData("text/shift-id"))); if (shift && !busy) reassign(shift, employee.employeeId); }}>
       <strong>{employee.fullName}<small>{employee.positionTitle || "Unassigned"}</small></strong>
-      {days.map((day, index) => <div className="planner-day-cell" key={day}>{shifts.filter(x => x.employeeId === employee.employeeId && dayIndex(x.startTime, weekStart) === index).map(shift => <ShiftCell key={shift.id} shift={shift} selected={selected.includes(shift.id)} toggle={toggle} open={open} />)}{!shifts.some(x => x.employeeId === employee.employeeId && dayIndex(x.startTime, weekStart) === index) ? <span className="off">OFF</span> : null}</div>)}
-    </div>)}</div><MobileEmployeeView employees={employees} shifts={shifts} days={days} weekStart={weekStart} open={open} /></>;
+      {days.map((day, index) => <div className="planner-day-cell" key={day}>{leaveOnDay(timeOff.filter(item => item.employeeId === employee.employeeId), weekStart, index).map(item => <TimeOffCell key={item.id} request={item} />)}{shifts.filter(x => x.employeeId === employee.employeeId && dayIndex(x.startTime, weekStart) === index).map(shift => <ShiftCell key={shift.id} shift={shift} selected={selected.includes(shift.id)} toggle={toggle} open={open} />)}{!leaveOnDay(timeOff.filter(item => item.employeeId === employee.employeeId), weekStart, index).length && !shifts.some(x => x.employeeId === employee.employeeId && dayIndex(x.startTime, weekStart) === index) ? <span className="off">OFF</span> : null}</div>)}
+    </div>)}</div><MobileEmployeeView timeOff={timeOff} employees={employees} shifts={shifts} days={days} weekStart={weekStart} open={open} /></>;
 }
 
-function MobileEmployeeView({ employees, shifts, days, weekStart, open }) {
+function MobileEmployeeView({ timeOff, employees, shifts, days, weekStart, open }) {
   const [day, setDay] = useState(() => Math.max(0, Math.min(6, Math.floor((new Date() - weekStart) / 86400000))));
   useEffect(() => { setDay(Math.max(0, Math.min(6, Math.floor((new Date() - weekStart) / 86400000)))); }, [weekStart]);
   const employeeById = Object.fromEntries(employees.map(employee => [employee.employeeId, employee]));
@@ -143,6 +157,7 @@ function MobileEmployeeView({ employees, shifts, days, weekStart, open }) {
     <div className="mobile-day-tabs" role="tablist" aria-label="Choose schedule day">{days.map((label, index) => <button key={label} id={`day-tab-${index}`} role="tab" aria-controls="mobile-day-panel" tabIndex={day === index ? 0 : -1} aria-selected={day === index} onKeyDown={event => tabKeyboard(event, index, days.length, setDay)} onClick={() => setDay(index)}><span>{label.split(" ")[0]}</span><b>{label.match(/\d+/)?.[0] ?? index + 1}</b></button>)}</div>
     <div id="mobile-day-panel" role="tabpanel" aria-labelledby={`day-tab-${day}`} tabIndex={0}>
     <div className="mobile-day-heading"><button disabled={day === 0} onClick={() => moveDay(-1)} aria-label="Previous day">←</button><div><b>{days[day]}</b><span>{dayShifts.length} {dayShifts.length === 1 ? "shift" : "shifts"}</span></div><button disabled={day === 6} onClick={() => moveDay(1)} aria-label="Next day">→</button></div>
+    {leaveOnDay(timeOff, weekStart, day).map(item => <div key={item.id}><b>{item.employeeName}</b><TimeOffCell request={item} /></div>)}
     <div className="mobile-shift-list">{dayShifts.length ? dayShifts.map(shift => { const employee = employeeById[shift.employeeId]; const initials = (employee?.fullName || shift.employeeName || "Open shift").split(" ").map(part => part[0]).slice(0, 2).join(""); return <button className="mobile-shift-card" key={shift.id} onClick={() => open(shift)}><span className="mobile-shift-avatar">{initials}</span><span className="mobile-shift-copy"><b>{employee?.fullName || shift.employeeName || "Open shift"}</b><small>{shift.role || employee?.positionTitle || "Shift"}</small><strong>{formatShiftRange(shift.startTime, shift.endTime)}</strong><span className="mobile-shift-action">Edit or reassign</span></span><span className={`mobile-shift-status ${shift.isPublished ? "published" : "draft"}`}>{shift.isPublished ? "Published" : "Draft"}</span><span className="mobile-shift-chevron" aria-hidden="true">›</span></button>; }) : <div className="mobile-schedule-empty"><b>No shifts scheduled</b><span>This day is clear. Choose another day to continue.</span></div>}</div>
     </div>
   </section>;

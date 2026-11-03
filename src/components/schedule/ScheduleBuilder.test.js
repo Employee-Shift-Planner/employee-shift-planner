@@ -75,3 +75,17 @@ test("coverage filters use the assigned shift role for rotating employees", () =
   fireEvent.change(screen.getByLabelText("Position"), { target:{ value:"Server" } });
   expect(within(screen.getByRole("row", { name:/Scheduled/ })).getAllByRole("cell")[3]).toHaveTextContent("0");
 });
+
+
+test("shows leave on each calendar day with pending and approved labels", () => {
+  const { container } = render(<ScheduleBuilder shifts={[]} employees={employees} requirements={[]} weekStart={weekStart} days={days} onOpenShift={() => {}} timeOff={[
+    { id:1, employeeId:"E1", employeeName:"John Brown", type:"Vacation", status:"Approved", startDate:"2026-09-13", endDate:"2026-09-15" },
+    { id:2, employeeId:"E2", employeeName:"Alicia Reid", type:"Sick leave", status:"Pending", startDate:"2026-09-16", endDate:"2026-09-16" },
+    { id:3, employeeId:"E2", type:"Rejected leave", status:"Rejected", startDate:"2026-09-16", endDate:"2026-09-16" },
+  ]} />);
+  expect(container.querySelectorAll(".planner-grid .planner-time-off.approved")).toHaveLength(2);
+  expect(container.querySelectorAll(".planner-grid .planner-time-off.pending")).toHaveLength(1);
+  expect(screen.queryByText("Rejected leave")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("tab", { name:"Position view" }));
+  expect(screen.getByRole("heading", { name:"Time off this week" })).toBeInTheDocument();
+});
