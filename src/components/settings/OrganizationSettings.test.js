@@ -19,3 +19,16 @@ test("editing either work week boundary preserves a seven day week and saves it"
   fireEvent.click(screen.getByRole("button", { name:"Save organization defaults" }));
   expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ workWeekStartDay:5 }));
 });
+
+
+test("saves scheduling and payroll values as numbers", () => {
+  render(<OrganizationSettings />);
+  fireEvent.change(screen.getByLabelText("Minimum rest between shifts (hours)"), { target:{ value:"10" } });
+  fireEvent.change(screen.getByLabelText("Default hourly rate"), { target:{ value:"1800" } });
+  fireEvent.change(screen.getByLabelText("Overtime multiplier"), { target:{ value:"2" } });
+  fireEvent.click(screen.getByRole("button", { name:"Save organization defaults" }));
+  expect(mockMutate).toHaveBeenLastCalledWith(expect.objectContaining({
+    minimumRestHours:10, hourlyRate:1800, overtimeMultiplier:2,
+    maximumShiftHours:16, breakRequiredAfterHours:6, minimumBreakMinutes:30,
+  }));
+});

@@ -7,6 +7,16 @@ import SaveFeedback from "../ui/SaveFeedback";
 import "./OrganizationSettings.css";
 import { CURRENCY_OPTIONS, timeZoneOptions, withCurrentCountry, withCurrentOption } from "../../data/regionalOptions";
 
+const POLICY_FIELDS = [
+  ["minimumRestHours", "Minimum rest between shifts (hours)", 0, 168, 0.25, 8],
+  ["maximumShiftHours", "Maximum shift length (hours)", 0.25, 168, 0.25, 16],
+  ["breakRequiredAfterHours", "Break required after (hours)", 0, 168, 0.25, 6],
+  ["minimumBreakMinutes", "Minimum break (minutes)", 0, 1440, 1, 30],
+  ["hourlyRate", "Default hourly rate", 0, 100000000, 0.01, 1450],
+  ["overtimeMultiplier", "Overtime multiplier", 1, 100, 0.01, 1.5],
+];
+const policyDefaults = Object.fromEntries(POLICY_FIELDS.map(([key, , , , , value]) => [key, value]));
+
 const WEEK_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const CURRENCIES = { JM:"JMD", US:"USD", CA:"CAD", GB:"GBP", TT:"TTD", BB:"BBD", BS:"BSD", KY:"KYD", AU:"AUD", NZ:"NZD", IN:"INR", JP:"JPY", CN:"CNY", DE:"EUR", FR:"EUR", ES:"EUR", IT:"EUR", NL:"EUR" };
@@ -37,11 +47,11 @@ export default function OrganizationSettings() {
   const [form, setForm] = useState(null);
   const detectionStarted = useRef(false);
 
-  useEffect(() => { if (settings.data) setForm({ ...settings.data, regionCode:settings.data.regionCode ?? "", workWeekStartDay:settings.data.workWeekStartDay ?? 1 }); }, [settings.data]);
+  useEffect(() => { if (settings.data) setForm({ ...policyDefaults, ...settings.data, regionCode:settings.data.regionCode ?? "", workWeekStartDay:settings.data.workWeekStartDay ?? 1 }); }, [settings.data]);
   useEffect(() => {
     if (!administrator || !settings.data || settings.data.isConfigured || detectionStarted.current) return;
     detectionStarted.current = true;
-    detectedSettings().then(value => { setForm(value); save.mutate(value); });
+    detectedSettings().then(value => { const detected = { ...settings.data, ...value }; setForm(detected); save.mutate(detected); });
   }, [administrator, settings.data]); // eslint-disable-line react-hooks/exhaustive-deps
   const change = field => event => { save.reset(); setForm(value => ({ ...value, [field]:event.target.value })); };
   const submit = event => { event.preventDefault(); save.mutate({ ...form, countryCode:form.countryCode.toUpperCase(), currency:form.currency.toUpperCase(), regionCode:form.regionCode || null }); };
@@ -49,7 +59,7 @@ export default function OrganizationSettings() {
   if (settings.isPending || !form) return <section className="card organization-settings"><p>Loading organization settings…</p></section>;
   if (settings.isError) return <StateMessage tone="error" title="Could not load organization settings" detail={settings.error?.message} />;
   return <section className="organization-settings" aria-labelledby="organization-settings-heading">
-    <div><h2 id="organization-settings-heading">Organization defaults</h2><p>Location, timezone, currency and work week used by scheduling, holidays and reports.</p></div>
+    <div><h2 id="organization-settings-heading">Organization defaults</h2><p>Location, timezone, work week, scheduling rules and payroll defaults.</p></div>
     {!form.isConfigured && administrator ? <p className="organization-detection">Detecting your location and regional defaults… Your browser may request location permission.</p> : null}
     {!administrator ? <p className="organization-readonly">Only administrators can change these organization-wide settings.</p> : null}
     <form className="card organization-form" onSubmit={submit}>
@@ -60,6 +70,12 @@ export default function OrganizationSettings() {
       <label>Currency<select required disabled={!administrator || save.isPending} value={form.currency} onChange={change("currency")}>{withCurrentOption(CURRENCY_OPTIONS, form.currency).map(currency => <option key={currency}>{currency}</option>)}</select></label>
       <label>Work week starts<select disabled={!administrator || save.isPending} value={form.workWeekStartDay ?? 1} onChange={event => { save.reset(); setForm(value => ({ ...value, workWeekStartDay:Number(event.target.value) })); }}>{WEEK_DAYS.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
       <label>Work week ends<select disabled={!administrator || save.isPending} value={((form.workWeekStartDay ?? 1) + 6) % 7} onChange={event => { save.reset(); setForm(value => ({ ...value, workWeekStartDay:(Number(event.target.value) + 1) % 7 })); }}>{WEEK_DAYS.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
+      {POLICY_FIELDS.map(([key, label, min, max, step]) => <label key={key}>{label}<input
+        type="number" required min={min} max={max} step={step}
+        disabled={!administrator || save.isPending} value={form[key] ?? ""}
+        onChange={event => { save.reset(); setForm(value => ({ ...value, [key]:event.target.value === "" ? "" : Number(event.target.value) })); }}
+      /></label>)}
+      <p>The default hourly rate applies when an employee has no individual rate. Payroll amounts use the selected currency.</p>
       <p>The work week is seven consecutive days. Changing either day updates the other and changes weekly scheduling, reports and hour limits.</p>
       {form.latitude != null ? <small>Detected coordinates: {Number(form.latitude).toFixed(4)}, {Number(form.longitude).toFixed(4)}</small> : null}
       {administrator ? <Button type="submit" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save organization defaults"}</Button> : null}
