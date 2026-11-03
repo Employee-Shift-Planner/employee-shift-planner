@@ -1,5 +1,11 @@
 import { formatWeekRange, organizationTimeZone, toDateParam, toOrganizationDateTimeInput } from "./format";
 
+const SCHEDULE_KEY = [
+  "Key: a = AM; p = PM; 12a = midnight; 12p = noon; OFF = no shift scheduled.",
+  "(+1d) = shift ends the next day. Example: 4p-12a (+1d) = 4:00 PM to midnight the next day.",
+  "Shifts appear under their start day. All times use the timezone shown above.",
+];
+
 // Keep the same week boundaries as the schedule displayed in the planner.
 export function scheduleGrid(weekStart, shifts, employees) {
   const dates = Array.from({ length: 7 }, (_, offset) => {
@@ -50,7 +56,7 @@ export async function downloadSchedule(format, weekStart, shifts, employees) {
       styles: { fontSize: 10, textColor: 0, lineColor: 60, lineWidth: 0.25, halign: "center", valign: "middle", cellPadding: 2 },
       headStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: "bold" },
       columnStyles: { 0: { cellWidth: 48, halign: "left" } },
-      margin: { top: 14, bottom: 18 },
+      margin: { top: 14, bottom: 32 },
       didParseCell: data => {
         if (data.section === "body" && data.cell.raw === "OFF") {
           data.cell.styles.fillColor = [210, 210, 210];
@@ -61,7 +67,10 @@ export async function downloadSchedule(format, weekStart, shifts, employees) {
     const pages = pdf.getNumberOfPages();
     for (let page = 1; page <= pages; page += 1) {
       pdf.setPage(page);
-      pdf.text(`Page ${page} of ${pages}`, 14, pdf.internal.pageSize.getHeight() - 8);
+      const height = pdf.internal.pageSize.getHeight();
+      pdf.setFontSize(8);
+      SCHEDULE_KEY.forEach((line, index) => pdf.text(line, 14, height - 24 + index * 4));
+      pdf.text(`Page ${page} of ${pages}`, 14, height - 8);
     }
     pdf.save(`${filename}.pdf`);
     return;
@@ -92,8 +101,16 @@ export async function downloadSchedule(format, weekStart, shifts, employees) {
       }
     });
   }
+  sheet.addRow([]);
+  SCHEDULE_KEY.forEach(line => {
+    const row = sheet.addRow([line]);
+    sheet.mergeCells(row.number, 1, row.number, 8);
+    row.height = 30;
+    row.font = { size: 10 };
+    row.alignment = { vertical: "middle", wrapText: true };
+  });
   sheet.views = [{ state: "frozen", ySplit: 3, xSplit: 1 }];
-  sheet.pageSetup = { paperSize: 9, orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: "1:3", printArea: `A1:H${rows.length + 3}` };
+  sheet.pageSetup = { paperSize: 9, orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: "1:3", printArea: `A1:H${sheet.rowCount}` };
   const buffer = await workbook.xlsx.writeBuffer();
   const url = URL.createObjectURL(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   const link = document.createElement("a");
